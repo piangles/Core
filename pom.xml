@@ -13,7 +13,136 @@
 		<relativePath>../mvn-parent/pom.xml</relativePath>
 	</parent>
 
+	<dependencies>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>${commons-io-version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-dbcp2</artifactId>
+			<version>${commons-dbcp2-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>${mysql-connector-java-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>${gson-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-client</artifactId>
+			<version>${jersey-client-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-json</artifactId>
+			<version>${jersey-json-version}</version>
+		</dependency>
+				<dependency>
+			<groupId>com.TBD.core</groupId>
+			<artifactId>mod-util</artifactId>
+			<version>${mod-util-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.TBD.core</groupId>
+			<artifactId>idl-service</artifactId>
+			<version>${idl-service-version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.rabbitmq</groupId>
+			<artifactId>amqp-client</artifactId>
+			<version>${amqp-client-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.jms</groupId>
+			<artifactId>javax.jms-api</artifactId>
+			<version>${javax.jms-api-version}</version>
+		</dependency>
+		
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>${junit-version}</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+<!-- Versions of all internal and external RELEASE JARS -->
+	<properties>
+		<org.springframework.build.aws-maven-version>5.0.0.RELEASE</org.springframework.build.aws-maven-version>
+		<maven-compiler-plugin-version>3.3</maven-compiler-plugin-version>
+		<maven-dependency-plugin>2.10</maven-dependency-plugin>
+
+		<java-source-version>1.8</java-source-version>
+		<java-target-version>1.8</java-target-version>
+
+		<javaweb-source-version>1.7</javaweb-source-version>
+		<javaweb-target-version>1.7</javaweb-target-version>
+
+		<javax.jms-api-version>2.0</javax.jms-api-version>
+		<servlet-api-version>2.5</servlet-api-version>
+		
+		<junit-version>3.8.1</junit-version>
+		<slf4j-api-version>1.7.12</slf4j-api-version>
+		
+		<commons-io-version>2.6</commons-io-version>
+		<commons-dbcp2-version>2.1.1</commons-dbcp2-version>
+		<commons-codec-version>1.9</commons-codec-version>
+		
+		<amqp-client-version>3.5.6</amqp-client-version>
+		<mysql-connector-java-version>5.1.36</mysql-connector-java-version>
+
+		<gson-version>2.4</gson-version>
+		<jersey-client-version>1.9.1</jersey-client-version>
+		<jersey-json-version>1.9.1</jersey-json-version>
+		<jstl-version>1.2</jstl-version>
+		
+		<javax.websocket-api-version>1.0</javax.websocket-api-version>
+		<jetty-version>9.2.7.v20150116</jetty-version>
+		
+		<!-- ********** TBD Components START ********** -->
+		<!-- Central -->
+		<app-central-version>1.0</app-central-version>
+		
+		<!-- Core -->
+		<idl-service-version>1.0</idl-service-version>
+		<mod-util-version>1.0</mod-util-version>
+		<mod-remoting-version>1.0</mod-remoting-version>
+		<mod-resources-version>1.0</mod-resources-version>
+		<mod-dao-version>1.0</mod-dao-version>
+		<mod-email-version>1.0</mod-email-version>
+		
+		<!-- Backbone-Tier-0 -->
+		<idl-session-version>1.0</idl-session-version>
+		<impl-session-version>1.0</impl-session-version>
+		<app-session-version>1.0</app-session-version>
+		
+		<mod-tier0-locator-version>1.0</mod-tier0-locator-version>
+		
+
+		<!-- AppCore -->
+		<!-- Backbone-Locator -->
+		<mod-locator-version>1.0</mod-locator-version>
+
+		<idl-gateway-version>1.0</idl-gateway-version>
+		<app-gateway-version>1.0</app-gateway-version>
+		
+		<!-- Backbone-Portals TODO -->
+		<mod-portal-version>1.0</mod-portal-version>
+		<app-logging-portal-version>1.0</app-logging-portal-version>
+		<!-- ********** TBD Components END ********** -->
+	</properties>
+	
 	<build>
-		<finalName>idl-service</finalName>
+		<finalName>piangle-core</finalName>
 	</build>
 </project>
