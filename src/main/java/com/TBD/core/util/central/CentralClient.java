@@ -28,7 +28,7 @@ public final class CentralClient
 		if (DISCOVERY_URL == null)
 		{
 			String centralHost = determineCentralHost();
-			DISCOVERY_URL = "http://" + centralHost + CENTRAL_PORT + "/app-central/discover?ServiceName=";
+			DISCOVERY_URL = "http://" + centralHost + CENTRAL_PORT + "/svc-central/discover?ServiceName=";
 		}
 
 		return getProperties(DISCOVERY_URL, serviceName + "Endpoint");
@@ -39,7 +39,7 @@ public final class CentralClient
 		if (TIER1_CONFIG_URL == null)
 		{
 			String centralHost = determineCentralHost();
-			TIER1_CONFIG_URL = "http://" + centralHost + CENTRAL_PORT + "/app-central/tier1config?ServiceName=";
+			TIER1_CONFIG_URL = "http://" + centralHost + CENTRAL_PORT + "/svc-central/tier1config?ServiceName=";
 		}
 
 		return getProperties(TIER1_CONFIG_URL, serviceName);
@@ -55,7 +55,7 @@ public final class CentralClient
 			if (CIPHER_URL == null)
 			{
 				String centralHost = determineCentralHost();
-				CIPHER_URL = "http://" + centralHost + CENTRAL_PORT + "/app-central/decrypt?cipherAuthorizationId=%s&toBeDecrypted=%s";
+				CIPHER_URL = "http://" + centralHost + CENTRAL_PORT + "/svc-central/decrypt?cipherAuthorizationId=%s&toBeDecrypted=%s";
 			}
 			String cipherURL = String.format(CIPHER_URL, 
 									     URLEncoder.encode(cipherAuthorizationId, "UTF-8"), 
