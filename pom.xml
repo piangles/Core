@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.TBD.core</groupId>
@@ -97,12 +98,23 @@
 		<jetty-version>9.2.7.v20150116</jetty-version>
 	</properties>
 
+	<distributionManagement>
+		<snapshotRepository>
+			<id>piangle-s3-artifact</id>
+			<url>s3://piangle-s3-artifact/snapshot</url>
+		</snapshotRepository>
+		<repository>
+			<id>piangle-s3-artifact</id>
+			<url>s3://piangle-s3-artifact/release</url>
+		</repository>
+	</distributionManagement>
+
 	<build>
 		<extensions>
 			<extension>
 				<groupId>org.springframework.build</groupId>
 				<artifactId>aws-maven</artifactId>
-				<version>${org.springframework.build.aws-maven-version}</version>
+				<version>5.0.0.RELEASE</version>
 			</extension>
 		</extensions>
 		<plugins>
@@ -116,6 +128,6 @@
 				</configuration>
 			</plugin>
 		</plugins>
-		<finalName>piangle-core</finalName>
+		<finalName>Core</finalName>
 	</build>
 </project>
