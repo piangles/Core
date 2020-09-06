@@ -20,7 +20,7 @@ public final class FireAndForgetHandler extends AbstractHandler
 	{
 		try
 		{
-			rmqHelper = new RMQHelper(false, getProperties());
+			rmqHelper = new RMQHelper(getServiceName(), false, getProperties());
 			
 			rmqHelper.getChannel().exchangeDeclare(rmqHelper.getRMQProperties().getTopic(), "fanout");
 		}

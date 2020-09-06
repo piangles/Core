@@ -2,25 +2,14 @@ package com.TBD.core.services.remoting.jms;
 
 import java.util.Properties;
 
-import javax.jms.DeliveryMode;
-import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
-import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
 import javax.jms.TextMessage;
-import javax.jms.Topic;
-import javax.jms.TopicConnection;
-import javax.jms.TopicConnectionFactory;
 import javax.jms.TopicPublisher;
 import javax.jms.TopicSession;
 
-import com.TBD.core.services.Request;
-import com.TBD.core.services.Response;
 import com.TBD.core.services.Service;
-import com.TBD.core.util.coding.JSON;
 import com.TBD.core.services.remoting.controllers.Controller;
 import com.TBD.core.services.remoting.controllers.ControllerException;
 
@@ -32,7 +21,7 @@ public class JMSController implements Controller
 	private TopicPublisher topicPublisher = null;
 
 	@Override
-	public void init(Properties properties) throws ControllerException
+	public void init(String serviceName, Properties properties) throws ControllerException
 	{
 		
 	}

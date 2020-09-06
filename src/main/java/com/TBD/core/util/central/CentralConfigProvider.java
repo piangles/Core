@@ -2,27 +2,18 @@ package com.TBD.core.util.central;
 
 import java.util.Properties;
 
-import com.TBD.core.util.abstractions.ConfigProvider;
+import com.TBD.core.util.abstractions.AbstractConfigProvider;
 
-public class CentralConfigProvider  implements ConfigProvider
+public class CentralConfigProvider  extends AbstractConfigProvider
 {
-	private String componentId = null;
-			
-	public CentralConfigProvider(String componentId)
+	public CentralConfigProvider(String serviceName, String componentId)
 	{
-		this.componentId = componentId;
-	}
-
-	@Override
-	public String getComponentId()
-	{
-		return componentId;
+		super(serviceName, componentId);
 	}
 
 	@Override
 	public Properties getProperties() throws Exception
 	{
-		return CentralClient.tier1Config(componentId);
+		return CentralClient.tier1Config(getComponentId());
 	}
-
 }

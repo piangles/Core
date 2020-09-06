@@ -22,20 +22,20 @@ public class RequestProcessorThread extends Thread implements Traceable, Session
 	private RMQHelper rmqHelper = null;
 	private Service service = null;
 	private Envelope envelope = null;
-	private byte[] requestBody = null;
+	private byte[] body = null;
 	private Request request = null;
 	private BasicProperties props = null;
 	private BasicProperties replyProps = null;
 	private SessionDetails sessionDetails = null;
 	private SessionValidator sessionValidator = null;
 	
-	public RequestProcessorThread(SessionValidator sessionValidator, Service service, RMQHelper rmqHelper, Envelope envelope, byte[] requestBody, BasicProperties props)
+	public RequestProcessorThread(SessionValidator sessionValidator, Service service, RMQHelper rmqHelper, Envelope envelope, byte[] body, BasicProperties props)
 	{
 		this.sessionValidator = sessionValidator;
 		this.service = service;
 		this.rmqHelper = rmqHelper;
 		this.envelope = envelope;
-		this.requestBody = requestBody;
+		this.body = body;
 		this.props = props;
 		if (props != null)
 		{
@@ -48,10 +48,8 @@ public class RequestProcessorThread extends Thread implements Traceable, Session
 		Response response = null;
 		try
 		{
-			request = rmqHelper.getDecoder().decode(requestBody, Request.class);
+			request = rmqHelper.getDecoder().decode(body, Request.class);
 			sessionDetails = new SessionDetails(request.getUserId(), request.getSessionId()); 
-			
-			//Step 1 
 			response = processRequest(request);
 		}
 		catch (Exception e)

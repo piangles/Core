@@ -21,6 +21,7 @@ public final class RMQHelper
 	private static final String ENCODER_CLASS_NAME = "EncoderClassName";
 	private static final String DECODER_CLASS_NAME = "DecoderClassName";
 	
+	private String serviceName = null;
 	private boolean controllerCall = false;
 	private RMQProperties rmqProperties = null;
 	
@@ -30,8 +31,9 @@ public final class RMQHelper
 	private Encoder encoder = null;
 	private Decoder decoder = null;
 
-	public RMQHelper(boolean controllerCall, Properties properties) throws Exception
+	public RMQHelper(String serviceName, boolean controllerCall, Properties properties) throws Exception
 	{
+		this.serviceName = serviceName;
 		this.controllerCall = controllerCall;
 
 		rmqProperties = createRMQProperties(properties);
@@ -84,27 +86,33 @@ public final class RMQHelper
 		{
 			Decrypter decrypter = null;
 			String decrypterClassName = null;
+			String decrypterAuthorizationIdName;
 			String decrypterAuthorizationId = null;
 			if (controllerCall)
 			{
 				decrypterClassName = props.getProperty(CONTROLLER_DECRYPTER_CLASS_NAME);
+				decrypterAuthorizationIdName = CONTROLLER_DECRYPTER_AUTHZ_ID;
 				decrypterAuthorizationId = props.getProperty(CONTROLLER_DECRYPTER_AUTHZ_ID);
 			}
 			else
 			{
 				decrypterClassName = props.getProperty(HANDLER_DECRYPTER_CLASS_NAME);
+				decrypterAuthorizationIdName = HANDLER_DECRYPTER_AUTHZ_ID;
 				decrypterAuthorizationId = props.getProperty(HANDLER_DECRYPTER_AUTHZ_ID);
 			}
 			
 			if (decrypterClassName != null)
 			{
-				decrypter = (Decrypter)Class.forName(decrypterClassName).getConstructor(String.class).newInstance(decrypterAuthorizationId);
+				decrypter = (Decrypter)Class.forName(decrypterClassName).getConstructor(String.class).newInstance(serviceName);
 			}
 			
 			if (decrypter != null)
 			{
-				props.setProperty(RMQProperties.LOGIN, decrypter.decrypt(props.getProperty(RMQProperties.LOGIN)));
-				props.setProperty(RMQProperties.PASSWORD, decrypter.decrypt(props.getProperty(RMQProperties.PASSWORD)));
+				decrypter.init(decrypterAuthorizationIdName, decrypterAuthorizationId);
+				
+				System.out.println("RMQProperties.LOGIN : " + RMQProperties.LOGIN);
+				props.setProperty(RMQProperties.LOGIN, decrypter.decrypt(RMQProperties.LOGIN, props.getProperty(RMQProperties.LOGIN)));
+				props.setProperty(RMQProperties.PASSWORD, decrypter.decrypt(RMQProperties.PASSWORD, props.getProperty(RMQProperties.PASSWORD)));
 			}
 		}
 		catch (Exception e)

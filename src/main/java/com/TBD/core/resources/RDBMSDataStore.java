@@ -27,16 +27,19 @@ public class RDBMSDataStore
 
 	private BasicDataSource ds = null;
 
-	RDBMSDataStore(Properties dataStoreProps) throws Exception
+	RDBMSDataStore(String serviceName, Properties dataStoreProps) throws Exception
 	{
 		String decrypterClassName = dataStoreProps.getProperty(DECRYPTER_CLASS_NAME);
 		String decrypterAuthorizationId = dataStoreProps.getProperty(DECRYPTER_AUTHZ_ID);
-		Decrypter decrypter = (Decrypter)Class.forName(decrypterClassName).getConstructor(String.class).newInstance(decrypterAuthorizationId);
+		
+		Decrypter decrypter = (Decrypter)Class.forName(decrypterClassName).getConstructor(String.class).newInstance(serviceName);
+		decrypter.init(DECRYPTER_AUTHZ_ID, decrypterAuthorizationId);
+		decrypter.setEncryptedCategory("Configuration");
 		
 		ds = new BasicDataSource();
 		ds.setDriverClassName(dataStoreProps.getProperty(DRIVER_CLASSNAME));
-		ds.setUsername(decrypter.decrypt(dataStoreProps.getProperty(LOGIN_ID)));
-		ds.setPassword(decrypter.decrypt(dataStoreProps.getProperty(PASSWORD)));
+		ds.setUsername(decrypter.decrypt(LOGIN_ID, dataStoreProps.getProperty(LOGIN_ID)));
+		ds.setPassword(decrypter.decrypt(PASSWORD, dataStoreProps.getProperty(PASSWORD)));
 		ds.setUrl(dataStoreProps.getProperty(URL));
 
 		// the settings below are optional -- dbcp can work with

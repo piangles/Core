@@ -16,10 +16,9 @@ public final class ReqRespController extends AbstractController
 	@Override
 	public void init(Properties properties) throws ControllerException
 	{
-		super.init(properties);
 		try
 		{
-			rmqHelper = new RMQHelper(true, properties);
+			rmqHelper = new RMQHelper(getServiceName(), true, properties);
 
 			rmqHelper.getChannel().queueDeclare(rmqHelper.getRMQProperties().getTopic(), false, false, false, null);
 

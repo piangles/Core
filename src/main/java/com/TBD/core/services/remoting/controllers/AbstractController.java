@@ -9,15 +9,17 @@ public abstract class AbstractController implements Controller
 {
 	private static final String SESSION_VALIDATOR_CLASSNAME = "SessionValidatorClassName";
 	
-	private boolean stopRequested = false;
+	private String serviceName = null;
 	private Service service = null;
 	private SessionValidator sessionValidator = null;
+	private boolean stopRequested = false;
 
 	@Override
-	public void init(Properties properties) throws ControllerException
+	public final void init(String serviceName, Properties properties) throws ControllerException
 	{
 		try
 		{
+			this.serviceName = serviceName; 
 			String sessionValidatorClassName = properties.getProperty(SESSION_VALIDATOR_CLASSNAME );
 			
 			sessionValidator = (SessionValidator)Class.forName(sessionValidatorClassName).newInstance();
@@ -26,6 +28,7 @@ public abstract class AbstractController implements Controller
 		{
 			throw new ControllerException(e);
 		}
+		init(properties);
 	}
 	
 	@Override
@@ -41,6 +44,11 @@ public abstract class AbstractController implements Controller
 		stopRequested = true;
 	}
 
+	protected final String getServiceName()
+	{
+		return serviceName;
+	}
+	
 	protected final Service getService()
 	{
 		return service;
@@ -56,5 +64,6 @@ public abstract class AbstractController implements Controller
 		return sessionValidator;
 	}
 	
+	protected abstract void init(Properties properties) throws ControllerException;
 	protected abstract void start() throws ControllerException;
 }

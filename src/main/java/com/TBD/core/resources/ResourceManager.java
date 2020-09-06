@@ -34,7 +34,7 @@ public class ResourceManager
 			Object resource = componentIdResourceMap.get(cp.getComponentId());
 			if (resource == null)
 			{
-				resource = new RDBMSDataStore(cp.getProperties());
+				resource = new RDBMSDataStore(cp.getServiceName(), cp.getProperties());
 				componentIdResourceMap.put(cp.getComponentId(), resource);
 			}
 				

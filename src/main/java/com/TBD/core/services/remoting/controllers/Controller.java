@@ -6,7 +6,7 @@ import com.TBD.core.services.Service;
 
 public interface Controller
 {
-	public void init(Properties properties) throws ControllerException;
+	public void init(String serviceName, Properties properties) throws ControllerException;
 	public void start(Service service) throws ControllerException;
 	public void stop() throws ControllerException;
 	public default void destroy() throws ControllerException {}

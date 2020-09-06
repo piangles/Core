@@ -1,19 +1,20 @@
 package com.TBD.core.util.central;
 
-import com.TBD.core.util.abstractions.Decrypter;
+import com.TBD.core.util.abstractions.AbstractDecrypter;
 
-public final class CentralDecrypter implements Decrypter
+public final class CentralDecrypter extends AbstractDecrypter
 {
-	private String cipherAuthorizationId = null;
-	
-	public CentralDecrypter(String cipherAuthorizationId)
+	public CentralDecrypter(String serviceName)
 	{
-		this.cipherAuthorizationId = cipherAuthorizationId;
+		super(serviceName);
 	}
-	
+
 	@Override
-	public String decrypt(String toBeDecrypted) throws Exception
-	{
-		return CentralClient.decrypt(cipherAuthorizationId, toBeDecrypted);
+	public String decrypt(String encryptedValueName, String encryptedValue) throws Exception {
+		System.out.println("encryptedValueName ::: " + encryptedValueName);
+		return CentralClient.decrypt(
+				getServiceName(), 
+				getEncryptedCategory(), encryptedValueName, encryptedValue, 
+				getCipherAuthorizationIdName(), getCipherAuthorizationId());
 	}
 }

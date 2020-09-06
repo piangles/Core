@@ -73,7 +73,7 @@ public abstract class AbstractContainer
 			
 			String controllerClassName = props.getProperty(CONTROLLER_CLASS_NAME);
 			controller = (Controller)Class.forName(controllerClassName).newInstance();
-			controller.init(props);
+			controller.init(serviceName, props);
 		}
 		catch (Exception e)
 		{

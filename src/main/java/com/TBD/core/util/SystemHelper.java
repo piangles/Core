@@ -1,32 +1,22 @@
 package com.TBD.core.util;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.net.InetAddress;
-import java.util.stream.Collectors;
+import java.net.UnknownHostException;
 
 public class SystemHelper
 {
-	public static final String LOCAL_HOST = "localhost";
-	public static final String UNKNOWN_HOST = "Unknown HostName";
-	
 	public static String getHostName()
 	{
 		String hostName = null;
 		try
 		{
 			hostName = InetAddress.getLocalHost().getCanonicalHostName();
-			if (LOCAL_HOST.equals(hostName))
-			{
-				hostName = new BufferedReader(new InputStreamReader(Runtime.getRuntime().exec("hostname").getInputStream())).lines().collect(Collectors.joining("\n"));
-			}
 		}
-		catch (IOException e)
+		catch (UnknownHostException e)
 		{
-			hostName = UNKNOWN_HOST;
+			hostName = "Unknown HostName";
 		}
 		return hostName;
 	}

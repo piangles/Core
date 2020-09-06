@@ -29,7 +29,7 @@ public final class ReqRespHandler extends AbstractHandler
 	{
 		try
 		{
-			rmqHelper = new RMQHelper(false, getProperties());
+			rmqHelper = new RMQHelper(getServiceName(), false, getProperties());
 			
 			requestQueueName = rmqHelper.getRMQProperties().getTopic();
 			replyQueueName = rmqHelper.getChannel().queueDeclare().getQueue();
