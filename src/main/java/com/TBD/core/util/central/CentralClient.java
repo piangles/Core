@@ -21,11 +21,12 @@ public final class CentralClient {
 	private static String CIPHER_URL = null;
 	private static final String CENTRAL_PORT = ":80";
 	private static final String USER_AGENT = "Mozilla/5.0";
+	private static final String CENTRAL_SERVICE = "/CentralService/";
 
 	public static Properties discover(String serviceName) throws Exception {
 		if (DISCOVERY_URL == null) {
 			String centralHost = determineCentralHost();
-			DISCOVERY_URL = "http://" + centralHost + CENTRAL_PORT + "/app-central/discover?ServiceName=";
+			DISCOVERY_URL = "http://" + centralHost + CENTRAL_PORT + CENTRAL_SERVICE +"discover?ServiceName=";
 		}
 
 		return getProperties(DISCOVERY_URL, serviceName);
@@ -34,7 +35,7 @@ public final class CentralClient {
 	public static Properties tier1Config(String serviceName) throws Exception {
 		if (TIER1_CONFIG_URL == null) {
 			String centralHost = determineCentralHost();
-			TIER1_CONFIG_URL = "http://" + centralHost + CENTRAL_PORT + "/app-central/tier1config?ServiceName=";
+			TIER1_CONFIG_URL = "http://" + centralHost + CENTRAL_PORT + CENTRAL_SERVICE+"tier1config?ServiceName=";
 		}
 
 		return getProperties(TIER1_CONFIG_URL, serviceName);
@@ -48,7 +49,7 @@ public final class CentralClient {
 		try {
 			if (CIPHER_URL == null) {
 				String centralHost = determineCentralHost();
-				CIPHER_URL = "http://" + centralHost + CENTRAL_PORT + "/app-central/decrypt?"
+				CIPHER_URL = "http://" + centralHost + CENTRAL_PORT + CENTRAL_SERVICE +"decrypt?"
 						+ "ServiceName=%s&encryptedCategory=%s&" + "encryptedValueName=%s&encryptedValue=%s&"
 						+ "cipherAuthorizationIdName=%s&cipherAuthorizationId=%s";
 			}
