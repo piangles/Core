@@ -13,7 +13,7 @@ public class ResourcesTest {
 		try {
 			RDBMSDataStore dataStore = ResourceManager.getInstance().getRDBMSDataStore(new CentralConfigProvider("ConfigService", "14fe64ea-d15a-4c8b-af2f-f2c7efe1943b"));
 			Statement stm = dataStore.getConnection().createStatement();
-			ResultSet rs = stm.executeQuery("select * from BackboneTier2.Config where ComponentId='14fe64ea-d15a-4c8b-af2f-f2c7efe1943b'");
+			ResultSet rs = stm.executeQuery("select * from Backbone.Config where ComponentId='14fe64ea-d15a-4c8b-af2f-f2c7efe1943b'");
 			while(rs.next())
 			{
 				System.out.println(rs.getString(5));
