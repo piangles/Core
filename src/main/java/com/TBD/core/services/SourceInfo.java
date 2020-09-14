@@ -8,15 +8,15 @@ public final class SourceInfo implements Serializable
 	private String className = null;
 	private String lineNumber = null;
 	private String stackTrace = null;
-	private String id = null;
+	private String authorizationId = null;
 	
-	public SourceInfo(String className, String lineNumber, String stackTrace, String id)
+	public SourceInfo(String className, String lineNumber, String stackTrace, String authorizationId)
 	{
 		super();
 		this.className = className;
 		this.lineNumber = lineNumber;
 		this.stackTrace = stackTrace;
-		this.id = id;
+		this.authorizationId = authorizationId;
 	}
 	
 	public String getClassName()
@@ -34,16 +34,16 @@ public final class SourceInfo implements Serializable
 		return stackTrace;
 	}
 
-	public String getId()
+	public String getAuthorizationId()
 	{
-		return id;
+		return authorizationId;
 	}
 	
 	@Override
 	public String toString()
 	{
 		StringBuffer sb = new StringBuffer();
-		sb.append("Id=").append(id).append("\n");
+		sb.append("AuthorizationId=").append(authorizationId).append("\n");
 		sb.append("className=").append(className).append("\n");
 		sb.append("lineNumber=").append(lineNumber).append("\n");
 		sb.append("stackTrace=").append("\n").append(stackTrace).append("\n");

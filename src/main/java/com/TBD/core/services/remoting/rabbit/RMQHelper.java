@@ -103,12 +103,12 @@ public final class RMQHelper
 			
 			if (decrypterClassName != null)
 			{
-				decrypter = (Decrypter)Class.forName(decrypterClassName).getConstructor(String.class).newInstance(serviceName);
+				decrypter = (Decrypter)Class.forName(decrypterClassName).getConstructor().newInstance();
 			}
 			
 			if (decrypter != null)
 			{
-				decrypter.init(decrypterAuthorizationIdName, decrypterAuthorizationId);
+				decrypter.init(serviceName, "Discovery", decrypterAuthorizationIdName, decrypterAuthorizationId);
 				
 				System.out.println("RMQProperties.LOGIN : " + RMQProperties.LOGIN);
 				props.setProperty(RMQProperties.LOGIN, decrypter.decrypt(RMQProperties.LOGIN, props.getProperty(RMQProperties.LOGIN)));

@@ -32,9 +32,8 @@ public class RDBMSDataStore
 		String decrypterClassName = dataStoreProps.getProperty(DECRYPTER_CLASS_NAME);
 		String decrypterAuthorizationId = dataStoreProps.getProperty(DECRYPTER_AUTHZ_ID);
 		
-		Decrypter decrypter = (Decrypter)Class.forName(decrypterClassName).getConstructor(String.class).newInstance(serviceName);
-		decrypter.init(DECRYPTER_AUTHZ_ID, decrypterAuthorizationId);
-		decrypter.setEncryptedCategory("Configuration");
+		Decrypter decrypter = (Decrypter)Class.forName(decrypterClassName).getConstructor().newInstance();
+		decrypter.init(serviceName, "Configuration", DECRYPTER_AUTHZ_ID, decrypterAuthorizationId);
 		
 		ds = new BasicDataSource();
 		ds.setDriverClassName(dataStoreProps.getProperty(DRIVER_CLASSNAME));

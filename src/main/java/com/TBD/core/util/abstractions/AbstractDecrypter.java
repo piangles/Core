@@ -6,21 +6,14 @@ public abstract class AbstractDecrypter implements Decrypter {
 	String cipherAuthorizationIdName = null;
 	String cipherAuthorizationId = null;
 
-	public AbstractDecrypter(String serviceName) {
-		this.serviceName = serviceName;
-		this.encryptedCategory = "Discovery"; 
-	}
-
 	@Override
-	public final void init(String cipherAuthorizationIdName, String cipherAuthorizationId) {
+	public final void init(String serviceName, String encryptedCategory, String cipherAuthorizationIdName, String cipherAuthorizationId) {
+		this.serviceName = serviceName;
+		this.encryptedCategory = encryptedCategory;
 		this.cipherAuthorizationIdName = cipherAuthorizationIdName;
 		this.cipherAuthorizationId = cipherAuthorizationId;
 	}
 
-	public void setEncryptedCategory(String encryptedCategory){
-		this.encryptedCategory = encryptedCategory;
-	}
-	
 	protected final String getServiceName() {
 		return serviceName;
 	}
