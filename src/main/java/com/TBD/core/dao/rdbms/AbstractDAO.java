@@ -42,15 +42,9 @@ public class AbstractDAO
 	{
 		List<String> values = new ArrayList<String>();
 		
-		executeSPQuery(storedProcName, new IndividualResultSetProcessor()
-		{
-			@Override
-			public void process(ResultSet rs) throws SQLException
-			{
-				values.add(rs.getString(1));
-			}
-		}
-		);
+		executeSPQueryProcessIndividual(storedProcName, (rs) -> {
+			values.add(rs.getString(1));
+		});
 		
 		return values;
 	}
@@ -67,15 +61,9 @@ public class AbstractDAO
 	{
 		Map<String, String> valuesAsMap = new HashMap<String, String>();
 
-		executeSPQuery(storedProcName, new IndividualResultSetProcessor()
-		{
-			@Override
-			public void process(ResultSet rs) throws SQLException
-			{
-				valuesAsMap.put(rs.getString(1), rs.getString(2));
-			}
-		}
-		);
+		executeSPQueryProcessIndividual(storedProcName, (rs) -> {
+			valuesAsMap.put(rs.getString(1), rs.getString(2));
+		});
 		
 		return valuesAsMap;
 	}
@@ -90,9 +78,9 @@ public class AbstractDAO
 	 * @param irp
 	 * @throws DAOException
 	 */
-	protected final void executeSPQuery(String storedProcName, IndividualResultSetProcessor irp) throws DAOException
+	protected final void executeSPQueryProcessIndividual(String storedProcName, ResultSetProcessor irp) throws DAOException
 	{
-		executeSPQuery(storedProcName, 0, null, irp);
+		executeSPQueryProcessIndividual(storedProcName, 0, null, irp);
 	}
 	
 	/**
@@ -108,7 +96,7 @@ public class AbstractDAO
 	 * @param irp
 	 * @throws DAOException
 	 */
-	protected final void executeSPQuery(String storedProcName, int paramCount, StatementPreparer sp, IndividualResultSetProcessor irp) throws DAOException
+	protected final void executeSPQueryProcessIndividual(String storedProcName, int paramCount, StatementPreparer sp, ResultSetProcessor irp) throws DAOException
 	{
 		Connection dbConnection = null;
 		CallableStatement call = null;
@@ -155,8 +143,13 @@ public class AbstractDAO
 	 * StatementPreparer sp : The StatementPreparer Implementation is called to set the parameters
 	 * with the proper type.
 	 * 
-	 * TotalResultSetProcessor : Will only be called once after StoredProc is executed passing the
+	 * ResultSetProcessor : Will only be called once after StoredProc is executed passing the
 	 * complete ResultSet.
+	 * 
+	 * This is called only once after the ResultSet is obtained
+	 * from the execution of the StoredProc. If the implementation
+	 * for whatever reason needs to access the complete ResultSet
+	 * in creating it's final object this would be the interface.
 	 * 
 	 * @param storedProcName
 	 * @param paramCount
@@ -164,7 +157,7 @@ public class AbstractDAO
 	 * @param trp
 	 * @throws DAOException
 	 */
-	protected final void executeSPQuery(String storedProcName, int paramCount, StatementPreparer sp, TotalResultSetProcessor trp) throws DAOException
+	protected final void executeSPQueryProcessComplete(String storedProcName, int paramCount, StatementPreparer sp, ResultSetProcessor trp) throws DAOException
 	{
 		Connection dbConnection = null;
 		CallableStatement call = null;
