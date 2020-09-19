@@ -82,7 +82,7 @@ public abstract class AbstractHandler implements Handler
 		}
 		catch(Throwable t)
 		{
-			result = createException(method, "Unable to process call because of:" + t.getClass().getSimpleName(), t);
+			result = createException(method, "Unable to process call because of:" + t.getMessage(), t);
 		}
 		finally
 		{
@@ -97,7 +97,16 @@ public abstract class AbstractHandler implements Handler
 		
 		if (result instanceof Throwable)
 		{
-			throw (Throwable)result;
+			Throwable actualThrowable = null;
+			if (result instanceof java.lang.reflect.InvocationTargetException)
+			{
+				actualThrowable = ((Throwable)result).getCause();
+			}
+			else
+			{
+				actualThrowable = (Throwable)result;
+			}
+			throw actualThrowable;
 		}
 		
 		return result;
@@ -121,14 +130,15 @@ public abstract class AbstractHandler implements Handler
 		catch (Exception expt)
 		{
 			String transFailedMessage = null;
-			if (expt instanceof ArrayIndexOutOfBoundsException)
+			if (expt instanceof ArrayIndexOutOfBoundsException)//This implies the signature never declared an exception
 			{
-				transFailedMessage = "Service method does not have exception declaration.";				
+				transFailedMessage = "Service method does not have exception declaration. Root Cause[" + message + "]";				
 			}
 			else
 			{
-				transFailedMessage = getClass().getSimpleName() + " unable to convert server side Exception. Reason[" + expt.getClass().getSimpleName() + "]";
+				transFailedMessage =  "Unable to convert server side exception. Root Cause[" + message + "]";
 			}
+
 			transformedExpt = new RuntimeException(transFailedMessage, cause);
 		}
 
