@@ -53,4 +53,6 @@ public class ResourceManager
 	{
 		return (RDBMSDataStore)componentIdResourceMap.get(componentId);		
 	}
+	
+	//Need to add here a MessagingSystem specifically for Kafka
 }
