@@ -9,11 +9,11 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.common.TopicPartition;
 
-public class KafkaMessageSystem
+public class KafkaMessagingSystem
 {
 	private Properties msgProps = null;
 	
-	KafkaMessageSystem(String serviceName, Properties msgProps) throws Exception
+	KafkaMessagingSystem(String serviceName, Properties msgProps) throws Exception
 	{
 		this.msgProps = msgProps;
 	}

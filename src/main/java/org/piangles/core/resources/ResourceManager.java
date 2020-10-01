@@ -53,16 +53,16 @@ public class ResourceManager
 //	}
 //	
 	//Need to add here a MessagingSystem specifically for Kafka
-	public KafkaMessageSystem getKafkaMessagingSystem(ConfigProvider cp) throws ResourceException
+	public KafkaMessagingSystem getKafkaMessagingSystem(ConfigProvider cp) throws ResourceException
 	{
-		KafkaMessageSystem msgSystem = null;
+		KafkaMessagingSystem msgSystem = null;
 
 		try
 		{
-			msgSystem = (KafkaMessageSystem)componentIdResourceMap.get(cp.getComponentId());
+			msgSystem = (KafkaMessagingSystem)componentIdResourceMap.get(cp.getComponentId());
 			if (msgSystem == null)
 			{
-				msgSystem = new KafkaMessageSystem(cp.getServiceName(), cp.getProperties());
+				msgSystem = new KafkaMessagingSystem(cp.getServiceName(), cp.getProperties());
 				componentIdResourceMap.put(cp.getComponentId(), msgSystem);
 			}
 		}
