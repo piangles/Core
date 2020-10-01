@@ -31,14 +31,12 @@ public class ResourceManager
 
 		try
 		{
-			Object resource = componentIdResourceMap.get(cp.getComponentId());
-			if (resource == null)
+			dataStore = (RDBMSDataStore)componentIdResourceMap.get(cp.getComponentId());
+			if (dataStore == null)
 			{
-				resource = new RDBMSDataStore(cp.getServiceName(), cp.getProperties());
-				componentIdResourceMap.put(cp.getComponentId(), resource);
+				dataStore = new RDBMSDataStore(cp.getServiceName(), cp.getProperties());
+				componentIdResourceMap.put(cp.getComponentId(), dataStore);
 			}
-				
-			dataStore = (RDBMSDataStore) resource;
 		}
 		catch (Exception e)
 		{
@@ -49,10 +47,30 @@ public class ResourceManager
 		return dataStore;
 	}
 	
-	public RDBMSDataStore getRDBMSDataStore(String componentId)
-	{
-		return (RDBMSDataStore)componentIdResourceMap.get(componentId);		
-	}
-	
+//	public RDBMSDataStore getRDBMSDataStore(String componentId)
+//	{
+//		return (RDBMSDataStore)componentIdResourceMap.get(componentId);		
+//	}
+//	
 	//Need to add here a MessagingSystem specifically for Kafka
+	public KafkaMessageSystem getKafkaMessagingSystem(ConfigProvider cp) throws ResourceException
+	{
+		KafkaMessageSystem msgSystem = null;
+
+		try
+		{
+			msgSystem = (KafkaMessageSystem)componentIdResourceMap.get(cp.getComponentId());
+			if (msgSystem == null)
+			{
+				msgSystem = new KafkaMessageSystem(cp.getServiceName(), cp.getProperties());
+				componentIdResourceMap.put(cp.getComponentId(), msgSystem);
+			}
+		}
+		catch (Exception e)
+		{
+			throw new ResourceException(e);
+		}
+
+		return msgSystem;
+	}
 }
