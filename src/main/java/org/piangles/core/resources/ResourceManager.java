@@ -47,12 +47,6 @@ public class ResourceManager
 		return dataStore;
 	}
 	
-//	public RDBMSDataStore getRDBMSDataStore(String componentId)
-//	{
-//		return (RDBMSDataStore)componentIdResourceMap.get(componentId);		
-//	}
-//	
-	//Need to add here a MessagingSystem specifically for Kafka
 	public KafkaMessagingSystem getKafkaMessagingSystem(ConfigProvider cp) throws ResourceException
 	{
 		KafkaMessagingSystem msgSystem = null;
