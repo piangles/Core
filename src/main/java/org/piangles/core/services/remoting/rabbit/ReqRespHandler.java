@@ -67,6 +67,10 @@ public final class ReqRespHandler extends AbstractHandler
 				responseAsBytes = delivery.getBody();
 				break;
 			}
+			else //Timedout
+			{
+				break;
+			}
 		}
 		
 		Response response = null;
