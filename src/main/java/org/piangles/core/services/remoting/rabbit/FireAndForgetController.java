@@ -65,7 +65,7 @@ public final class FireAndForgetController extends AbstractController
 		@Override
 		public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException
 		{
-			RequestProcessorThread rpt = new RequestProcessorThread(getSessionValidator(), getService(), rmqHelper, envelope, body, null);
+			RequestProcessorThread rpt = new RequestProcessorThread(getServiceName(), getService(), getSessionValidator(), envelope, body, rmqHelper, null);
 			rpt.start();
 		}
 	}

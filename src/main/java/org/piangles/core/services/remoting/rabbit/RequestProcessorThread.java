@@ -20,23 +20,25 @@ import com.rabbitmq.client.Envelope;
  */
 public class RequestProcessorThread extends Thread implements Traceable, SessionAwareable
 {
-	private RMQHelper rmqHelper = null;
+	private String serviceName = null;
 	private Service service = null;
+	private SessionValidator sessionValidator = null;
+	private SessionDetails sessionDetails = null;
 	private Envelope envelope = null;
 	private byte[] body = null;
 	private Request request = null;
 	private BasicProperties props = null;
 	private BasicProperties replyProps = null;
-	private SessionDetails sessionDetails = null;
-	private SessionValidator sessionValidator = null;
+	private RMQHelper rmqHelper = null;
 	
-	public RequestProcessorThread(SessionValidator sessionValidator, Service service, RMQHelper rmqHelper, Envelope envelope, byte[] body, BasicProperties props)
+	public RequestProcessorThread(String serviceName, Service service, SessionValidator sessionValidator, Envelope envelope, byte[] body, RMQHelper rmqHelper, BasicProperties props)
 	{
-		this.sessionValidator = sessionValidator;
+		this.serviceName = serviceName;
 		this.service = service;
-		this.rmqHelper = rmqHelper;
+		this.sessionValidator = sessionValidator;
 		this.envelope = envelope;
 		this.body = body;
+		this.rmqHelper = rmqHelper;
 		this.props = props;
 		if (props != null)
 		{
@@ -55,7 +57,14 @@ public class RequestProcessorThread extends Thread implements Traceable, Session
 		}
 		catch (Exception e)
 		{
-			response = new Response(request.getServiceName(), request.getEndPoint(), e);
+			if (request != null)
+			{
+				response = new Response(request.getServiceName(), request.getEndPoint(), e);
+			}
+			else
+			{
+				response = new Response(serviceName, new String(body), e);
+			}
 		}
 		
 		if (response != null && replyProps != null) //It is not fire and forget so send response

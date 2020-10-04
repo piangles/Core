@@ -29,5 +29,12 @@ public class ConsumerProperties
 		public String topicName;
 		public int partitionNo;
 		public int offset;
+
+		public Topic(String topicName, int partitionNo, int offset)
+		{
+			this.topicName = topicName;
+			this.partitionNo = partitionNo;
+			this.offset = offset;
+		}
 	}
 }

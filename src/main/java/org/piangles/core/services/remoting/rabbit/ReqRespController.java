@@ -52,7 +52,7 @@ public final class ReqRespController extends AbstractController
 				break;
 			}
 			
-			RequestProcessorThread rpt = new RequestProcessorThread(getSessionValidator(), getService(), rmqHelper, delivery.getEnvelope(), delivery.getBody(), delivery.getProperties());
+			RequestProcessorThread rpt = new RequestProcessorThread(getServiceName(), getService(), getSessionValidator(), delivery.getEnvelope(), delivery.getBody(), rmqHelper, delivery.getProperties());
 			rpt.start();
 		}
 		
