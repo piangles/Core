@@ -23,7 +23,12 @@ public class ConsumerProperties
 	{
 		return topics;
 	}
-	
+
+	public void setTopics(List<Topic> topics)
+	{
+		this.topics = topics;
+	}
+
 	public class Topic
 	{
 		public String topicName;
@@ -42,5 +47,17 @@ public class ConsumerProperties
 			this.partitionNo = partitionNo;
 			this.offset = offset;
 		}
+
+		@Override
+		public String toString()
+		{
+			return "Topic [topicName=" + topicName + ", partitionNo=" + partitionNo + ", offset=" + offset + "]";
+		}
+	}
+
+	@Override
+	public String toString()
+	{
+		return "ConsumerProperties [groupId=" + groupId + ", topics=" + topics + "]";
 	}
 }
