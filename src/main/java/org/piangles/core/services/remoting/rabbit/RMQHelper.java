@@ -111,7 +111,6 @@ public final class RMQHelper
 			{
 				decrypter.init(serviceName, "Discovery", decrypterAuthorizationIdName, decrypterAuthorizationId);
 				
-				System.out.println("RMQProperties.LOGIN : " + RMQProperties.LOGIN);
 				props.setProperty(RMQProperties.LOGIN, decrypter.decrypt(RMQProperties.LOGIN, props.getProperty(RMQProperties.LOGIN)));
 				props.setProperty(RMQProperties.PASSWORD, decrypter.decrypt(RMQProperties.PASSWORD, props.getProperty(RMQProperties.PASSWORD)));
 			}

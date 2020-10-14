@@ -1,6 +1,7 @@
 package org.piangles.core.services.remoting.rabbit;
 
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.piangles.core.services.Request;
 import org.piangles.core.services.Response;
@@ -70,17 +71,18 @@ public class RequestProcessorThread extends Thread implements Traceable, Session
 		if (response != null && replyProps != null) //It is not fire and forget so send response
 		{
 			byte[] encodedBytes = null;
+
 			try
 			{
 				encodedBytes = rmqHelper.getEncoder().encode(response);
-				
+
 				rmqHelper.getChannel().basicPublish("", props.getReplyTo(), replyProps, encodedBytes);
 				rmqHelper.getChannel().basicAck(envelope.getDeliveryTag(), false);
 			}
 			catch (Exception e)
 			{
-				//TODO Notify
-				e.printStackTrace();
+				System.err.println("Exception trying to send response because of: " + e.getMessage());
+				e.printStackTrace(System.err);
 			}
 		}
 
@@ -101,7 +103,7 @@ public class RequestProcessorThread extends Thread implements Traceable, Session
 
 	protected final Response processRequest(Request request) throws Exception
 	{
-		long startTime = System.currentTimeMillis();
+		long startTime = System.nanoTime();
 		Response response = null;
 		
 		if (request != null)
@@ -109,7 +111,11 @@ public class RequestProcessorThread extends Thread implements Traceable, Session
 			if (sessionValidator.isSessionValid(request))
 			{
 				response = service.process(request);
-				System.out.println(String.format("ServerSide-TimeTaken by %s is %d MilliSeconds.", request.getEndPoint(), (System.currentTimeMillis() - startTime)));
+				long delayNS = System.nanoTime() - startTime;
+				long delayMiS = TimeUnit.NANOSECONDS.toMicros(delayNS);
+				long delayMS = TimeUnit.NANOSECONDS.toMillis(delayNS);
+				String endpoint = request.getServiceName() + "::" + request.getEndPoint();
+				System.out.println(String.format("ServerSide-TimeTaken by %s is %d MilliSeconds and %d MicroSeconds.", endpoint, delayMS, delayMiS));
 			}
 			else
 			{
