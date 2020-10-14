@@ -62,13 +62,21 @@ public final class ReqRespHandler extends AbstractHandler
 		{
 			QueueingConsumer.Delivery delivery = consumer.nextDelivery(rmqHelper.getRMQProperties().getTimeout());
 			//Since this is request/response as soon as we get the first message , break.
-			if (delivery != null && delivery.getProperties().getCorrelationId().equals(corrId))
+			if (delivery != null)
 			{
-				responseAsBytes = delivery.getBody();
+				if (delivery.getProperties().getCorrelationId().equals(corrId))
+				{
+					responseAsBytes = delivery.getBody();
+				}
+				else
+				{
+					returnValue = new RuntimeException(endpoint(method) + " received a unexpected corelationId.");
+				}
 				break;
 			}
 			else //Timedout
 			{
+				returnValue = new RuntimeException(endpoint(method) + " timed out.");
 				break;
 			}
 		}
@@ -78,10 +86,6 @@ public final class ReqRespHandler extends AbstractHandler
 		{
 			response = JAVA.getDecoder().decode(responseAsBytes, Response.class);
 			returnValue = response.getReturnValue();
-		}
-		else
-		{
-			returnValue = new RuntimeException(getServiceName() + " timed out.");
 		}
 
 		return returnValue;
