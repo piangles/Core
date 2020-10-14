@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.piangles.core.services.Header;
 import org.piangles.core.services.Request;
@@ -73,7 +74,7 @@ public abstract class AbstractHandler implements Handler
 	@Override
 	public final Object invoke(Object proxy, Method method, Object[] args) throws Throwable
 	{
-		long startTime = System.currentTimeMillis();
+		long startTime = System.nanoTime();
 		Object result = null;
 		
 		try
@@ -86,7 +87,10 @@ public abstract class AbstractHandler implements Handler
 		}
 		finally
 		{
-			System.out.println(String.format("CallerSide-TimeTaken by %s is %d MilliSeconds.", method.getName(), (System.currentTimeMillis() - startTime)));
+			long delayNS = System.nanoTime() - startTime;
+			long delayMiS = TimeUnit.NANOSECONDS.toMicros(delayNS);
+			long delayMS = TimeUnit.NANOSECONDS.toMillis(delayNS);
+			System.out.println(String.format("CallerSide-TimeTaken by %s is %d MilliSeconds and %d MicroSeconds.", endpoint(method), delayMS, delayMiS));
 		}
 		
 		/**
@@ -180,6 +184,11 @@ public abstract class AbstractHandler implements Handler
 		return properties;
 	}
 	
+	protected final String endpoint(Method method)
+	{
+		return getServiceName() + "::" + method.getName();
+	}
+	
 	private UUID getOrCreateTraceId()
 	{
 		UUID traceId = null;
@@ -191,7 +200,6 @@ public abstract class AbstractHandler implements Handler
 		}
 		else
 		{
-			//str = str.replaceAll(".", "*");
 			traceId = UUID.randomUUID();
 		}
 		
