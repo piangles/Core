@@ -83,7 +83,12 @@ public abstract class AbstractHandler implements Handler
 		}
 		catch(Throwable t)
 		{
-			result = createException(method, "Unable to process call because of:" + t.getMessage(), t);
+			String message = t.getMessage();
+			if (message == null)
+			{
+				message = t.getClass().getCanonicalName();
+			}
+			result = createException(method, "Unable to process call because of: " + message, t);
 		}
 		finally
 		{

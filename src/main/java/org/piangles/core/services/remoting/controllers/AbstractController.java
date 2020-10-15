@@ -54,7 +54,7 @@ public abstract class AbstractController implements Controller
 		return service;
 	}
 	
-	protected final boolean isStopRequested()
+	protected boolean isStopRequested()
 	{
 		return stopRequested;
 	}
