@@ -4,7 +4,9 @@ import com.rabbitmq.client.AMQP.BasicProperties;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.QueueingConsumer;
+import com.rabbitmq.client.Consumer;
+import com.rabbitmq.client.DefaultConsumer;
+import com.rabbitmq.client.Delivery;
 
 public class Server
 {
@@ -13,7 +15,7 @@ public class Server
 
 	private static int increment(int n)
 	{
-		return n+1;
+		return n + 1;
 	}
 
 	public static void main(String[] argv)
@@ -35,7 +37,7 @@ public class Server
 
 			channel.basicQos(1);
 
-			QueueingConsumer consumer = new QueueingConsumer(channel);
+			Consumer consumer = new DefaultConsumer(channel);
 			channel.basicConsume(RPC_QUEUE_NAME, false, consumer);
 
 			System.out.println(" [x] Awaiting RPC requests");
@@ -44,7 +46,7 @@ public class Server
 			{
 				String response = null;
 
-				QueueingConsumer.Delivery delivery = consumer.nextDelivery();
+				Delivery delivery = null; //consumer.nextDelivery();
 
 				BasicProperties props = delivery.getProperties();
 				BasicProperties replyProps = new BasicProperties.Builder().correlationId(props.getCorrelationId()).build();

@@ -1,5 +1,8 @@
 package org.piangles.backbone.services.remoting.rabbit;
 
+import java.util.UUID;
+
+import com.rabbitmq.client.AMQP.BasicProperties;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -19,18 +22,31 @@ public class HelloClient
 			factory.setPassword("msgPassword");
 
 			Connection conn = factory.newConnection();
-			Channel ch = conn.createChannel();
+			Channel channel = conn.createChannel();
 			//ch.queueDeclare("Hello", false, false, false, null);
 			
+			String corrId = UUID.randomUUID().toString();
+			
+			String replyQueueName = channel.queueDeclare().getQueue();
+			BasicProperties props = new BasicProperties.Builder()
+										.correlationId(corrId)
+										.replyTo(replyQueueName)
+										.build();
+
+			
 			RpcClientParams params = new RpcClientParams().
-					channel(ch).
+					channel(channel).
 					exchange("").
-					routingKey("Hello");
-					//timeout(1000);
+					routingKey("Hello").
+					timeout(5000);
 
 			RpcClient service = new RpcClient(params);
 
-			System.out.println(service.stringCall("Rabbit"));
+			for (int i=0; i < 25; ++i)
+			{
+				String message = "" + i;
+				System.out.println(new String(service.primitiveCall(props, message.getBytes())));
+			}
 			conn.close();
 		}
 		catch (Exception e)

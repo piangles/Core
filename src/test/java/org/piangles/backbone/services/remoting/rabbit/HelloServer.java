@@ -1,9 +1,11 @@
 package org.piangles.backbone.services.remoting.rabbit;
 
+import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.StringRpcServer;
+import com.rabbitmq.client.Delivery;
+import com.rabbitmq.client.RpcServer;
 
 public class HelloServer
 {
@@ -18,15 +20,24 @@ public class HelloServer
 			factory.setPassword("msgPassword");
 
 			Connection conn = factory.newConnection();
-			final Channel ch = conn.createChannel();
+			final Channel channel = conn.createChannel();
 
 			//ch.queueDeclare("Hello", false, false, false, null);
-			StringRpcServer server = new StringRpcServer(ch, "Hello")
+			RpcServer server = new RpcServer(channel, "Hello")
 			{
-				public String handleStringCall(String request)
+				@Override
+				public byte[] handleCall(byte[] requestBody, AMQP.BasicProperties replyProperties)
 				{
+					System.out.println(Thread.currentThread().getName());
+					String request = new String(requestBody);
 					System.out.println("Got request: " + request);
-					return "Hello, " + request + "!";
+					String response = "Hello, " + request + "!";
+					return response.getBytes();
+				}
+				
+				@Override
+				public void handleCast(Delivery delivery)
+				{
 				}
 			};
 			server.mainloop();

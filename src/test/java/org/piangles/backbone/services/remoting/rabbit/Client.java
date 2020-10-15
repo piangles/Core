@@ -1,11 +1,14 @@
 package org.piangles.backbone.services.remoting.rabbit;
 
-import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.QueueingConsumer;
-import com.rabbitmq.client.AMQP.BasicProperties;
 import java.util.UUID;
+
+import com.rabbitmq.client.AMQP.BasicProperties;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.Consumer;
+import com.rabbitmq.client.DefaultConsumer;
+import com.rabbitmq.client.Delivery;
 
 public class Client
 {
@@ -14,7 +17,7 @@ public class Client
 	private Channel channel;
 	private String requestQueueName = "rpc_queue";
 	private String replyQueueName;
-	private QueueingConsumer consumer;
+	private Consumer consumer;
 
 	public Client() throws Exception
 	{
@@ -28,7 +31,7 @@ public class Client
 		channel = connection.createChannel();
 
 		replyQueueName = channel.queueDeclare().getQueue();
-		consumer = new QueueingConsumer(channel);
+		consumer = new DefaultConsumer(channel);
 		channel.basicConsume(replyQueueName, true, consumer);
 	}
 
@@ -44,7 +47,7 @@ public class Client
 
 		while (true)
 		{
-			QueueingConsumer.Delivery delivery = consumer.nextDelivery(1000);
+			Delivery delivery = null; //consumer.nextDelivery(1000);
 			if (delivery.getProperties().getCorrelationId().equals(corrId))
 			{
 				response = new String(delivery.getBody(), "UTF-8");

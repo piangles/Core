@@ -7,7 +7,6 @@ import org.piangles.core.util.abstractions.Decrypter;
 import org.piangles.core.util.coding.Decoder;
 import org.piangles.core.util.coding.Encoder;
 
-import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
@@ -27,7 +26,6 @@ public final class RMQHelper
 	private RMQProperties rmqProperties = null;
 	
 	private Connection connection = null;
-	private Channel channel = null;
 	
 	private Encoder encoder = null;
 	private Decoder decoder = null;
@@ -46,17 +44,16 @@ public final class RMQHelper
 		factory.setPassword(rmqProperties.getPassword());
 		
 		connection = factory.newConnection();
-		channel = connection.createChannel();
 	}
 
-	public Channel getChannel()
-	{
-		return channel;
-	}
-	
 	public RMQProperties getRMQProperties()
 	{
 		return rmqProperties;
+	}
+	
+	public Connection getConnection()
+	{
+		return connection;
 	}
 	
 	public Encoder getEncoder()
