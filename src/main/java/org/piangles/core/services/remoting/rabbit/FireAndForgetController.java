@@ -10,12 +10,14 @@ import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Consumer;
 import com.rabbitmq.client.DefaultConsumer;
+import com.rabbitmq.client.Delivery;
 import com.rabbitmq.client.Envelope;
 
 public final class FireAndForgetController extends AbstractController
 {
 	private RMQHelper rmqHelper = null;
 	private String queueName = null;
+	private Channel channel = null;
 	private Consumer consumer = null; 
 			
 	@Override
@@ -24,11 +26,13 @@ public final class FireAndForgetController extends AbstractController
 		try
 		{
 			rmqHelper = new RMQHelper(getServiceName(), true, properties);
+			channel = rmqHelper.getConnection().createChannel();
 			
-			rmqHelper.getChannel().exchangeDeclare(rmqHelper.getRMQProperties().getTopic(), "fanout");
-			queueName = rmqHelper.getChannel().queueDeclare().getQueue();
-			rmqHelper.getChannel().queueBind(queueName, rmqHelper.getRMQProperties().getTopic(), "");
-			consumer = new ConsumerImpl(rmqHelper.getChannel());	
+			channel.exchangeDeclare(rmqHelper.getRMQProperties().getTopic(), "fanout");
+			queueName = channel.queueDeclare().getQueue();
+			
+			channel.queueBind(queueName, rmqHelper.getRMQProperties().getTopic(), "");
+			consumer = new ConsumerImpl(channel);	
 		}
 		catch (Exception e)
 		{
@@ -41,7 +45,7 @@ public final class FireAndForgetController extends AbstractController
 	{
 		try
 		{
-			rmqHelper.getChannel().basicConsume(queueName, true, consumer);
+			channel.basicConsume(queueName, true, consumer);
 		}
 		catch (IOException e)
 		{
@@ -65,7 +69,8 @@ public final class FireAndForgetController extends AbstractController
 		@Override
 		public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException
 		{
-			RequestProcessorThread rpt = new RequestProcessorThread(getServiceName(), getService(), getSessionValidator(), envelope, body, rmqHelper, null);
+			Delivery delivery = new Delivery(envelope, properties, body);
+			RequestProcessorThread rpt = new RequestProcessorThread(getServiceName(), getService(), getSessionValidator(), rmqHelper, delivery, null);
 			rpt.start();
 		}
 	}

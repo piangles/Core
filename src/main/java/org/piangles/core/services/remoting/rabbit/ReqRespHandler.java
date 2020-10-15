@@ -10,15 +10,13 @@ import org.piangles.core.services.remoting.handlers.HandlerException;
 import org.piangles.core.util.coding.JAVA;
 
 import com.rabbitmq.client.AMQP.BasicProperties;
-import com.rabbitmq.client.QueueingConsumer;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.RpcClient;
+import com.rabbitmq.client.RpcClientParams;
 
 public final class ReqRespHandler extends AbstractHandler
 {
 	private RMQHelper rmqHelper = null;
-	
-	private String requestQueueName = null;
-	private String replyQueueName = null;
-	private QueueingConsumer consumer;
 	
 	public ReqRespHandler(String serviceName)
 	{
@@ -31,12 +29,6 @@ public final class ReqRespHandler extends AbstractHandler
 		try
 		{
 			rmqHelper = new RMQHelper(getServiceName(), false, getProperties());
-			
-			requestQueueName = rmqHelper.getRMQProperties().getTopic();
-			replyQueueName = rmqHelper.getChannel().queueDeclare().getQueue();
-			
-			consumer = new QueueingConsumer(rmqHelper.getChannel());
-			rmqHelper.getChannel().basicConsume(replyQueueName, true, consumer);
 		}
 		catch (Exception e)
 		{
@@ -53,33 +45,22 @@ public final class ReqRespHandler extends AbstractHandler
 		Request request = createRequest(method, args);
 
 		String corrId = UUID.randomUUID().toString();
-		BasicProperties props = new BasicProperties.Builder().correlationId(corrId).replyTo(replyQueueName).build();
+		Channel channel = rmqHelper.getConnection().createChannel();
+		
+		String replyQueueName = channel.queueDeclare().getQueue();
+		BasicProperties props = new BasicProperties.Builder()
+									.correlationId(corrId)
+									.replyTo(replyQueueName)
+									.build();
 
-		rmqHelper.getChannel().basicPublish("", requestQueueName, props, rmqHelper.getEncoder().encode(request));
-
-		byte[] responseAsBytes = null;
-		while (true)
-		{
-			QueueingConsumer.Delivery delivery = consumer.nextDelivery(rmqHelper.getRMQProperties().getTimeout());
-			//Since this is request/response as soon as we get the first message , break.
-			if (delivery != null)
-			{
-				if (delivery.getProperties().getCorrelationId().equals(corrId))
-				{
-					responseAsBytes = delivery.getBody();
-				}
-				else
-				{
-					returnValue = new RuntimeException(endpoint(method) + " received a unexpected corelationId.");
-				}
-				break;
-			}
-			else //Timedout
-			{
-				returnValue = new RuntimeException(endpoint(method) + " timed out.");
-				break;
-			}
-		}
+		RpcClientParams params = new RpcClientParams().
+									channel(channel).
+									exchange("").
+									routingKey(rmqHelper.getRMQProperties().getTopic()).
+									timeout((int)rmqHelper.getRMQProperties().getTimeout());
+		RpcClient rpcClient = new RpcClient(params);
+		byte[] responseAsBytes = rpcClient.doCall(props, rmqHelper.getEncoder().encode(request)).getBody();
+		channel.close();
 		
 		Response response = null;
 		if (responseAsBytes != null)

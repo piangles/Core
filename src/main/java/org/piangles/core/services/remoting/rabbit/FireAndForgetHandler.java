@@ -6,9 +6,12 @@ import org.piangles.core.services.Request;
 import org.piangles.core.services.remoting.handlers.AbstractHandler;
 import org.piangles.core.services.remoting.handlers.HandlerException;
 
+import com.rabbitmq.client.Channel;
+
 public final class FireAndForgetHandler extends AbstractHandler
 {
 	private RMQHelper rmqHelper = null;
+	private Channel channel = null;
 	
 	public FireAndForgetHandler(String serviceName)
 	{
@@ -22,7 +25,8 @@ public final class FireAndForgetHandler extends AbstractHandler
 		{
 			rmqHelper = new RMQHelper(getServiceName(), false, getProperties());
 			
-			rmqHelper.getChannel().exchangeDeclare(rmqHelper.getRMQProperties().getTopic(), "fanout");
+			channel = rmqHelper.getConnection().createChannel();
+			channel.exchangeDeclare(rmqHelper.getRMQProperties().getTopic(), "fanout");
 		}
 		catch (Exception e)
 		{
@@ -36,7 +40,7 @@ public final class FireAndForgetHandler extends AbstractHandler
 		Request request = createRequest(method, args);
 
 		//Make this into a Future or a Separate Thread
-		rmqHelper.getChannel().basicPublish(rmqHelper.getRMQProperties().getTopic(), "", null, rmqHelper.getEncoder().encode(request));
+		channel.basicPublish(rmqHelper.getRMQProperties().getTopic(), "", null, rmqHelper.getEncoder().encode(request));
 		return null;
 	}
 	

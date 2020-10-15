@@ -11,8 +11,9 @@ import org.piangles.core.services.remoting.SessionDetails;
 import org.piangles.core.services.remoting.SessionValidator;
 import org.piangles.core.services.remoting.Traceable;
 
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Delivery;
 import com.rabbitmq.client.AMQP.BasicProperties;
-import com.rabbitmq.client.Envelope;
 
 /**
  * On the server side each request needs to be processed on a separate thread.
@@ -25,33 +26,30 @@ public class RequestProcessorThread extends Thread implements Traceable, Session
 	private Service service = null;
 	private SessionValidator sessionValidator = null;
 	private SessionDetails sessionDetails = null;
-	private Envelope envelope = null;
-	private byte[] body = null;
 	private Request request = null;
-	private BasicProperties props = null;
-	private BasicProperties replyProps = null;
+
+	private Delivery delivery = null;
+	private Channel channel = null;
+	
 	private RMQHelper rmqHelper = null;
 	
-	public RequestProcessorThread(String serviceName, Service service, SessionValidator sessionValidator, Envelope envelope, byte[] body, RMQHelper rmqHelper, BasicProperties props)
+	public RequestProcessorThread(String serviceName, Service service, SessionValidator sessionValidator, RMQHelper rmqHelper, Delivery delivery, Channel channel)
 	{
 		this.serviceName = serviceName;
 		this.service = service;
 		this.sessionValidator = sessionValidator;
-		this.envelope = envelope;
-		this.body = body;
 		this.rmqHelper = rmqHelper;
-		this.props = props;
-		if (props != null)
-		{
-			replyProps = new BasicProperties.Builder().correlationId(props.getCorrelationId()).build();
-		}
+		this.delivery = delivery;
+		this.channel = channel;
 	}
 	
 	public void run()
 	{
+		byte[] body = null;
 		Response response = null;
 		try
 		{
+			body = delivery.getBody();
 			request = rmqHelper.getDecoder().decode(body, Request.class);
 			sessionDetails = new SessionDetails(request.getUserId(), request.getSessionId()); 
 			response = processRequest(request);
@@ -68,7 +66,9 @@ public class RequestProcessorThread extends Thread implements Traceable, Session
 			}
 		}
 		
-		if (response != null && replyProps != null) //It is not fire and forget so send response
+		if (	response != null && 
+				delivery.getProperties() != null && 
+				delivery.getProperties().getCorrelationId() != null) //It is not fire and forget so send response
 		{
 			byte[] encodedBytes = null;
 
@@ -76,8 +76,9 @@ public class RequestProcessorThread extends Thread implements Traceable, Session
 			{
 				encodedBytes = rmqHelper.getEncoder().encode(response);
 
-				rmqHelper.getChannel().basicPublish("", props.getReplyTo(), replyProps, encodedBytes);
-				rmqHelper.getChannel().basicAck(envelope.getDeliveryTag(), false);
+				BasicProperties replyProps = new BasicProperties.Builder().
+											correlationId(delivery.getProperties().getCorrelationId()).build();
+				channel.basicPublish("", delivery.getProperties().getReplyTo(), replyProps, encodedBytes);
 			}
 			catch (Exception e)
 			{
@@ -110,7 +111,11 @@ public class RequestProcessorThread extends Thread implements Traceable, Session
 		{
 			if (sessionValidator.isSessionValid(request))
 			{
+				/**
+				 * Make the actual call to the service
+				 */
 				response = service.process(request);
+				
 				long delayNS = System.nanoTime() - startTime;
 				long delayMiS = TimeUnit.NANOSECONDS.toMicros(delayNS);
 				long delayMS = TimeUnit.NANOSECONDS.toMillis(delayNS);

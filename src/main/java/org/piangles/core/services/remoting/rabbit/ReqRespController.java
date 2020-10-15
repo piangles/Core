@@ -1,18 +1,20 @@
 package org.piangles.core.services.remoting.rabbit;
 
+import java.io.IOException;
 import java.util.Properties;
 
 import org.piangles.core.services.remoting.controllers.AbstractController;
 import org.piangles.core.services.remoting.controllers.ControllerException;
 
-import com.rabbitmq.client.ConsumerCancelledException;
-import com.rabbitmq.client.QueueingConsumer;
-import com.rabbitmq.client.ShutdownSignalException;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Delivery;
+import com.rabbitmq.client.RpcServer;
 
 public final class ReqRespController extends AbstractController
 {
 	private RMQHelper rmqHelper = null;
-	private QueueingConsumer consumer = null;
+	private Channel channel = null;
+	private RpcServer server = null;
 
 	@Override
 	public void init(Properties properties) throws ControllerException
@@ -21,13 +23,8 @@ public final class ReqRespController extends AbstractController
 		{
 			rmqHelper = new RMQHelper(getServiceName(), true, properties);
 
-			rmqHelper.getChannel().queueDeclare(rmqHelper.getRMQProperties().getTopic(), false, false, false, null);
-
-			rmqHelper.getChannel().basicQos(1);
-
-			consumer = new QueueingConsumer(rmqHelper.getChannel());
-			rmqHelper.getChannel().basicConsume(rmqHelper.getRMQProperties().getTopic(), false, consumer);
-
+			channel = rmqHelper.getConnection().createChannel();
+			channel.basicQos(1);
 		}
 		catch (Exception e)
 		{
@@ -38,30 +35,32 @@ public final class ReqRespController extends AbstractController
 	@Override
 	public void start() throws ControllerException
 	{
-		ControllerException expt = null;
-		while (!isStopRequested())
+		try
 		{
-			QueueingConsumer.Delivery delivery = null;
-			try
+			server = new RpcServer(channel, rmqHelper.getRMQProperties().getTopic())
 			{
-				delivery = consumer.nextDelivery();
-			}
-			catch (InterruptedException | ShutdownSignalException | ConsumerCancelledException e)
-			{
-				expt = new ControllerException(e);
-				break;
-			}
-			
-			RequestProcessorThread rpt = new RequestProcessorThread(getServiceName(), getService(), getSessionValidator(), delivery.getEnvelope(), delivery.getBody(), rmqHelper, delivery.getProperties());
-			rpt.start();
+				@Override
+				public void processRequest(Delivery delivery) throws IOException
+				{
+					RequestProcessorThread rpt = new RequestProcessorThread(getServiceName(), getService(), getSessionValidator(), rmqHelper, delivery, channel);
+					rpt.start();
+				}
+			};
+			server.mainloop();
 		}
-		
-		if (expt != null)
+		catch (IOException e)
 		{
-			throw expt;
+			throw new ControllerException(e.getMessage(), e);
 		}
 	}
-	
+
+	@Override
+	protected boolean isStopRequested()
+	{
+		server.terminateMainloop();
+		return super.isStopRequested();
+	}
+
 	@Override
 	public void destroy()
 	{
