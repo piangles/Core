@@ -14,7 +14,7 @@ public class HelloServer
 		try
 		{
 			ConnectionFactory factory = new ConnectionFactory();
-			factory.setHost("ec2-54-167-137-225.compute-1.amazonaws.com");
+			factory.setHost("ec2-100-25-191-222.compute-1.amazonaws.com");
 			factory.setPort(5672);
 			factory.setUsername("msgUser");
 			factory.setPassword("msgPassword");
@@ -22,7 +22,7 @@ public class HelloServer
 			Connection conn = factory.newConnection();
 			final Channel channel = conn.createChannel();
 
-			//ch.queueDeclare("Hello", false, false, false, null);
+			channel.queueDeclare("Hello", false, false, false, null);
 			RpcServer server = new RpcServer(channel, "Hello")
 			{
 				@Override
