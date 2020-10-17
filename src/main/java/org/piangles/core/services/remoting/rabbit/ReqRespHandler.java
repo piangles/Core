@@ -47,7 +47,13 @@ public final class ReqRespHandler extends AbstractHandler
 		String corrId = UUID.randomUUID().toString();
 		Channel channel = rmqHelper.getConnection().createChannel();
 		
+		/**
+		 * TODO exchange will have to derived from Topic eventually for load balancing.
+		 * queueDeclare creates a responseQueue which is nondurable and autodeleted
+		 */
+		String exchange = "";
 		String replyQueueName = channel.queueDeclare().getQueue();
+		
 		BasicProperties props = new BasicProperties.Builder()
 									.correlationId(corrId)
 									.replyTo(replyQueueName)
@@ -55,9 +61,10 @@ public final class ReqRespHandler extends AbstractHandler
 
 		RpcClientParams params = new RpcClientParams().
 									channel(channel).
-									exchange("").
+									exchange(exchange).
 									routingKey(rmqHelper.getRMQProperties().getTopic()).
 									timeout((int)rmqHelper.getRMQProperties().getTimeout());
+		
 		RpcClient rpcClient = new RpcClient(params);
 		byte[] responseAsBytes = rpcClient.doCall(props, rmqHelper.getEncoder().encode(request)).getBody();
 		channel.close();

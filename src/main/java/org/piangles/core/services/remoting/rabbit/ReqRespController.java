@@ -24,7 +24,6 @@ public final class ReqRespController extends AbstractController
 			rmqHelper = new RMQHelper(getServiceName(), true, properties);
 
 			channel = rmqHelper.getConnection().createChannel();
-			channel.basicQos(1);
 		}
 		catch (Exception e)
 		{
@@ -37,6 +36,17 @@ public final class ReqRespController extends AbstractController
 	{
 		try
 		{
+			/**
+			 * This needs to come from configuration this will help in LoadBalacing
+			 * even if we multithread if it is at 1. RabbitMQ will not send a message
+			 * here till we send an Ack back.
+			 */
+			channel.basicQos(1);
+			boolean durable = false; 
+			boolean exclusive = false; 
+			boolean autoDelete = false;
+			channel.queueDeclare(rmqHelper.getRMQProperties().getTopic(), durable, exclusive, autoDelete, null);
+			
 			server = new RpcServer(channel, rmqHelper.getRMQProperties().getTopic())
 			{
 				@Override

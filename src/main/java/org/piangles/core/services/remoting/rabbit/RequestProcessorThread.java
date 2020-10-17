@@ -78,7 +78,17 @@ public class RequestProcessorThread extends Thread implements Traceable, Session
 
 				BasicProperties replyProps = new BasicProperties.Builder().
 											correlationId(delivery.getProperties().getCorrelationId()).build();
-				channel.basicPublish("", delivery.getProperties().getReplyTo(), replyProps, encodedBytes);
+				
+				/**
+				 * Exchange should come from configuration.
+				 */
+				String exchange = "";
+				channel.basicPublish(exchange, delivery.getProperties().getReplyTo(), replyProps, encodedBytes);
+				
+				/**
+				 * Just acknowledge the message with the delivery tag below and nothing else, hence the false
+				 */
+				channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
 			}
 			catch (Exception e)
 			{

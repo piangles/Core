@@ -67,4 +67,19 @@ public class ResourceManager
 
 		return msgSystem;
 	}
+	
+	public RabbitMQSystem getRabbitMQSystem(ConfigProvider cp) throws ResourceException
+	{
+		return null;
+	}
+	
+	public DistributedCache getDistributedCache()
+	{
+		return null;
+	}
+	
+	public NoSQLDataStore getNoSQLDataStore()
+	{
+		return null;
+	}
 }

@@ -3,7 +3,7 @@ package org.piangles.core.dao.rdbms;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public interface ResultSetProcessor
+public interface ResultSetProcessor<T>
 {
-	public void process(ResultSet rs) throws SQLException;
+	public T process(ResultSet rs) throws SQLException;
 }
