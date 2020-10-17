@@ -11,9 +11,9 @@ import org.piangles.core.services.remoting.SessionDetails;
 import org.piangles.core.services.remoting.SessionValidator;
 import org.piangles.core.services.remoting.Traceable;
 
+import com.rabbitmq.client.AMQP.BasicProperties;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Delivery;
-import com.rabbitmq.client.AMQP.BasicProperties;
 
 /**
  * On the server side each request needs to be processed on a separate thread.
@@ -86,9 +86,22 @@ public class RequestProcessorThread extends Thread implements Traceable, Session
 				channel.basicPublish(exchange, delivery.getProperties().getReplyTo(), replyProps, encodedBytes);
 				
 				/**
-				 * Just acknowledge the message with the delivery tag below and nothing else, hence the false
+				 * Why do we not need the below ack Code?
+				 * 
+				 * So the way the code flows currently is from the mainloop below in RpcServer
+				 * 	> public ShutdownSignalException mainloop() throws IOException
+				 * the call goes to 
+				 * 	> public void processRequest(Delivery request) throws IOException
+				 * 
+				 *  processRequest is overriden in ReqRespController.
+				 *  
+				 *  when processRequest is returned RpcServer has the following code
+				 *  > _channel.basicAck(request.getEnvelope().getDeliveryTag(), false);
+				 *  
+				 *  So we should not be acknowledging again from here. It is taken care by
+				 *  the framework.
 				 */
-				channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
+				//channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
 			}
 			catch (Exception e)
 			{
