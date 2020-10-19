@@ -70,7 +70,13 @@ public final class FireAndForgetController extends AbstractController
 		public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException
 		{
 			Delivery delivery = new Delivery(envelope, properties, body);
-			RequestProcessorThread rpt = new RequestProcessorThread(getServiceName(), getService(), getSessionValidator(), rmqHelper, delivery, null);
+			RequestProcessorThread rpt = new RequestProcessorThread(getServiceName(), 
+															FireAndForgetController.this.getPreDeterminedSessionId(),
+															getService(), 
+															getSessionValidator(), 
+															rmqHelper, 
+															delivery, 
+															null);
 			rpt.start();
 		}
 	}

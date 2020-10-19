@@ -52,7 +52,14 @@ public final class ReqRespController extends AbstractController
 				@Override
 				public void processRequest(Delivery delivery) throws IOException
 				{
-					RequestProcessorThread rpt = new RequestProcessorThread(getServiceName(), getService(), getSessionValidator(), rmqHelper, delivery, channel);
+					RequestProcessorThread rpt = new RequestProcessorThread(
+															getServiceName(), 
+															getPreDeterminedSessionId(), 
+															getService(), 
+															getSessionValidator(), 
+															rmqHelper, 
+															delivery, 
+															channel);
 					rpt.start();
 				}
 			};

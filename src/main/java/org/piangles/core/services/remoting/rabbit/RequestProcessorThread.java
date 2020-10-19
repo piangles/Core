@@ -23,6 +23,7 @@ import com.rabbitmq.client.Delivery;
 public class RequestProcessorThread extends Thread implements Traceable, SessionAwareable
 {
 	private String serviceName = null;
+	private String preDeterminedSessionId = null;
 	private Service service = null;
 	private SessionValidator sessionValidator = null;
 	private SessionDetails sessionDetails = null;
@@ -33,9 +34,10 @@ public class RequestProcessorThread extends Thread implements Traceable, Session
 	
 	private RMQHelper rmqHelper = null;
 	
-	public RequestProcessorThread(String serviceName, Service service, SessionValidator sessionValidator, RMQHelper rmqHelper, Delivery delivery, Channel channel)
+	public RequestProcessorThread(String serviceName, String preDeterminedSessionId, Service service, SessionValidator sessionValidator, RMQHelper rmqHelper, Delivery delivery, Channel channel)
 	{
 		this.serviceName = serviceName;
+		this.preDeterminedSessionId = preDeterminedSessionId;
 		this.service = service;
 		this.sessionValidator = sessionValidator;
 		this.rmqHelper = rmqHelper;
@@ -115,6 +117,11 @@ public class RequestProcessorThread extends Thread implements Traceable, Session
 	public String getServiceName()
 	{
 		return serviceName;
+	}
+	
+	public String getPreDeterminedSessionId()
+	{
+		return preDeterminedSessionId;
 	}
 	
 	@Override
