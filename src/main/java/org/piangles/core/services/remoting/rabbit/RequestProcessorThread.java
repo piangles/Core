@@ -112,6 +112,10 @@ public class RequestProcessorThread extends Thread implements Traceable, Session
 
 	}
 	
+	public String getServiceName()
+	{
+		return serviceName;
+	}
 	
 	@Override
 	public UUID getTraceId()
