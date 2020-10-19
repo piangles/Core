@@ -4,15 +4,16 @@ import java.util.UUID;
 
 import org.piangles.core.services.remoting.rabbit.RequestProcessorThread;
 
-public class SessionMockThread<R, E extends Exception> extends Thread implements SessionAwareable, Traceable
+public class SessionImpersonator<R, E extends Exception> extends Thread implements SessionAwareable, Traceable
 {
+	//TODO Rename this to SessionImpersonator
 	private ServiceTask task = null;
 	private R response = null;
 	private Exception expt = null;
 	private SessionDetails sessionDetails = null;
 	private UUID traceId = null;
 	
-	public SessionMockThread(ServiceTask task, String sessionId)
+	public SessionImpersonator(ServiceTask task, String sessionId)
 	{
 		Thread currentThread = Thread.currentThread();
 		if (currentThread instanceof RequestProcessorThread)
