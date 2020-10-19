@@ -13,14 +13,14 @@ public class SessionImpersonator<R, E extends Exception> extends Thread implemen
 	private SessionDetails sessionDetails = null;
 	private UUID traceId = null;
 	
-	public SessionImpersonator(ServiceTask task, String sessionId)
+	public SessionImpersonator(ServiceTask task)
 	{
 		Thread currentThread = Thread.currentThread();
 		if (currentThread instanceof RequestProcessorThread)
 		{
 			RequestProcessorThread rpt = (RequestProcessorThread) currentThread;
 			this.traceId = rpt.getTraceId();
-			this.sessionDetails = new SessionDetails(rpt.getServiceName(), sessionId);
+			this.sessionDetails = new SessionDetails(rpt.getServiceName(), rpt.getPreDeterminedSessionId());
 		}
 		this.task = task;
 	}
