@@ -158,18 +158,27 @@ public class AbstractDAO
 				sp.prepare(call);
 			}
 
-			ResultSet resultSet = call.executeQuery();
-			while (resultSet.next())
+			boolean result = call.execute();
+			if (result)
 			{
-				if (results == null)
+				ResultSet resultSet = call.getResultSet();
+				while (resultSet.next())
 				{
-					results = new ArrayList<T>();
+					if (results == null)
+					{
+						results = new ArrayList<T>();
+					}
+					results.add(irp.process(resultSet, call));
+					if (!complete)
+					{
+						break;
+					}
 				}
-				results.add(irp.process(resultSet));
-				if (!complete)
-				{
-					break;
-				}
+			}
+			else
+			{
+				results = new ArrayList<T>();
+				results.add(irp.process(null, call));
 			}
 		}
 		catch (SQLException e)
