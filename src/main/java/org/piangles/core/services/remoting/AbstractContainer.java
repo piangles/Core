@@ -12,7 +12,7 @@ import org.piangles.core.util.central.CentralClient;
 public abstract class AbstractContainer
 {
 	private static final String CONTROLLER_CLASS_NAME = "ControllerClassName";
-	
+
 	private String serviceName = null;
 	private boolean isService = true;
 	private Properties discoveryProps = null;
@@ -28,7 +28,7 @@ public abstract class AbstractContainer
 	private Object serviceImpl = null;
 	private Service controllerServiceDelegate = null;
 	private Controller controller = null;
-	
+
 	/**
 	 * Process related classes
 	 */
@@ -47,16 +47,16 @@ public abstract class AbstractContainer
 	{
 		this(serviceName, true);
 	}
-	
+
 	public AbstractContainer(String serviceName, boolean isService)
 	{
 		this.serviceName = serviceName;
 		this.isService = isService;
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-				System.out.println(serviceName + " is terminating.");
+			System.out.println(serviceName + " is terminating.");
 		}));
 	}
-	
+
 	/**
 	 * Called from the main Thread it executes steps for the creation of the
 	 * service and it's corresponding classes.
@@ -68,27 +68,27 @@ public abstract class AbstractContainer
 		try
 		{
 			discoveryProps = CentralClient.discover(serviceName);
-			
+
 			/**
 			 * Create SessionDetails using Predetermined configuration
 			 */
 			this.sessionDetails = SessionDetailsCreator.createSessionDetails(serviceName, discoveryProps);
-			
-			threadFactory = (runnable)->{
+
+			threadFactory = (runnable) -> {
 				return new SessionAwareableThread(runnable);
 			};
-			
+
 			if (isService)
 			{
-				Thread initializerThread = threadFactory.newThread(()->{
+				Thread initializerThread = threadFactory.newThread(() -> {
 					try
 					{
 						System.out.println("Creating " + serviceName + " Controller.");
 						controller = createController();
-						
+
 						System.out.println("Creating " + serviceName + " ServiceImpl.");
 						serviceImpl = createServiceImpl();
-						
+
 						System.out.println("Creating " + serviceName + " ControllerServiceDelegate.");
 						controllerServiceDelegate = createControllerServiceDelegate();
 
@@ -104,18 +104,28 @@ public abstract class AbstractContainer
 					}
 					catch (ContainerException e)
 					{
-						//Notify
 						e.printStackTrace();
 						System.exit(-1);
 					}
 				});
 				initializerThread.start();
 			}
-			else //It is a process
+			else // It is a process
 			{
 				System.out.println(serviceName + " is a process and will handle it's own lifecycle events.");
 				System.out.println(serviceName + " being started...");
-				initializeAndRunProcess();
+				Thread initializerThread = threadFactory.newThread(() -> {
+					try
+					{
+						initializeAndRunProcess();
+					}
+					catch (Exception e)
+					{
+						e.printStackTrace();
+						System.exit(-1);
+					}
+				});
+				initializerThread.start();
 			}
 		}
 		catch (Exception e)
@@ -130,14 +140,14 @@ public abstract class AbstractContainer
 		try
 		{
 			String controllerClassName = discoveryProps.getProperty(CONTROLLER_CLASS_NAME);
-			controller = (Controller)Class.forName(controllerClassName).newInstance();
+			controller = (Controller) Class.forName(controllerClassName).newInstance();
 			controller.init(serviceName, discoveryProps);
 		}
 		catch (Exception e)
 		{
-			 throw new ContainerException(e);
+			throw new ContainerException(e);
 		}
-		
+
 		return controller;
 	}
 
@@ -149,26 +159,32 @@ public abstract class AbstractContainer
 	@SuppressWarnings("unchecked")
 	protected final <T> T getServiceImpl()
 	{
-		return (T)serviceImpl;
+		return (T) serviceImpl;
 	}
-	
+
 	protected final ThreadFactory getThreadFactory()
 	{
 		return threadFactory;
 	}
-	
-	protected void initializeAndRunProcess() throws ContainerException{};
-	protected Object createServiceImpl() throws ContainerException{return null;};
-	
+
+	protected void initializeAndRunProcess() throws ContainerException
+	{
+	};
+
+	protected Object createServiceImpl() throws ContainerException
+	{
+		return null;
+	};
+
 	class SessionAwareableThread extends Thread implements SessionAwareable
 	{
 		private Runnable runnable = null;
-		
+
 		public SessionAwareableThread(Runnable runnable)
 		{
 			this.runnable = runnable;
 		}
-		
+
 		@Override
 		public void run()
 		{
