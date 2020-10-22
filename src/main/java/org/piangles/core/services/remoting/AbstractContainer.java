@@ -5,6 +5,7 @@ import java.util.TimeZone;
 import java.util.concurrent.ThreadFactory;
 
 import org.piangles.core.services.Service;
+import org.piangles.core.services.ServiceType;
 import org.piangles.core.services.remoting.controllers.Controller;
 import org.piangles.core.services.remoting.controllers.ControllerException;
 import org.piangles.core.util.central.CentralClient;
@@ -14,7 +15,7 @@ public abstract class AbstractContainer
 	private static final String CONTROLLER_CLASS_NAME = "ControllerClassName";
 
 	private String serviceName = null;
-	private boolean isService = true;
+	private ServiceType serviceType = ServiceType.Service;
 	private Properties discoveryProps = null;
 
 	/**
@@ -45,13 +46,13 @@ public abstract class AbstractContainer
 
 	public AbstractContainer(String serviceName)
 	{
-		this(serviceName, true);
+		this(serviceName, ServiceType.Service);
 	}
 
-	public AbstractContainer(String serviceName, boolean isService)
+	public AbstractContainer(String serviceName, ServiceType serviceType)
 	{
 		this.serviceName = serviceName;
-		this.isService = isService;
+		this.serviceType = serviceType;
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			System.out.println(serviceName + " is terminating.");
 		}));
@@ -78,54 +79,18 @@ public abstract class AbstractContainer
 				return new SessionAwareableThread(runnable);
 			};
 
-			if (isService)
+			if (serviceType == ServiceType.Process)
 			{
-				Thread initializerThread = threadFactory.newThread(() -> {
-					try
-					{
-						System.out.println("Creating " + serviceName + " Controller.");
-						controller = createController();
-
-						System.out.println("Creating " + serviceName + " ServiceImpl.");
-						serviceImpl = createServiceImpl();
-
-						System.out.println("Creating " + serviceName + " ControllerServiceDelegate.");
-						controllerServiceDelegate = createControllerServiceDelegate();
-
-						System.out.println("Controller for " + serviceImpl.getClass().getSimpleName() + " being started...");
-						try
-						{
-							controller.start(controllerServiceDelegate);
-						}
-						catch (ControllerException e)
-						{
-							throw new ContainerException(e);
-						}
-					}
-					catch (ContainerException e)
-					{
-						e.printStackTrace();
-						System.exit(-1);
-					}
-				});
-				initializerThread.start();
+				initializeAndRunProcess();
 			}
-			else // It is a process
+			else if (serviceType == ServiceType.Service)
 			{
-				System.out.println(serviceName + " is a process and will handle it's own lifecycle events.");
-				System.out.println(serviceName + " being started...");
-				Thread initializerThread = threadFactory.newThread(() -> {
-					try
-					{
-						initializeAndRunProcess();
-					}
-					catch (Exception e)
-					{
-						e.printStackTrace();
-						System.exit(-1);
-					}
-				});
-				initializerThread.start();
+				initializeAndRunService();
+			}
+			else
+			{
+				initializeAndRunProcess();
+				initializeAndRunService();
 			}
 		}
 		catch (Exception e)
@@ -133,7 +98,12 @@ public abstract class AbstractContainer
 			throw new ContainerException(e);
 		}
 	}
-
+	
+	protected Object createServiceImpl() throws ContainerException
+	{
+		return null;
+	};
+	
 	protected Controller createController() throws ContainerException
 	{
 		Controller controller = null;
@@ -167,14 +137,63 @@ public abstract class AbstractContainer
 		return threadFactory;
 	}
 
-	protected void initializeAndRunProcess() throws ContainerException
+	protected void createProcessImpl() throws ContainerException
 	{
 	};
 
-	protected Object createServiceImpl() throws ContainerException
+	private void initializeAndRunService()
 	{
-		return null;
-	};
+		System.out.println(serviceName + " is a process and will handle it's own lifecycle events.");
+		System.out.println(serviceName + " being started...");
+
+		Thread initializerThread = threadFactory.newThread(() -> {
+			try
+			{
+				System.out.println("Creating " + serviceName + " ServiceImpl.");
+				serviceImpl = createServiceImpl();
+				
+				if (serviceImpl == null) return;
+
+				System.out.println("Creating " + serviceName + " ControllerServiceDelegate.");
+				controllerServiceDelegate = createControllerServiceDelegate();
+
+				System.out.println("Creating " + serviceName + " Controller.");
+				controller = createController();
+
+				try
+				{
+					System.out.println("Controller for " + serviceImpl.getClass().getSimpleName() + " being started...");
+					controller.start(controllerServiceDelegate);
+				}
+				catch (ControllerException e)
+				{
+					throw new ContainerException(e);
+				}
+			}
+			catch (ContainerException e)
+			{
+				e.printStackTrace();
+				System.exit(-1);
+			}
+		});
+		initializerThread.start();
+	}
+	
+	private void initializeAndRunProcess()
+	{
+		Thread initializerThread = threadFactory.newThread(() -> {
+			try
+			{
+				createProcessImpl();
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+				System.exit(-1);
+			}
+		});
+		initializerThread.start();
+	}
 
 	class SessionAwareableThread extends Thread implements SessionAwareable
 	{
