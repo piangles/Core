@@ -5,7 +5,7 @@ import java.util.TimeZone;
 import java.util.concurrent.ThreadFactory;
 
 import org.piangles.core.services.Service;
-import org.piangles.core.services.ServiceType;
+import org.piangles.core.services.AppType;
 import org.piangles.core.services.remoting.controllers.Controller;
 import org.piangles.core.services.remoting.controllers.ControllerException;
 import org.piangles.core.util.central.CentralClient;
@@ -15,7 +15,7 @@ public abstract class AbstractContainer
 	private static final String CONTROLLER_CLASS_NAME = "ControllerClassName";
 
 	private String serviceName = null;
-	private ServiceType serviceType = ServiceType.Service;
+	private AppType appType = AppType.Service;
 	private Properties discoveryProps = null;
 
 	/**
@@ -46,13 +46,13 @@ public abstract class AbstractContainer
 
 	public AbstractContainer(String serviceName)
 	{
-		this(serviceName, ServiceType.Service);
+		this(serviceName, AppType.Service);
 	}
 
-	public AbstractContainer(String serviceName, ServiceType serviceType)
+	public AbstractContainer(String serviceName, AppType serviceType)
 	{
 		this.serviceName = serviceName;
-		this.serviceType = serviceType;
+		this.appType = serviceType;
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			System.out.println(serviceName + " is terminating.");
 		}));
@@ -79,15 +79,15 @@ public abstract class AbstractContainer
 				return new SessionAwareableThread(runnable);
 			};
 
-			if (serviceType == ServiceType.Process)
+			if (appType == AppType.Process)
 			{
 				initializeAndRunProcess();
 			}
-			else if (serviceType == ServiceType.Service)
+			else if (appType == AppType.Service)
 			{
 				initializeAndRunService();
 			}
-			else
+			else //It is a combination of both Process and Service
 			{
 				initializeAndRunProcess();
 				initializeAndRunService();

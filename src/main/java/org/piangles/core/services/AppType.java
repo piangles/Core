@@ -1,6 +1,6 @@
 package org.piangles.core.services;
 
-public enum ServiceType
+public enum AppType
 {
 	Process,
 	Service,
