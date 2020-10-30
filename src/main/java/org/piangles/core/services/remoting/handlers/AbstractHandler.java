@@ -88,7 +88,7 @@ public abstract class AbstractHandler implements Handler
 			{
 				message = t.getClass().getCanonicalName();
 			}
-			result = createException(method, "Unable to process call because of: " + message, t);
+			result = createException(method, "Unable to process call " + endpoint(method) +  " because of: " + message, t);
 		}
 		finally
 		{
