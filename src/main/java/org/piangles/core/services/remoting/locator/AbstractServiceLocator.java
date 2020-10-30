@@ -12,7 +12,6 @@ import org.piangles.core.util.central.CentralClient;
 
 public abstract class AbstractServiceLocator
 {
-	private static final long serialVersionUID = 1L;
 	private static final String PROPS_HANDLER = "HandlerClassName";
 	private HashMap<String, Object> serviceProxyMap = null;
 	private HashMap<String, Handler> handlerMap = null;
