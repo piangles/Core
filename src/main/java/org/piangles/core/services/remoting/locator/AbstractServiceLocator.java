@@ -38,10 +38,14 @@ public abstract class AbstractServiceLocator
 	}
 	
 	///////////////////////////////////createProxy////////////////////////////////
+	protected Object createProxy(Class<?> serviceClass)
+	{
+		return createProxy(serviceClass.getSimpleName(), serviceClass);
+	}
 
 	protected Object createProxy(String serviceName, Class<?> serviceClass)
 	{
-		String key = serviceName + serviceClass.getCanonicalName();
+		String key = serviceClass.getCanonicalName();
 		Object proxy = serviceProxyMap.get(key);
 
 		if (proxy == null)

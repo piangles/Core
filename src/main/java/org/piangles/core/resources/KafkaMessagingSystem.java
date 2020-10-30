@@ -29,9 +29,16 @@ public class KafkaMessagingSystem
 		
 		List<TopicPartition> partitions = consumerProps.getTopics().stream().
 											map(topic -> new TopicPartition(topic.topicName, topic.partitionNo)).collect(Collectors.toList());
-		
+
+		List<TopicPartition> compactedPartitions = consumerProps.getTopics().stream().filter(topic -> topic.compacted).
+				map(topic -> new TopicPartition(topic.topicName, topic.partitionNo)).collect(Collectors.toList());
+
 		KafkaConsumer<String, String> consumer = new KafkaConsumer<>(msgProps);
 		consumer.assign(partitions);
+		if (!compactedPartitions.isEmpty())
+		{
+			consumer.seekToBeginning(compactedPartitions);
+		}
 	
 		return consumer;
 	}
