@@ -1,6 +1,5 @@
 package org.piangles.core.services.remoting.rabbit;
 
-import java.lang.reflect.Method;
 import java.util.UUID;
 
 import org.piangles.core.services.Request;
@@ -38,25 +37,25 @@ public final class ReqRespHandler extends AbstractHandler
 	}
 
 	@Override
-	protected Object processMethodCall(Method method, Object[] args) throws Throwable
+	protected Object processRequest(Request request) throws Throwable
 	{
 		Object returnValue = null;
-
-		Request request = createRequest(method, args);
 
 		String corrId = UUID.randomUUID().toString();
 		Channel channel = rmqHelper.getConnection().createChannel();
 		
 		/**
 		 * TODO exchange will have to derived from Topic eventually for load balancing.
+		 *
+		 * This is not neeeded any more, the replyTo is defaulted in BasicProperties
+		 * String replyQueueName = channel.queueDeclare().getQueue();
+		 * BasicProperties.replyTo(replyQueueName)
 		 * queueDeclare creates a responseQueue which is nondurable and autodeleted
 		 */
 		String exchange = "";
-		String replyQueueName = channel.queueDeclare().getQueue();
 		
 		BasicProperties props = new BasicProperties.Builder()
 									.correlationId(corrId)
-									.replyTo(replyQueueName)
 									.build();
 
 		RpcClientParams params = new RpcClientParams().
@@ -67,6 +66,7 @@ public final class ReqRespHandler extends AbstractHandler
 		
 		RpcClient rpcClient = new RpcClient(params);
 		byte[] responseAsBytes = rpcClient.doCall(props, rmqHelper.getEncoder().encode(request)).getBody();
+		rpcClient.close();
 		channel.close();
 		
 		Response response = null;

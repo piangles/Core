@@ -3,6 +3,8 @@ package org.piangles.core.services.remoting.handlers;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import org.piangles.core.services.Request;
+
 public final class DefaultHandler extends AbstractHandler
 {
 	private Object service = null;
@@ -20,7 +22,7 @@ public final class DefaultHandler extends AbstractHandler
 	}
 
 	@Override
-	protected Object processMethodCall(Method method, Object[] args)
+	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
 	{
 		Object result = null;
 		try
@@ -40,5 +42,11 @@ public final class DefaultHandler extends AbstractHandler
 			result = e;
 		}
 		return result;
+	}
+
+	@Override
+	protected Object processRequest(Request request) throws Throwable
+	{
+		return null;
 	}
 }

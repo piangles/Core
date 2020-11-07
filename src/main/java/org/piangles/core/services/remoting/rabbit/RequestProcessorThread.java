@@ -154,7 +154,12 @@ public class RequestProcessorThread extends Thread implements Traceable, Session
 				long delayMiS = TimeUnit.NANOSECONDS.toMicros(delayNS);
 				long delayMS = TimeUnit.NANOSECONDS.toMillis(delayNS);
 				String endpoint = request.getServiceName() + "::" + request.getEndPoint();
-				System.out.println(String.format("ServerSide-TimeTaken by %s is %d MilliSeconds and %d MicroSeconds.", endpoint, delayMS, delayMiS));
+				String traceId = null;
+				if (request != null)
+				{
+					traceId = request.getTraceId().toString();
+				}
+				System.out.println(String.format("ServerSide-TimeTaken for traceId %s by %s is %d MilliSeconds and %d MicroSeconds.", traceId, endpoint, delayMS, delayMiS));
 			}
 			else
 			{

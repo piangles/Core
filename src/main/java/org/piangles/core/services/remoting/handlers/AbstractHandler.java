@@ -72,14 +72,16 @@ public abstract class AbstractHandler implements Handler
 	}
 	
 	@Override
-	public final Object invoke(Object proxy, Method method, Object[] args) throws Throwable
+	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
 	{
 		long startTime = System.nanoTime();
 		Object result = null;
-		
+		Request request = null; 
 		try
 		{
-			result = processMethodCall(method, args);
+			request = createRequest(method, args);
+
+			result = processRequest(request);
 		}
 		catch(Throwable t)
 		{
@@ -88,14 +90,19 @@ public abstract class AbstractHandler implements Handler
 			{
 				message = t.getClass().getCanonicalName();
 			}
-			result = createException(method, "Unable to process call " + endpoint(method) +  " because of: " + message, t);
+			result = createException(method, "Unable to process call " + endpoint(request) +  " because of: " + message, t);
 		}
 		finally
 		{
 			long delayNS = System.nanoTime() - startTime;
 			long delayMiS = TimeUnit.NANOSECONDS.toMicros(delayNS);
 			long delayMS = TimeUnit.NANOSECONDS.toMillis(delayNS);
-			System.out.println(String.format("CallerSide-TimeTaken by %s is %d MilliSeconds and %d MicroSeconds.", endpoint(method), delayMS, delayMiS));
+			String traceId = null;
+			if (request != null && request.getTraceId() != null)
+			{
+				traceId = request.getTraceId().toString();
+			}
+			System.out.println(String.format("CallerSide-TimeTaken for traceId %s by %s is %d MilliSeconds and %d MicroSeconds.", traceId, endpoint(request), delayMS, delayMiS));
 		}
 		
 		/**
@@ -189,9 +196,14 @@ public abstract class AbstractHandler implements Handler
 		return properties;
 	}
 	
-	protected final String endpoint(Method method)
+	protected final String endpoint(Request request)
 	{
-		return getServiceName() + "::" + method.getName();
+		String endpoint = null;
+		if (request != null)
+		{
+			endpoint = request.getEndPoint();
+		}
+		return getServiceName() + "::" + endpoint;
 	}
 	
 	private UUID getOrCreateTraceId()
@@ -238,7 +250,7 @@ public abstract class AbstractHandler implements Handler
 	}
 
 	protected abstract void init() throws HandlerException;
-	protected abstract Object processMethodCall(Method method, Object[] args) throws Throwable;
+	protected abstract Object processRequest(Request request) throws Throwable;
 }
 
 

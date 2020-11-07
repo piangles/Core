@@ -10,7 +10,7 @@ package org.piangles.core.util;
  */
 public class ClassHelper
 {
-	private static final int DEFAULT_SKIP = 3;
+	private static final int DEFAULT_SKIP = 2;
 	private StringBuffer completeStackTrace = null;
 	private String className = null;
 	private String lineNumber = null;

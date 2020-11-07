@@ -9,6 +9,7 @@ import org.piangles.core.services.remoting.controllers.ControllerException;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Delivery;
 import com.rabbitmq.client.RpcServer;
+import com.rabbitmq.client.ShutdownSignalException;
 
 public final class ReqRespController extends AbstractController
 {
@@ -63,7 +64,8 @@ public final class ReqRespController extends AbstractController
 					rpt.start();
 				}
 			};
-			server.mainloop();
+			ShutdownSignalException exception = server.mainloop();
+			//TODO Need to handle this
 		}
 		catch (IOException e)
 		{
