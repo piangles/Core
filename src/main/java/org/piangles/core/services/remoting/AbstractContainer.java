@@ -49,10 +49,10 @@ public abstract class AbstractContainer
 		this(serviceName, AppType.Service);
 	}
 
-	public AbstractContainer(String serviceName, AppType serviceType)
+	public AbstractContainer(String serviceName, AppType appType)
 	{
 		this.serviceName = serviceName;
-		this.appType = serviceType;
+		this.appType = appType;
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			System.out.println(serviceName + " is terminating.");
 		}));
@@ -64,10 +64,22 @@ public abstract class AbstractContainer
 	 * 
 	 * @throws ContainerException
 	 */
-	public final void performSteps() throws ContainerException
+	public final void performSteps(String[] args) throws ContainerException
 	{
 		try
 		{
+			/**
+			 * TODO create a formal command line parsing logic
+			 */
+			if (args.length == 2)
+			{
+				if ("wait".equals(args[0]))
+				{
+					System.out.println("Waiting for " + args[1] + " seconds to start: " + serviceName);
+					Thread.sleep(Integer.parseInt(args[1]) * 1000);
+				}
+			}
+			
 			discoveryProps = CentralClient.discover(serviceName);
 
 			/**
@@ -81,14 +93,20 @@ public abstract class AbstractContainer
 
 			if (appType == AppType.Process)
 			{
+				System.out.println(serviceName + " is a Process and will handle it's own lifecycle events.");
+
 				initializeAndRunProcess();
 			}
 			else if (appType == AppType.Service)
 			{
+				System.out.println(serviceName + " is a Service and starting it's lifecycle events.");
+				
 				initializeAndRunService();
 			}
 			else //It is a combination of both Process and Service
 			{
+				System.out.println(serviceName + " is both a Process and Service is managed accordingly.");
+				
 				initializeAndRunProcess();
 				initializeAndRunService();
 			}
@@ -143,9 +161,6 @@ public abstract class AbstractContainer
 
 	private void initializeAndRunService()
 	{
-		System.out.println(serviceName + " is a process and will handle it's own lifecycle events.");
-		System.out.println(serviceName + " being started...");
-
 		Thread initializerThread = threadFactory.newThread(() -> {
 			try
 			{
