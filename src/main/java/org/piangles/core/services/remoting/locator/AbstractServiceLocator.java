@@ -62,7 +62,13 @@ public abstract class AbstractServiceLocator
 			{
 				throw new RuntimeException(e);
 			}
+			
 			String handlerClassName = (String) props.get(PROPS_HANDLER);
+			if (handlerClassName == null)
+			{
+				throw new RuntimeException(serviceName + " does not have " + PROPS_HANDLER + " configured in CentralService.");
+			}
+			
 			try
 			{
 				handler = (Handler) Class.forName(handlerClassName).getConstructor(String.class).newInstance(serviceName);
@@ -71,6 +77,7 @@ public abstract class AbstractServiceLocator
 			{
 				throw new RuntimeException(e);
 			}
+			
 			try
 			{
 				handler.init(props);
