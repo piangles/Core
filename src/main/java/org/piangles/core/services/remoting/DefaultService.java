@@ -30,15 +30,17 @@ public class DefaultService implements Service
 		Response response = null;
 		Method method = null;
 		Object[] args = request.getParameters();
-		
+		String key = null;
 		if (args != null)
 		{
-			method = endPointMethodMap.get(request.getEndPoint() + args.length);
+			key = request.getEndPoint() + args.length;
 		}
 		else
 		{
-			method = endPointMethodMap.get(request.getEndPoint());
+			key = request.getEndPoint() + "0";
 		}
+		
+		method = endPointMethodMap.get(key);
 
 		Object returnValue = null;
 		if (method != null)
