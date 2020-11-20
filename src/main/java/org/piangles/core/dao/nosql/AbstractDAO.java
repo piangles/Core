@@ -1,30 +1,25 @@
 package org.piangles.core.dao.nosql;
 
-import org.bson.Document;
 import org.piangles.core.dao.DAOException;
 import org.piangles.core.resources.MongoDataStore;
 
-import com.google.gson.Gson;
 import com.mongodb.client.MongoCollection;
 
 public abstract class AbstractDAO<T>
 {
-	private MongoDataStore dataStore = null;
+	private MongoCollection<T> collection = null;
 
 	public void init(MongoDataStore dataStore)
 	{
-		this.dataStore = dataStore;
+		collection = dataStore.getDatabase().getCollection(getTClass().getSimpleName(), getTClass());
 	}
 
-	protected final void create(String message, T obj) throws DAOException
+	protected final void create(T obj) throws DAOException
 	{
-		Document document = new Document();
-		Gson gson = new Gson();
-		MongoCollection<Document> collection = dataStore.getDatabase().getCollection("Logs");
-		document.put(message, gson.toJson(obj));
-		collection.insertOne(document);
+		collection.insertOne(obj);
 	}
 
+	protected abstract Class<T> getTClass();
 //	protected final void update() throws DAOException;
 //	protected final void read() throws DAOException;
 //	protected final void delete() throws DAOException;

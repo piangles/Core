@@ -1,10 +1,18 @@
 package org.piangles.core.resources;
 
+//import static com.mongodb.client.model.Filters.eq;
+//import static java.util.Collections.singletonList;
+import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
+import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
+
 import java.util.Properties;
 
+import org.bson.codecs.configuration.CodecRegistry;
+import org.bson.codecs.pojo.PojoCodecProvider;
 import org.piangles.core.util.abstractions.Decrypter;
 
 import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
@@ -43,7 +51,35 @@ public final class MongoDataStore
 				.append(database);
 
 		ConnectionString connectionString = new ConnectionString(sb.toString());
-		MongoClient mongoClient = MongoClients.create(connectionString);
+		
+		/**
+		 * For persisting POJOs
+		 * https://www.mongodb.com/blog/post/quick-start-java-and-mongodb--mapping-pojos?utm_campaign=javapojos&utm_source=twitter&utm_medium=organic_social
+		 * 
+		 * Need to configure the CodecRegistry to include a codec to handle 
+		 * the translation to and from BSON for our POJOs.
+		 */
+		CodecRegistry pojoCodecRegistry = fromProviders(PojoCodecProvider.builder().automatic(true).build());
+		/**
+		 * Need to add the default codec registry, which contains all the default codecs. 
+		 * They can handle all the major types in Java-like Boolean, Double, String, BigDecimal, etc.
+		 */
+		CodecRegistry codecRegistry = fromRegistries(MongoClientSettings.getDefaultCodecRegistry(), 
+                pojoCodecRegistry);
+		/**
+		 * Now wrap all my settings together using MongoClientSettings.
+		 */
+		MongoClientSettings clientSettings = MongoClientSettings.builder()
+                .applyConnectionString(connectionString)
+                .codecRegistry(codecRegistry)
+                .build();
+
+		/**
+		 * Connection Pooling
+		 * https://stackoverflow.com/questions/44785556/how-to-use-mongodb-connecton-pooling-in-java
+		 * https://stackoverflow.com/questions/8968125/mongodb-connection-pooling
+		 */
+		MongoClient mongoClient = MongoClients.create(clientSettings);
 		mongoDb = mongoClient.getDatabase(database);
 	}
 	
