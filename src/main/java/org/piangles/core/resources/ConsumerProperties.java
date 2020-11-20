@@ -3,7 +3,7 @@ package org.piangles.core.resources;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ConsumerProperties
+public final class ConsumerProperties
 {
 	private String groupId;
 	private List<Topic> topics = null;

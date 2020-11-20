@@ -5,7 +5,7 @@ import java.util.HashMap;
 import org.piangles.core.util.abstractions.ConfigProvider;
 
 
-public class ResourceManager
+public final class ResourceManager
 {
 	private static ResourceManager self = null;
 	private static HashMap<String, Object> componentIdResourceMap = null;
@@ -46,7 +46,29 @@ public class ResourceManager
 
 		return dataStore;
 	}
-	
+
+	public MongoDataStore getMongoDataStore(ConfigProvider cp) throws ResourceException
+	{
+		MongoDataStore dataStore = null;
+
+		try
+		{
+			dataStore = (MongoDataStore)componentIdResourceMap.get(cp.getComponentId());
+			if (dataStore == null)
+			{
+				dataStore = new MongoDataStore(cp.getServiceName(), cp.getProperties());
+				componentIdResourceMap.put(cp.getComponentId(), dataStore);
+			}
+		}
+		catch (Exception e)
+		{
+			throw new ResourceException(e);
+		}
+		
+
+		return dataStore;
+	}
+
 	public KafkaMessagingSystem getKafkaMessagingSystem(ConfigProvider cp) throws ResourceException
 	{
 		KafkaMessagingSystem msgSystem = null;
@@ -73,13 +95,9 @@ public class ResourceManager
 		return null;
 	}
 	
-	public DistributedCache getDistributedCache()
+	public DistributedCache getDistributedCache(ConfigProvider cp) throws ResourceException
 	{
 		return null;
 	}
 	
-	public NoSQLDataStore getNoSQLDataStore()
-	{
-		return null;
-	}
 }

@@ -11,12 +11,12 @@ import org.piangles.core.util.abstractions.Decrypter;
  * As the name suggests it is a wrapper for creating connection pool.
  *
  */
-public class RDBMSDataStore
+public final class RDBMSDataStore
 {
-	public static final String DRIVER_CLASSNAME = "DriverClassName";
-	public static final String LOGIN_ID = "LoginId";
-	public static final String PASSWORD = "Password";
-	public static final String URL = "URL";
+	private static final String DRIVER_CLASSNAME = "DriverClassName";
+	private static final String LOGIN_ID = "LoginId";
+	private static final String PASSWORD = "Password";
+	private static final String URL = "URL";
 	private static final String DECRYPTER_CLASS_NAME = "DecrypterClassName";
 	private static final String DECRYPTER_AUTHZ_ID = "DecrypterAuthorizationId";
 

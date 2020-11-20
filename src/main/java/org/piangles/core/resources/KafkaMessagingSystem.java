@@ -9,7 +9,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.common.TopicPartition;
 
-public class KafkaMessagingSystem
+public final class KafkaMessagingSystem
 {
 	private Properties msgProps = null;
 	

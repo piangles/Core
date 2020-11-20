@@ -19,7 +19,7 @@ import org.piangles.core.resources.RDBMSDataStore;
  * of using the generic features only.
  *
  */
-public class AbstractDAO
+public abstract class AbstractDAO
 {
 	private RDBMSDataStore dataStore = null;
 

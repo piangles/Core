@@ -1,6 +1,6 @@
 package org.piangles.core.resources;
 
-public class RabbitMQSystem
+public final class RabbitMQSystem
 {
 
 }
