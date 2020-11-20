@@ -43,7 +43,6 @@ public final class ResourceManager
 			throw new ResourceException(e);
 		}
 		
-
 		return dataStore;
 	}
 
@@ -65,8 +64,28 @@ public final class ResourceManager
 			throw new ResourceException(e);
 		}
 		
-
 		return dataStore;
+	}
+
+	public RedisCache getRedisCache(ConfigProvider cp) throws ResourceException
+	{
+		RedisCache redisCache = null;
+
+		try
+		{
+			redisCache = (RedisCache)componentIdResourceMap.get(cp.getComponentId());
+			if (redisCache == null)
+			{
+				redisCache = new RedisCache(cp.getServiceName(), cp.getProperties());
+				componentIdResourceMap.put(cp.getComponentId(), redisCache);
+			}
+		}
+		catch (Exception e)
+		{
+			throw new ResourceException(e);
+		}
+		
+		return redisCache;
 	}
 
 	public KafkaMessagingSystem getKafkaMessagingSystem(ConfigProvider cp) throws ResourceException
@@ -94,10 +113,4 @@ public final class ResourceManager
 	{
 		return null;
 	}
-	
-	public DistributedCache getDistributedCache(ConfigProvider cp) throws ResourceException
-	{
-		return null;
-	}
-	
 }
