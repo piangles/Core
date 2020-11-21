@@ -111,6 +111,22 @@ public final class ResourceManager
 	
 	public RabbitMQSystem getRabbitMQSystem(ConfigProvider cp) throws ResourceException
 	{
-		return null;
+		RabbitMQSystem msgSystem = null;
+
+		try
+		{
+			msgSystem = (RabbitMQSystem)componentIdResourceMap.get(cp.getComponentId());
+			if (msgSystem == null)
+			{
+				msgSystem = new RabbitMQSystem(cp.getServiceName(), cp.getProperties());
+				componentIdResourceMap.put(cp.getComponentId(), msgSystem);
+			}
+		}
+		catch (Exception e)
+		{
+			throw new ResourceException(e);
+		}
+
+		return msgSystem;
 	}
 }

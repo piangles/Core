@@ -1,15 +1,13 @@
-package org.piangles.core.services.remoting.rabbit;
+package org.piangles.core.resources;
 
 import java.util.Properties;
 
-public final class RMQProperties
+final class RMQProperties
 {
 	private static final String HOST = "RMQHostName";
 	private static final String PORT = "RMQPort";
-	public static final String LOGIN = "RMQLoginId";
-	public static final String PASSWORD = "RMQPassword";
-	public static final String TOPIC = "Topic";
-	private static final String TIMEOUT = "TimeOut";
+	static final String LOGIN = "RMQLoginId";
+	static final String PASSWORD = "RMQPassword";
 	
 	private Properties properties = null;
 	
@@ -36,15 +34,5 @@ public final class RMQProperties
 	public String getPassword()
 	{
 		return properties.getProperty(PASSWORD);
-	}
-
-	public String getTopic()
-	{
-		return properties.getProperty(TOPIC);
-	}
-	
-	public long getTimeout()
-	{
-		return Long.valueOf(properties.getProperty(TIMEOUT));
 	}
 }

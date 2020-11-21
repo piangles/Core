@@ -5,6 +5,6 @@ import java.util.Properties;
 
 public interface Handler extends InvocationHandler
 {
-	public void init(Properties properties) throws HandlerException;
+	public void init(String serviceName, Properties properties) throws HandlerException;
 	public default void destroy() {};
 }

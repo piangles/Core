@@ -10,23 +10,31 @@ import java.util.concurrent.TimeUnit;
 
 import org.piangles.core.services.Header;
 import org.piangles.core.services.Request;
+import org.piangles.core.services.remoting.AbstractRemoter;
 import org.piangles.core.services.remoting.SessionAwareable;
 import org.piangles.core.services.remoting.Traceable;
 import org.piangles.core.util.SystemHelper;
 
-public abstract class AbstractHandler implements Handler
+public abstract class AbstractHandler extends AbstractRemoter implements Handler
 {
 	private static final String PROPS_REQ_CREATOR = "RequestCreatorClassName";
 	
 	private static Set<Class<?>> WRAPPER_TYPES = null;
-	private String serviceName = null;
-	private Properties properties = null;
 	private Header header = null;
 	private RequestCreator requestCreator = null; 
 	
-	public AbstractHandler(String serviceName)
+	@Override
+	public final void init(String serviceName, Properties properties) throws HandlerException
 	{
-		this.serviceName = serviceName;
+		try
+		{
+			super.init(serviceName, properties);
+		}
+		catch (Exception e)
+		{
+			throw new HandlerException(e);
+		}
+		
 		WRAPPER_TYPES = new HashSet<Class<?>>();
         WRAPPER_TYPES.add(Boolean.class);
         WRAPPER_TYPES.add(Character.class);
@@ -46,12 +54,7 @@ public abstract class AbstractHandler implements Handler
 		String threadId = SystemHelper.getThreadId();
 
 		header = new Header(hostName, loginId, processName, processId, threadId);
-	}
-	
-	@Override
-	public final void init(Properties properties) throws HandlerException
-	{
-		this.properties = properties;
+		
 		String requestCreatorClassName = properties.getProperty(PROPS_REQ_CREATOR);
 		try
 		{
@@ -130,7 +133,7 @@ public abstract class AbstractHandler implements Handler
 	
 	protected final Request createRequest(Method method, Object[] args) throws Throwable
 	{
-		return requestCreator.createRequest(getUserId(), getSessionId(), getOrCreateTraceId(), serviceName, header, method, args);
+		return requestCreator.createRequest(getUserId(), getSessionId(), getOrCreateTraceId(), getServiceName(), header, method, args);
 	}
 
 	protected final Exception createException(Method method, String message, Throwable cause)
@@ -181,19 +184,9 @@ public abstract class AbstractHandler implements Handler
 		
 	}
 
-	protected final String getServiceName()
-	{
-		return serviceName;
-	}
-	
 	protected final Header getHeader()
 	{
 		return header;
-	}
-	
-	protected final Properties getProperties()
-	{
-		return properties;
 	}
 	
 	protected final String endpoint(Request request)

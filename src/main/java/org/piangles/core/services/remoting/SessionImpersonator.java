@@ -2,8 +2,6 @@ package org.piangles.core.services.remoting;
 
 import java.util.UUID;
 
-import org.piangles.core.services.remoting.rabbit.RequestProcessorThread;
-
 public class SessionImpersonator<R, E extends Exception> extends Thread implements SessionAwareable, Traceable
 {
 	//TODO Rename this to SessionImpersonator

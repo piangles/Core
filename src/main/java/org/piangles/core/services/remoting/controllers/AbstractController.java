@@ -3,14 +3,14 @@ package org.piangles.core.services.remoting.controllers;
 import java.util.Properties;
 
 import org.piangles.core.services.Service;
+import org.piangles.core.services.remoting.AbstractRemoter;
 import org.piangles.core.services.remoting.SessionValidator;
 
-public abstract class AbstractController implements Controller
+public abstract class AbstractController extends AbstractRemoter implements Controller
 {
 	private static final String PREDETERMINED_SESSION_ID = "PredeterminedSessionId";
 	private static final String SESSION_VALIDATOR_CLASSNAME = "SessionValidatorClassName";
 	
-	private String serviceName = null;
 	private String preDeterminedSessionId = null;
 	private Service service = null;
 	private SessionValidator sessionValidator = null;
@@ -21,7 +21,7 @@ public abstract class AbstractController implements Controller
 	{
 		try
 		{
-			this.serviceName = serviceName; 
+			super.init(serviceName, properties);
 			this.preDeterminedSessionId = properties.getProperty(PREDETERMINED_SESSION_ID);
 
 			String sessionValidatorClassName = properties.getProperty(SESSION_VALIDATOR_CLASSNAME );
@@ -32,7 +32,7 @@ public abstract class AbstractController implements Controller
 		{
 			throw new ControllerException(e);
 		}
-		init(properties);
+		init();
 	}
 	
 	@Override
@@ -48,11 +48,6 @@ public abstract class AbstractController implements Controller
 		stopRequested = true;
 	}
 
-	protected final String getServiceName()
-	{
-		return serviceName;
-	}
-	
 	protected final String getPreDeterminedSessionId()
 	{
 		return preDeterminedSessionId;
@@ -73,6 +68,6 @@ public abstract class AbstractController implements Controller
 		return sessionValidator;
 	}
 	
-	protected abstract void init(Properties properties) throws ControllerException;
+	protected abstract void init() throws ControllerException;
 	protected abstract void start() throws ControllerException;
 }

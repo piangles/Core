@@ -2,10 +2,13 @@ package org.piangles.core.services.remoting.rabbit;
 
 import java.util.UUID;
 
+import org.piangles.core.resources.RabbitMQSystem;
+import org.piangles.core.resources.ResourceManager;
 import org.piangles.core.services.Request;
 import org.piangles.core.services.Response;
 import org.piangles.core.services.remoting.handlers.AbstractHandler;
 import org.piangles.core.services.remoting.handlers.HandlerException;
+import org.piangles.core.util.InMemoryConfigProvider;
 import org.piangles.core.util.coding.JAVA;
 
 import com.rabbitmq.client.AMQP.BasicProperties;
@@ -15,19 +18,14 @@ import com.rabbitmq.client.RpcClientParams;
 
 public final class ReqRespHandler extends AbstractHandler
 {
-	private RMQHelper rmqHelper = null;
+	private RabbitMQSystem rmqSystem = null;
 	
-	public ReqRespHandler(String serviceName)
-	{
-		super(serviceName);
-	}
-
 	@Override
 	protected void init() throws HandlerException
 	{
 		try
 		{
-			rmqHelper = new RMQHelper(getServiceName(), false, getProperties());
+			rmqSystem = ResourceManager.getInstance().getRabbitMQSystem(new InMemoryConfigProvider(getServiceName(), getProperties()));
 		}
 		catch (Exception e)
 		{
@@ -42,7 +40,7 @@ public final class ReqRespHandler extends AbstractHandler
 		Object returnValue = null;
 
 		String corrId = UUID.randomUUID().toString();
-		Channel channel = rmqHelper.getConnection().createChannel();
+		Channel channel = rmqSystem.getConnection().createChannel();
 		
 		/**
 		 * TODO exchange will have to derived from Topic eventually for load balancing.
@@ -61,11 +59,11 @@ public final class ReqRespHandler extends AbstractHandler
 		RpcClientParams params = new RpcClientParams().
 									channel(channel).
 									exchange(exchange).
-									routingKey(rmqHelper.getRMQProperties().getTopic()).
-									timeout((int)rmqHelper.getRMQProperties().getTimeout());
+									routingKey(RabbitProps.getTopic(getProperties())).
+									timeout((int)RabbitProps.getTimeout(getProperties()));
 		
 		RpcClient rpcClient = new RpcClient(params);
-		byte[] responseAsBytes = rpcClient.doCall(props, rmqHelper.getEncoder().encode(request)).getBody();
+		byte[] responseAsBytes = rpcClient.doCall(props, getEncoder().encode(request)).getBody();
 		rpcClient.close();
 		channel.close();
 		
@@ -82,6 +80,6 @@ public final class ReqRespHandler extends AbstractHandler
 	@Override
 	public void destroy()
 	{
-		rmqHelper.destroy();
+		rmqSystem.destroy();
 	}
 }

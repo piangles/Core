@@ -71,7 +71,7 @@ public abstract class AbstractServiceLocator
 			
 			try
 			{
-				handler = (Handler) Class.forName(handlerClassName).getConstructor(String.class).newInstance(serviceName);
+				handler = (Handler) Class.forName(handlerClassName).getConstructor().newInstance();
 			}
 			catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | ClassNotFoundException e)
 			{
@@ -80,7 +80,7 @@ public abstract class AbstractServiceLocator
 			
 			try
 			{
-				handler.init(props);
+				handler.init(serviceName, props);
 			}
 			catch (HandlerException e)
 			{

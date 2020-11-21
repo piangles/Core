@@ -1,30 +1,28 @@
 package org.piangles.core.services.remoting.rabbit;
 
+import org.piangles.core.resources.RabbitMQSystem;
+import org.piangles.core.resources.ResourceManager;
 import org.piangles.core.services.Request;
 import org.piangles.core.services.remoting.handlers.AbstractHandler;
 import org.piangles.core.services.remoting.handlers.HandlerException;
+import org.piangles.core.util.InMemoryConfigProvider;
 
 import com.rabbitmq.client.Channel;
 
 public final class FireAndForgetHandler extends AbstractHandler
 {
-	private RMQHelper rmqHelper = null;
+	private RabbitMQSystem rmqSystem = null;
 	private Channel channel = null;
 	
-	public FireAndForgetHandler(String serviceName)
-	{
-		super(serviceName);
-	}
-
 	@Override
 	protected void init() throws HandlerException
 	{
 		try
 		{
-			rmqHelper = new RMQHelper(getServiceName(), false, getProperties());
+			rmqSystem = ResourceManager.getInstance().getRabbitMQSystem(new InMemoryConfigProvider(getServiceName(), getProperties()));
 			
-			channel = rmqHelper.getConnection().createChannel();
-			channel.exchangeDeclare(rmqHelper.getRMQProperties().getTopic(), "fanout");
+			channel = rmqSystem.getConnection().createChannel();
+			channel.exchangeDeclare(RabbitProps.getTopic(getProperties()), "fanout");
 		}
 		catch (Exception e)
 		{
@@ -36,13 +34,13 @@ public final class FireAndForgetHandler extends AbstractHandler
 	public Object processRequest(Request request) throws Throwable
 	{
 		//TODO: Make this into a Future or a Separate Thread
-		channel.basicPublish(rmqHelper.getRMQProperties().getTopic(), "", null, rmqHelper.getEncoder().encode(request));
+		channel.basicPublish(RabbitProps.getTopic(getProperties()), "", null, getEncoder().encode(request));
 		return null;
 	}
 	
 	@Override
 	public void destroy()
 	{
-		rmqHelper.destroy();
+		rmqSystem.destroy();
 	}
 }

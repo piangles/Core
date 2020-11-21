@@ -11,7 +11,6 @@ public final class DefaultHandler extends AbstractHandler
 
 	public DefaultHandler(Object service)
 	{
-		super(service.getClass().getName());
 		this.service = service;
 	}
 

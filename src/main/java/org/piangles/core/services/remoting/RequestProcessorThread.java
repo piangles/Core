@@ -1,4 +1,4 @@
-package org.piangles.core.services.remoting.rabbit;
+package org.piangles.core.services.remoting;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -6,14 +6,8 @@ import java.util.concurrent.TimeUnit;
 import org.piangles.core.services.Request;
 import org.piangles.core.services.Response;
 import org.piangles.core.services.Service;
-import org.piangles.core.services.remoting.SessionAwareable;
-import org.piangles.core.services.remoting.SessionDetails;
-import org.piangles.core.services.remoting.SessionValidator;
-import org.piangles.core.services.remoting.Traceable;
-
-import com.rabbitmq.client.AMQP.BasicProperties;
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Delivery;
+import org.piangles.core.util.coding.Decoder;
+import org.piangles.core.util.coding.Encoder;
 
 /**
  * On the server side each request needs to be processed on a separate thread.
@@ -28,31 +22,40 @@ public class RequestProcessorThread extends Thread implements Traceable, Session
 	private SessionValidator sessionValidator = null;
 	private SessionDetails sessionDetails = null;
 	private Request request = null;
+	
+	private Encoder encoder = null;
+	private Decoder decoder = null;
 
-	private Delivery delivery = null;
-	private Channel channel = null;
+	private byte[] requestAsBytes = null;
+	private ResponseSender responseSender = null; 
 	
-	private RMQHelper rmqHelper = null;
 	
-	public RequestProcessorThread(String serviceName, String preDeterminedSessionId, Service service, SessionValidator sessionValidator, RMQHelper rmqHelper, Delivery delivery, Channel channel)
+	//RMQHelper rmqHelper, Delivery delivery, Channel channel
+//	this.delivery = delivery;
+//	this.channel = channel;
+	
+	public RequestProcessorThread(	String serviceName, Service service, 
+									String preDeterminedSessionId, SessionValidator sessionValidator, 
+									Encoder encoder, Decoder decoder,
+									byte[] requestAsBytes,
+									ResponseSender responseSender)
 	{
 		this.serviceName = serviceName;
-		this.preDeterminedSessionId = preDeterminedSessionId;
 		this.service = service;
+		this.preDeterminedSessionId = preDeterminedSessionId;
 		this.sessionValidator = sessionValidator;
-		this.rmqHelper = rmqHelper;
-		this.delivery = delivery;
-		this.channel = channel;
+		this.encoder = encoder;
+		this.decoder = decoder;
+		this.requestAsBytes = requestAsBytes;
+		this.responseSender = responseSender;
 	}
 	
 	public void run()
 	{
-		byte[] body = null;
 		Response response = null;
 		try
 		{
-			body = delivery.getBody();
-			request = rmqHelper.getDecoder().decode(body, Request.class);
+			request = decoder.decode(requestAsBytes, Request.class);
 			sessionDetails = new SessionDetails(request.getUserId(), request.getSessionId()); 
 			response = processRequest(request);
 		}
@@ -64,46 +67,18 @@ public class RequestProcessorThread extends Thread implements Traceable, Session
 			}
 			else
 			{
-				response = new Response(serviceName, new String(body), e);
+				response = new Response(serviceName, new String(requestAsBytes), e);
 			}
 		}
 		
-		if (	response != null && 
-				delivery.getProperties() != null && 
-				delivery.getProperties().getCorrelationId() != null) //It is not fire and forget so send response
+		if (response != null && responseSender != null)
 		{
-			byte[] encodedBytes = null;
-
 			try
 			{
-				encodedBytes = rmqHelper.getEncoder().encode(response);
-
-				BasicProperties replyProps = new BasicProperties.Builder().
-											correlationId(delivery.getProperties().getCorrelationId()).build();
+				byte[] encodedBytes = null;
+				encodedBytes = encoder.encode(response);
 				
-				/**
-				 * Exchange should come from configuration.
-				 */
-				String exchange = "";
-				channel.basicPublish(exchange, delivery.getProperties().getReplyTo(), replyProps, encodedBytes);
-				
-				/**
-				 * Why do we not need the below ack Code?
-				 * 
-				 * So the way the code flows currently is from the mainloop below in RpcServer
-				 * 	> public ShutdownSignalException mainloop() throws IOException
-				 * the call goes to 
-				 * 	> public void processRequest(Delivery request) throws IOException
-				 * 
-				 *  processRequest is overriden in ReqRespController.
-				 *  
-				 *  when processRequest is returned RpcServer has the following code
-				 *  > _channel.basicAck(request.getEnvelope().getDeliveryTag(), false);
-				 *  
-				 *  So we should not be acknowledging again from here. It is taken care by
-				 *  the framework.
-				 */
-				//channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
+				responseSender.send(encodedBytes);
 			}
 			catch (Exception e)
 			{
@@ -111,7 +86,6 @@ public class RequestProcessorThread extends Thread implements Traceable, Session
 				e.printStackTrace(System.err);
 			}
 		}
-
 	}
 	
 	public String getServiceName()
