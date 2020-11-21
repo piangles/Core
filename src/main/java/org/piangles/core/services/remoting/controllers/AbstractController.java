@@ -8,10 +8,10 @@ import org.piangles.core.services.remoting.SessionValidator;
 
 public abstract class AbstractController extends AbstractRemoter implements Controller
 {
-	private static final String PREDETERMINED_SESSION_ID = "PredeterminedSessionId";
+	private static final String PRE_APPROVED_SESSION_ID = "PreApprovedSessionId";
 	private static final String SESSION_VALIDATOR_CLASSNAME = "SessionValidatorClassName";
 	
-	private String preDeterminedSessionId = null;
+	private String preApprovedSessionId = null;
 	private Service service = null;
 	private SessionValidator sessionValidator = null;
 	private boolean stopRequested = false;
@@ -22,7 +22,7 @@ public abstract class AbstractController extends AbstractRemoter implements Cont
 		try
 		{
 			super.init(serviceName, properties);
-			this.preDeterminedSessionId = properties.getProperty(PREDETERMINED_SESSION_ID);
+			this.preApprovedSessionId = properties.getProperty(PRE_APPROVED_SESSION_ID);
 
 			String sessionValidatorClassName = properties.getProperty(SESSION_VALIDATOR_CLASSNAME );
 			
@@ -48,9 +48,9 @@ public abstract class AbstractController extends AbstractRemoter implements Cont
 		stopRequested = true;
 	}
 
-	protected final String getPreDeterminedSessionId()
+	protected final String getPreApprovedSessionId()
 	{
-		return preDeterminedSessionId;
+		return preApprovedSessionId;
 	}
 	
 	protected final Service getService()

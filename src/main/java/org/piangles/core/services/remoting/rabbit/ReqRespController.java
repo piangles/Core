@@ -58,7 +58,7 @@ public final class ReqRespController extends AbstractController
 				{
 					RequestProcessorThread rpt = new RequestProcessorThread(
 															getServiceName(), getService(),
-															getPreDeterminedSessionId(), getSessionValidator(),
+															getPreApprovedSessionId(), getSessionValidator(),
 															getEncoder(), getDecoder(), 
 															delivery.getBody(), new ResponseSenderImpl(delivery, channel));
 					rpt.start();

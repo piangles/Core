@@ -6,7 +6,7 @@ import org.piangles.core.util.central.CentralClient;
 
 public final class SessionDetailsCreator
 {
-	private static final String PREDETERMINED_SESSIONID = "PredeterminedSessionId";
+	private static final String PRE_APPROVED_SESSIONID = "PreApprovedSessionId";
 	
 	
 	public static SessionDetails createSessionDetails(String serviceName) throws Exception
@@ -16,6 +16,6 @@ public final class SessionDetailsCreator
 	
 	static SessionDetails createSessionDetails(String serviceName, Properties props) throws Exception
 	{
-		return new SessionDetails(serviceName, props.getProperty(PREDETERMINED_SESSIONID));
+		return new SessionDetails(serviceName, props.getProperty(PRE_APPROVED_SESSIONID));
 	}
 }

@@ -73,7 +73,7 @@ public final class FireAndForgetController extends AbstractController
 		{
 			RequestProcessorThread rpt = new RequestProcessorThread(
 															getServiceName(), getService(), 
-															FireAndForgetController.this.getPreDeterminedSessionId(), getSessionValidator(),
+															FireAndForgetController.this.getPreApprovedSessionId(), getSessionValidator(),
 															getEncoder(), getDecoder(),
 															body, null);
 			rpt.start();

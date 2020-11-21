@@ -18,7 +18,7 @@ public class SessionImpersonator<R, E extends Exception> extends Thread implemen
 		{
 			RequestProcessorThread rpt = (RequestProcessorThread) currentThread;
 			this.traceId = rpt.getTraceId();
-			this.sessionDetails = new SessionDetails(rpt.getServiceName(), rpt.getPreDeterminedSessionId());
+			this.sessionDetails = new SessionDetails(rpt.getServiceName(), rpt.getPreApprovedSessionId());
 		}
 		this.task = task;
 	}

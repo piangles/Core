@@ -17,7 +17,7 @@ import org.piangles.core.util.coding.Encoder;
 public class RequestProcessorThread extends Thread implements Traceable, SessionAwareable
 {
 	private String serviceName = null;
-	private String preDeterminedSessionId = null;
+	private String preApprovedSessionId = null;
 	private Service service = null;
 	private SessionValidator sessionValidator = null;
 	private SessionDetails sessionDetails = null;
@@ -35,14 +35,14 @@ public class RequestProcessorThread extends Thread implements Traceable, Session
 //	this.channel = channel;
 	
 	public RequestProcessorThread(	String serviceName, Service service, 
-									String preDeterminedSessionId, SessionValidator sessionValidator, 
+									String preApprovedSessionId, SessionValidator sessionValidator, 
 									Encoder encoder, Decoder decoder,
 									byte[] requestAsBytes,
 									ResponseSender responseSender)
 	{
 		this.serviceName = serviceName;
 		this.service = service;
-		this.preDeterminedSessionId = preDeterminedSessionId;
+		this.preApprovedSessionId = preApprovedSessionId;
 		this.sessionValidator = sessionValidator;
 		this.encoder = encoder;
 		this.decoder = decoder;
@@ -93,9 +93,9 @@ public class RequestProcessorThread extends Thread implements Traceable, Session
 		return serviceName;
 	}
 	
-	public String getPreDeterminedSessionId()
+	public String getPreApprovedSessionId()
 	{
-		return preDeterminedSessionId;
+		return preApprovedSessionId;
 	}
 	
 	@Override
