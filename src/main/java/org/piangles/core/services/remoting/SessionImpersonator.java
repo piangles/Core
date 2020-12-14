@@ -14,9 +14,9 @@ public class SessionImpersonator<R, E extends Exception> extends Thread implemen
 	public SessionImpersonator(ServiceTask task)
 	{
 		Thread currentThread = Thread.currentThread();
-		if (currentThread instanceof RequestProcessorThread)
+		if (currentThread instanceof RequestProcessingThread)
 		{
-			RequestProcessorThread rpt = (RequestProcessorThread) currentThread;
+			RequestProcessingThread rpt = (RequestProcessingThread) currentThread;
 			this.traceId = rpt.getTraceId();
 			this.sessionDetails = new SessionDetails(rpt.getServiceName(), rpt.getPreApprovedSessionId());
 		}

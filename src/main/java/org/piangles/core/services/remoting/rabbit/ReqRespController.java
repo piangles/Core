@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import org.piangles.core.resources.RabbitMQSystem;
 import org.piangles.core.resources.ResourceManager;
-import org.piangles.core.services.remoting.RequestProcessorThread;
+import org.piangles.core.services.remoting.RequestProcessingThread;
 import org.piangles.core.services.remoting.controllers.AbstractController;
 import org.piangles.core.services.remoting.controllers.ControllerException;
 import org.piangles.core.util.InMemoryConfigProvider;
@@ -56,11 +56,11 @@ public final class ReqRespController extends AbstractController
 				@Override
 				public void processRequest(Delivery delivery) throws IOException
 				{
-					RequestProcessorThread rpt = new RequestProcessorThread(
+					RequestProcessingThread rpt = new RequestProcessingThread(
 															getServiceName(), getService(),
 															getPreApprovedSessionId(), getSessionValidator(),
 															getEncoder(), getDecoder(), 
-															delivery.getBody(), new ResponseSenderImpl(delivery, channel));
+															delivery.getBody(), new ResponseSenderImpl(rmqSystem, channel, delivery));
 					rpt.start();
 				}
 			};

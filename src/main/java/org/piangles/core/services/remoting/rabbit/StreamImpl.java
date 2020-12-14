@@ -13,7 +13,7 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.DeliverCallback;
 import com.rabbitmq.client.GetResponse;
 
-public class StreamImpl extends AbstractRemoter implements Stream
+public final class StreamImpl<T> extends AbstractRemoter implements Stream<T>
 {
 	private static final String EOS = EndOfStream.class.getSimpleName();
 	private Channel channel;
@@ -83,7 +83,7 @@ public class StreamImpl extends AbstractRemoter implements Stream
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> void process(Processor<T> processor) throws Exception
+	public void process(Processor<T> processor) throws Exception
 	{
 		DeliverCallback deliverCallback = (consumerTag, delivery) -> {
 			String streamletAsStr = new String(delivery.getBody());
@@ -114,7 +114,7 @@ public class StreamImpl extends AbstractRemoter implements Stream
 	}
 
 	@Override
-	public <T> void processAsync(Processor<T> processor)
+	public void processAsync(Processor<T> processor)
 	{
 		BeneficiaryThread t = new BeneficiaryThread(() -> { //Should inherit calling thread's TraceId and SessionId
 			try

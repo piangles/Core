@@ -13,6 +13,8 @@ import org.piangles.core.services.Request;
 import org.piangles.core.services.remoting.AbstractRemoter;
 import org.piangles.core.services.remoting.SessionAwareable;
 import org.piangles.core.services.remoting.Traceable;
+import org.piangles.core.stream.Stream;
+import org.piangles.core.stream.StreamDetails;
 import org.piangles.core.util.SystemHelper;
 
 public abstract class AbstractHandler extends AbstractRemoter implements Handler
@@ -85,6 +87,11 @@ public abstract class AbstractHandler extends AbstractRemoter implements Handler
 			request = createRequest(method, args);
 
 			result = processRequest(request);
+			
+			if (result instanceof StreamDetails)
+			{
+				result = createStream((StreamDetails)result);
+			}
 		}
 		catch(Throwable t)
 		{
@@ -244,6 +251,7 @@ public abstract class AbstractHandler extends AbstractRemoter implements Handler
 
 	protected abstract void init() throws HandlerException;
 	protected abstract Object processRequest(Request request) throws Throwable;
+	protected abstract Stream createStream(StreamDetails details) throws Exception;
 }
 
 

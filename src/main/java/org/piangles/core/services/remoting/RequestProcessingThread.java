@@ -6,6 +6,8 @@ import java.util.concurrent.TimeUnit;
 import org.piangles.core.services.Request;
 import org.piangles.core.services.Response;
 import org.piangles.core.services.Service;
+import org.piangles.core.stream.Stream;
+import org.piangles.core.stream.StreamDetails;
 import org.piangles.core.util.coding.Decoder;
 import org.piangles.core.util.coding.Encoder;
 
@@ -14,7 +16,7 @@ import org.piangles.core.util.coding.Encoder;
  * This needs to be pooled eventually for faster creation of thread. 
  *
  */
-public class RequestProcessorThread extends Thread implements Traceable, SessionAwareable
+public final class RequestProcessingThread extends Thread implements Traceable, SessionAwareable
 {
 	private String serviceName = null;
 	private String preApprovedSessionId = null;
@@ -30,11 +32,7 @@ public class RequestProcessorThread extends Thread implements Traceable, Session
 	private ResponseSender responseSender = null; 
 	
 	
-	//RMQHelper rmqHelper, Delivery delivery, Channel channel
-//	this.delivery = delivery;
-//	this.channel = channel;
-	
-	public RequestProcessorThread(	String serviceName, Service service, 
+	public RequestProcessingThread(	String serviceName, Service service, 
 									String preApprovedSessionId, SessionValidator sessionValidator, 
 									Encoder encoder, Decoder decoder,
 									byte[] requestAsBytes,
@@ -119,10 +117,26 @@ public class RequestProcessorThread extends Thread implements Traceable, Session
 		{
 			if (sessionValidator.isSessionValid(request))
 			{
-				/**
-				 * Make the actual call to the service
-				 */
-				response = service.process(request);
+				if (service.getServiceMetadata().isEndpointStreamBased(request.getEndPoint()))
+				{
+					String queueName = request.getTraceId().toString();
+					StreamDetails details = new StreamDetails(queueName);
+
+					//Step 1 create StreamProcessingThread
+					Stream stream = responseSender.createStream(details);
+					BeneficiaryThread bt = new BeneficiaryThread(() -> new StreamingRequestProcessor(service, request, stream));
+					bt.start();
+
+					//Step 2 return response with StreamDetails so client can start processing the stream
+					response = new Response(request.getServiceName(), request.getEndPoint(), details);
+				}
+				else
+				{
+					/**
+					 * Make the actual call to the service
+					 */
+					response = service.process(request);
+				}
 				
 				long delayNS = System.nanoTime() - startTime;
 				long delayMiS = TimeUnit.NANOSECONDS.toMicros(delayNS);

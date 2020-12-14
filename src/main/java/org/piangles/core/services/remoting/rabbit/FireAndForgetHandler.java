@@ -5,6 +5,8 @@ import org.piangles.core.resources.ResourceManager;
 import org.piangles.core.services.Request;
 import org.piangles.core.services.remoting.handlers.AbstractHandler;
 import org.piangles.core.services.remoting.handlers.HandlerException;
+import org.piangles.core.stream.Stream;
+import org.piangles.core.stream.StreamDetails;
 import org.piangles.core.util.InMemoryConfigProvider;
 
 import com.rabbitmq.client.Channel;
@@ -42,5 +44,11 @@ public final class FireAndForgetHandler extends AbstractHandler
 	public void destroy()
 	{
 		rmqSystem.destroy();
+	}
+
+	@Override
+	protected Stream createStream(StreamDetails details) throws Exception
+	{
+		throw new Exception("Streaming is not supported for FireAndForget protocol");
 	}
 }

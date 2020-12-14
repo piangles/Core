@@ -1,21 +1,25 @@
 package org.piangles.core.services.remoting.rabbit;
 
-import com.rabbitmq.client.AMQP.BasicProperties;
-
+import org.piangles.core.resources.RabbitMQSystem;
 import org.piangles.core.services.remoting.ResponseSender;
+import org.piangles.core.stream.Stream;
+import org.piangles.core.stream.StreamDetails;
 
+import com.rabbitmq.client.AMQP.BasicProperties;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Delivery;
 
 class ResponseSenderImpl implements ResponseSender 
 {
-	private Delivery delivery = null;
+	private RabbitMQSystem rmqSystem = null;	
 	private Channel channel = null;
+	private Delivery delivery = null;
 
-	ResponseSenderImpl(Delivery delivery, Channel channel)
+	ResponseSenderImpl(RabbitMQSystem rmqSystem, Channel channel, Delivery delivery)
 	{
-		this.delivery = delivery;
+		this.rmqSystem = rmqSystem;
 		this.channel = channel;
+		this.delivery = delivery;
 	}
 
 	public void send(byte[] encodedBytes) throws Exception
@@ -51,5 +55,11 @@ class ResponseSenderImpl implements ResponseSender
 			 */
 			// channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
 		}
+	}
+
+	@Override
+	public Stream createStream(StreamDetails streamDetails) throws Exception
+	{
+		return new StreamImpl(rmqSystem.getConnection().createChannel(), streamDetails);
 	}
 }

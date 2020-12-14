@@ -8,6 +8,8 @@ import org.piangles.core.services.Request;
 import org.piangles.core.services.Response;
 import org.piangles.core.services.remoting.handlers.AbstractHandler;
 import org.piangles.core.services.remoting.handlers.HandlerException;
+import org.piangles.core.stream.Stream;
+import org.piangles.core.stream.StreamDetails;
 import org.piangles.core.util.InMemoryConfigProvider;
 import org.piangles.core.util.coding.JAVA;
 
@@ -81,5 +83,11 @@ public final class ReqRespHandler extends AbstractHandler
 	public void destroy()
 	{
 		rmqSystem.destroy();
+	}
+
+	@Override
+	protected Stream createStream(StreamDetails details) throws Exception
+	{
+		return new StreamImpl(rmqSystem.getConnection().createChannel(), details);
 	}
 }

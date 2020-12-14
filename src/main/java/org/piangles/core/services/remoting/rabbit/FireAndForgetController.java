@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import org.piangles.core.resources.RabbitMQSystem;
 import org.piangles.core.resources.ResourceManager;
-import org.piangles.core.services.remoting.RequestProcessorThread;
+import org.piangles.core.services.remoting.RequestProcessingThread;
 import org.piangles.core.services.remoting.controllers.AbstractController;
 import org.piangles.core.services.remoting.controllers.ControllerException;
 import org.piangles.core.util.InMemoryConfigProvider;
@@ -71,7 +71,7 @@ public final class FireAndForgetController extends AbstractController
 		@Override
 		public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException
 		{
-			RequestProcessorThread rpt = new RequestProcessorThread(
+			RequestProcessingThread rpt = new RequestProcessingThread(
 															getServiceName(), getService(), 
 															FireAndForgetController.this.getPreApprovedSessionId(), getSessionValidator(),
 															getEncoder(), getDecoder(),
