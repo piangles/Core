@@ -1,21 +1,20 @@
 package org.piangles.core.services.remoting;
 
-import java.util.Optional;
-
 import org.piangles.core.stream.Stream;
 
 public final class ExecutionContext
 {
-	private Optional<Stream<?>> stream = null;
+	private Stream<?> stream = null;
 	
 	private ExecutionContext(Stream<?> stream)
 	{
-		this.stream = Optional.of(stream);
+		this.stream = stream;
 	}
 	
-	public Optional<Stream<?>> getStream()
+	@SuppressWarnings("unchecked")
+	public <T> Stream<T> getStream()
 	{
-		return stream;
+		return (Stream<T>)stream;
 	}
 	
 	public static final ExecutionContext get()

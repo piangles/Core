@@ -7,8 +7,7 @@ import org.piangles.core.services.Request;
 import org.piangles.core.services.Response;
 import org.piangles.core.services.Service;
 import org.piangles.core.services.ServiceMetadata;
-
-import com.mongodb.connection.Stream;
+import org.piangles.core.stream.Stream;
 
 public abstract class AbstractService implements Service
 {
