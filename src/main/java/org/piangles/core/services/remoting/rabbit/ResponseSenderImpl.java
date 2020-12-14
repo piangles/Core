@@ -58,8 +58,8 @@ class ResponseSenderImpl implements ResponseSender
 	}
 
 	@Override
-	public Stream createStream(StreamDetails streamDetails) throws Exception
+	public Stream<?> createStream(StreamDetails streamDetails) throws Exception
 	{
-		return new StreamImpl(rmqSystem.getConnection().createChannel(), streamDetails);
+		return new StreamImpl<>(rmqSystem.getConnection().createChannel(), streamDetails);
 	}
 }

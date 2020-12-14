@@ -251,7 +251,7 @@ public abstract class AbstractHandler extends AbstractRemoter implements Handler
 
 	protected abstract void init() throws HandlerException;
 	protected abstract Object processRequest(Request request) throws Throwable;
-	protected abstract Stream createStream(StreamDetails details) throws Exception;
+	protected abstract Stream<?> createStream(StreamDetails details) throws Exception;
 }
 
 

@@ -6,21 +6,21 @@ import org.piangles.core.stream.Stream;
 
 public final class ExecutionContext
 {
-	private Optional<Stream> stream = null;
+	private Optional<Stream<?>> stream = null;
 	
-	private ExecutionContext(Stream stream)
+	private ExecutionContext(Stream<?> stream)
 	{
 		this.stream = Optional.of(stream);
 	}
 	
-	public Optional<Stream> getStream()
+	public Optional<Stream<?>> getStream()
 	{
 		return stream;
 	}
 	
 	public static final ExecutionContext get()
 	{
-		Stream stream = null;
+		Stream<?> stream = null;
 		
 		Object currentThread = Thread.currentThread();
 		if (currentThread instanceof BeneficiaryThread)

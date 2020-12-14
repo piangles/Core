@@ -16,9 +16,9 @@ public final class StreamingRequestProcessor implements Runnable
 	private Service service = null;
 	private Request request = null;
 
-	private Stream stream;
+	private Stream<?> stream;
 	
-	public StreamingRequestProcessor(Service service, Request request, Stream stream)
+	public StreamingRequestProcessor(Service service, Request request, Stream<?> stream)
 	{
 		this.service = service;
 		this.request = request;
@@ -34,7 +34,7 @@ public final class StreamingRequestProcessor implements Runnable
 		stream.done();
 	}
 	
-	Stream getStream()
+	Stream<?> getStream()
 	{
 		return stream;
 	}

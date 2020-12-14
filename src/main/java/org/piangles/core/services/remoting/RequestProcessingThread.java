@@ -123,7 +123,7 @@ public final class RequestProcessingThread extends Thread implements Traceable, 
 					StreamDetails details = new StreamDetails(queueName);
 
 					//Step 1 create StreamProcessingThread
-					Stream stream = responseSender.createStream(details);
+					Stream<?> stream = responseSender.createStream(details);
 					BeneficiaryThread bt = new BeneficiaryThread(() -> new StreamingRequestProcessor(service, request, stream));
 					bt.start();
 

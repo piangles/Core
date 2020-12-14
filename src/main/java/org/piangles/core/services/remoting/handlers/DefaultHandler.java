@@ -52,8 +52,9 @@ public final class DefaultHandler extends AbstractHandler
 	}
 
 	@Override
-	protected Stream createStream(StreamDetails details) throws Exception
+	protected Stream<?> createStream(StreamDetails details) throws Exception
 	{
+		//TODO Return InMemory Stream
 		return null;
 	}
 }

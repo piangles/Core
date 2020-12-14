@@ -47,7 +47,7 @@ public final class FireAndForgetHandler extends AbstractHandler
 	}
 
 	@Override
-	protected Stream createStream(StreamDetails details) throws Exception
+	protected Stream<?> createStream(StreamDetails details) throws Exception
 	{
 		throw new Exception("Streaming is not supported for FireAndForget protocol");
 	}

@@ -86,8 +86,8 @@ public final class ReqRespHandler extends AbstractHandler
 	}
 
 	@Override
-	protected Stream createStream(StreamDetails details) throws Exception
+	protected Stream<?> createStream(StreamDetails details) throws Exception
 	{
-		return new StreamImpl(rmqSystem.getConnection().createChannel(), details);
+		return new StreamImpl<>(rmqSystem.getConnection().createChannel(), details);
 	}
 }
