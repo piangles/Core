@@ -3,7 +3,7 @@ package org.piangles.core.services.remoting.handlers;
 import java.lang.reflect.Method;
 import java.util.UUID;
 
-import org.piangles.core.services.Context;
+import org.piangles.core.services.AuditDetails;
 import org.piangles.core.services.Header;
 import org.piangles.core.services.Request;
 import org.piangles.core.services.SourceInfo;
@@ -16,12 +16,12 @@ public class AuditableRequestCreator implements RequestCreator
 	{
 		SourceInfo sourceInfo = null;
 		ClassHelper classHelper = new ClassHelper(4);
-		Object potentialContext = args[0];
-		if (potentialContext instanceof Context)
+		if (args[0] instanceof AuditDetails)
 		{
-			Context context = (Context) potentialContext;
-			header = context.getHeader();
-			sourceInfo = context.getSourceInfo();
+			AuditDetails auditDetails = (AuditDetails) args[0];
+			header = auditDetails.getHeader();
+			sourceInfo = auditDetails.getSourceInfo();
+			
 			Object[] newArgs = new Object[args.length-1];
 			System.arraycopy(args, 1, newArgs, 0, newArgs.length);
 			args = newArgs;
