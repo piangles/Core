@@ -1,6 +1,6 @@
 package org.piangles.core.stream;
 
-public final class EndOfStream<T> implements Stream 
+public final class EndOfStream<T> implements Stream<T> 
 {
 	@Override
 	public void setMetadata(StreamMetadata metadata){}
@@ -10,10 +10,8 @@ public final class EndOfStream<T> implements Stream
 	public void done(){}
 	@Override
 	public StreamMetadata getMetadata(){return null;}
-	@SuppressWarnings("hiding")
 	@Override
-	public <T> void process(Processor<T> processor){}
-	@SuppressWarnings("hiding")
+	public void process(Processor<T> processor){}
 	@Override
-	public <T> void processAsync(Processor<T> processor){}
+	public void processAsync(Processor<T> processor){}
 }
