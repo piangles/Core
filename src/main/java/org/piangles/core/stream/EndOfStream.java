@@ -5,7 +5,7 @@ public final class EndOfStream<T> implements Stream<T>
 	@Override
 	public void setMetadata(StreamMetadata metadata){}
 	@Override
-	public void add(Object streamlet){}
+	public void add(T streamlet){}
 	@Override
 	public void done(){}
 	@Override
