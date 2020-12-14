@@ -3,7 +3,7 @@ package org.piangles.core.services.remoting.rabbit;
 import org.piangles.core.services.remoting.AbstractRemoter;
 import org.piangles.core.services.remoting.BeneficiaryThread;
 import org.piangles.core.stream.EndOfStream;
-import org.piangles.core.stream.Processor;
+import org.piangles.core.stream.StreamProcessor;
 import org.piangles.core.stream.Stream;
 import org.piangles.core.stream.StreamDetails;
 import org.piangles.core.stream.StreamMetadata;
@@ -83,7 +83,7 @@ public final class StreamImpl<T> extends AbstractRemoter implements Stream<T>
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void process(Processor<T> processor) throws Exception
+	public void process(StreamProcessor<T> processor) throws Exception
 	{
 		DeliverCallback deliverCallback = (consumerTag, delivery) -> {
 			String streamletAsStr = new String(delivery.getBody());
@@ -96,7 +96,7 @@ public final class StreamImpl<T> extends AbstractRemoter implements Stream<T>
 				Object streamlet = null;
 				try
 				{
-					Class<?>[] typeArgs = TypeResolver.resolveRawArguments(Processor.class, processor.getClass());
+					Class<?>[] typeArgs = TypeResolver.resolveRawArguments(StreamProcessor.class, processor.getClass());
 					
 					streamlet = getDecoder().decode(streamletAsStr.getBytes(), typeArgs[0]);
 					processor.process((T)streamlet);
@@ -114,7 +114,7 @@ public final class StreamImpl<T> extends AbstractRemoter implements Stream<T>
 	}
 
 	@Override
-	public void processAsync(Processor<T> processor)
+	public void processAsync(StreamProcessor<T> processor)
 	{
 		BeneficiaryThread t = new BeneficiaryThread(() -> { //Should inherit calling thread's TraceId and SessionId
 			try
