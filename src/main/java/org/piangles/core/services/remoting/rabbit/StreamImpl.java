@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Properties;
 
 import org.piangles.core.services.remoting.AbstractRemoter;
-import org.piangles.core.services.remoting.BeneficiaryThread;
 import org.piangles.core.stream.Stream;
 import org.piangles.core.stream.StreamDetails;
 import org.piangles.core.stream.StreamMetadata;
@@ -81,7 +80,7 @@ public final class StreamImpl<T> extends AbstractRemoter implements Stream<T>
 	}
 
 	@Override
-	public void process(StreamProcessor<T> processor) throws Exception
+	public void processAsync(StreamProcessor<T> processor) throws Exception
 	{
 		Consumer consumer = new DefaultConsumer(channel)
 		{
@@ -124,22 +123,6 @@ public final class StreamImpl<T> extends AbstractRemoter implements Stream<T>
 			}
 		};
 		channel.basicConsume(streamDetails.getQueueName(), true, consumer);
-	}
-
-	@Override
-	public void processAsync(StreamProcessor<T> processor)
-	{
-		BeneficiaryThread t = new BeneficiaryThread(() -> { //Should inherit calling thread's TraceId and SessionId
-			try
-			{
-				process(processor);
-			}
-			catch (Exception e)
-			{
-				throw new RuntimeException(e);
-			}
-		});
-		t.start();
 	}
 
 	private void pub(Streamlet<?> streamlet)
