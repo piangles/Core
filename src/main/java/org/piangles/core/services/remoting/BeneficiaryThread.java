@@ -2,6 +2,8 @@ package org.piangles.core.services.remoting;
 
 import java.util.UUID;
 
+import org.piangles.core.stream.Stream;
+
 /**
  * This thread can be created from RequestProcessingThread or in the Adapter classes
  * where processing of response needs to take place Asynchronously.
@@ -14,12 +16,18 @@ public final class BeneficiaryThread extends Thread implements Traceable, Sessio
 {
 	private SessionDetails sessionDetails = null;
 	private UUID traceId = null;
+	private Stream<?> stream;
 	private Runnable runnable = null;
+	
+	BeneficiaryThread(Stream<?> stream, Runnable runnable)
+	{
+		this(runnable);
+		this.stream = stream;
+	}
 	
 	public BeneficiaryThread(Runnable runnable)
 	{
 		this.runnable = runnable;
-		
 		Object currentThread = Thread.currentThread();
 		if (currentThread instanceof Traceable)
 		{
@@ -35,6 +43,11 @@ public final class BeneficiaryThread extends Thread implements Traceable, Sessio
 	{
 		runnable.run();
 	}
+
+	public Stream<?> getStream()
+	{
+		return stream;
+	}
 	
 	public UUID getTraceId()
 	{
@@ -44,10 +57,5 @@ public final class BeneficiaryThread extends Thread implements Traceable, Sessio
 	public SessionDetails getSessionDetails()
 	{
 		return sessionDetails;
-	}
-	
-	Runnable getRunnable()
-	{
-		return runnable;
 	}
 }

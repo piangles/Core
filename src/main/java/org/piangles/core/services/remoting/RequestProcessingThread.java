@@ -82,6 +82,8 @@ public final class RequestProcessingThread extends Thread implements Traceable, 
 			{
 				System.err.println("Exception trying to send response because of: " + e.getMessage());
 				e.printStackTrace(System.err);
+				
+				response = new Response(request.getServiceName(), e.getMessage(), e);
 			}
 		}
 	}
@@ -124,7 +126,9 @@ public final class RequestProcessingThread extends Thread implements Traceable, 
 
 					//Step 1 create StreamProcessingThread
 					Stream<?> stream = responseSender.createStream(details);
-					BeneficiaryThread bt = new BeneficiaryThread(() -> new StreamingRequestProcessor(service, request, stream));
+					BeneficiaryThread bt = new BeneficiaryThread(stream, () -> {
+						new StreamingRequestProcessor(service, request, stream).run();
+					});
 					bt.start();
 
 					//Step 2 return response with StreamDetails so client can start processing the stream

@@ -24,12 +24,7 @@ public final class ExecutionContext
 		Object currentThread = Thread.currentThread();
 		if (currentThread instanceof BeneficiaryThread)
 		{
-			BeneficiaryThread bt = (BeneficiaryThread)currentThread;
-			if (bt.getRunnable() instanceof StreamingRequestProcessor)
-			{
-				StreamingRequestProcessor srp = (StreamingRequestProcessor) bt.getRunnable();
-				stream = srp.getStream();
-			}
+			stream = ((BeneficiaryThread)currentThread).getStream();
 		}
 		
 		return new ExecutionContext(stream);
