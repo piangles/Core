@@ -60,15 +60,7 @@ public final class StreamImpl<T> extends AbstractRemoter implements Stream<T>
 	public void done()
 	{
 		pub(new Streamlet<T>());
-		try
-		{
-			channel.close();
-		}
-		catch (Exception e)
-		{
-			System.err.println("Exception trying to close channel because of: " + e.getMessage());
-			e.printStackTrace(System.err);
-		}
+		close();
 	}
 
 	@Override
@@ -114,58 +106,24 @@ public final class StreamImpl<T> extends AbstractRemoter implements Stream<T>
 					return;
 				}
 				
-				if (streamlet.isEndOfStreamMessage())
-				{
-					channel.basicCancel(consumerTag);
-//					try
-//					{
-//						channel.close();
-//					}
-//					catch (TimeoutException e)
-//					{
-//						// TODO Auto-generated catch block
-//						e.printStackTrace();
-//					}
-				}
-				else if (StreamMetadata.class.getCanonicalName().equals(streamlet.getType()))
+				if (StreamMetadata.class.getCanonicalName().equals(streamlet.getType()))
 				{
 					firstStreamlet = false;
 					metadata = streamlet.getMetadata();						
 				}
-				else
+				else if (!streamlet.isEndOfStreamMessage())
 				{
 					processor.process(streamlet.getPayload());
+				}
+				else//It is EndOfStreamMessage
+				{
+					channel.basicCancel(consumerTag);
+					channel.queueDelete(streamDetails.getQueueName());
+					close();
 				}
 			}
 		};
 		channel.basicConsume(streamDetails.getQueueName(), true, consumer);
-		
-//		DeliverCallback deliverCallback = (consumerTag, delivery) -> {
-//			String streamletAsStr = new String(delivery.getBody());
-//			if (EOS.equals(streamletAsStr))
-//			{
-//				channel.basicCancel(consumerTag);	
-//			}
-//			else
-//			{
-//				Object streamlet = null;
-//				try
-//				{
-//					Class<?>[] typeArgs = TypeResolver.resolveRawArguments(StreamProcessor.class, processor.getClass());
-//					
-//					streamlet = getDecoder().decode(streamletAsStr.getBytes(), typeArgs[0]);
-//					processor.process((T)streamlet);
-//				}
-//				catch (Exception e)
-//				{
-//					System.err.println("Error processing the stream : " + e.getMessage());
-//					e.printStackTrace(System.err);
-//					channel.basicCancel(consumerTag);	
-//				}
-//			}
-//		};
-//		channel.basicConsume(streamDetails.getQueueName(), true, deliverCallback, consumerTag -> {});
-		//channel.close();
 	}
 
 	@Override
@@ -193,6 +151,19 @@ public final class StreamImpl<T> extends AbstractRemoter implements Stream<T>
 		catch (Exception e)
 		{
 			System.err.println("Exception trying to send response because of: " + e.getMessage());
+			e.printStackTrace(System.err);
+		}
+	}
+	
+	private void close()
+	{
+		try
+		{
+			channel.close();
+		}
+		catch (Exception e)
+		{
+			System.err.println("Exception trying to close channel because of: " + e.getMessage());
 			e.printStackTrace(System.err);
 		}
 	}

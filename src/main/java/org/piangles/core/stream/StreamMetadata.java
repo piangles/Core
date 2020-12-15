@@ -21,4 +21,10 @@ public final class StreamMetadata implements Serializable
 	{
 		return streamletCount;
 	}
+
+	@Override
+	public String toString()
+	{
+		return "StreamMetadata [streamletCount=" + streamletCount + "]";
+	}
 }
