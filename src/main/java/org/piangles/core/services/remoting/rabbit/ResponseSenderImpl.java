@@ -1,5 +1,7 @@
 package org.piangles.core.services.remoting.rabbit;
 
+import java.util.Properties;
+
 import org.piangles.core.resources.RabbitMQSystem;
 import org.piangles.core.services.remoting.ResponseSender;
 import org.piangles.core.stream.Stream;
@@ -11,12 +13,16 @@ import com.rabbitmq.client.Delivery;
 
 class ResponseSenderImpl implements ResponseSender 
 {
+	private String serviceName = null;
+	private Properties props = null;
 	private RabbitMQSystem rmqSystem = null;	
 	private Channel channel = null;
 	private Delivery delivery = null;
 
-	ResponseSenderImpl(RabbitMQSystem rmqSystem, Channel channel, Delivery delivery)
+	ResponseSenderImpl(String serviceName, Properties props, RabbitMQSystem rmqSystem, Channel channel, Delivery delivery)
 	{
+		this.serviceName = serviceName;
+		this.props = props;
 		this.rmqSystem = rmqSystem;
 		this.channel = channel;
 		this.delivery = delivery;
@@ -60,6 +66,6 @@ class ResponseSenderImpl implements ResponseSender
 	@Override
 	public Stream<?> createStream(StreamDetails streamDetails) throws Exception
 	{
-		return new StreamImpl<>(rmqSystem.getConnection().createChannel(), streamDetails);
+		return new StreamImpl<>(serviceName, props, rmqSystem.getConnection().createChannel(), streamDetails);
 	}
 }

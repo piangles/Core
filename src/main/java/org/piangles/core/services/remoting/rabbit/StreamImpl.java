@@ -1,28 +1,34 @@
 package org.piangles.core.services.remoting.rabbit;
 
+import java.io.IOException;
+import java.util.Properties;
+
 import org.piangles.core.services.remoting.AbstractRemoter;
 import org.piangles.core.services.remoting.BeneficiaryThread;
-import org.piangles.core.stream.EndOfStream;
-import org.piangles.core.stream.StreamProcessor;
 import org.piangles.core.stream.Stream;
 import org.piangles.core.stream.StreamDetails;
 import org.piangles.core.stream.StreamMetadata;
-import org.piangles.core.util.reflect.TypeResolver;
+import org.piangles.core.stream.StreamProcessor;
+import org.piangles.core.stream.Streamlet;
 
+import com.google.gson.reflect.TypeToken;
+import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.DeliverCallback;
+import com.rabbitmq.client.Consumer;
+import com.rabbitmq.client.DefaultConsumer;
+import com.rabbitmq.client.Envelope;
 import com.rabbitmq.client.GetResponse;
 
 public final class StreamImpl<T> extends AbstractRemoter implements Stream<T>
 {
-	private static final String EOS = EndOfStream.class.getSimpleName();
 	private Channel channel;
 	private StreamDetails streamDetails;
 	private boolean firstStreamlet = true;
 	private StreamMetadata metadata;
 
-	public StreamImpl(Channel channel, StreamDetails streamDetails) throws Exception
+	public StreamImpl(String serviceName, Properties props, Channel channel, StreamDetails streamDetails) throws Exception
 	{
+		super.init(serviceName, props);
 		this.channel = channel;
 		this.streamDetails = streamDetails;
 
@@ -36,7 +42,7 @@ public final class StreamImpl<T> extends AbstractRemoter implements Stream<T>
 	}
 
 	@Override
-	public void add(Object streamlet)
+	public void add(T payload)
 	{
 		if (firstStreamlet)
 		{
@@ -45,15 +51,15 @@ public final class StreamImpl<T> extends AbstractRemoter implements Stream<T>
 			{
 				metadata = new StreamMetadata();
 			}
-			pub(metadata);
+			pub(new Streamlet<T>(metadata));
 		}
-		pub(streamlet);
+		pub(new Streamlet<T>(payload));
 	}
 
 	@Override
 	public void done()
 	{
-		pub(EOS);
+		pub(new Streamlet<T>());
 		try
 		{
 			channel.close();
@@ -74,43 +80,92 @@ public final class StreamImpl<T> extends AbstractRemoter implements Stream<T>
 			GetResponse response = channel.basicGet(streamDetails.getQueueName(), true);
 			if (response != null) 
 			{
-				metadata = (StreamMetadata)getDecoder().decode(response.getBody(), StreamMetadata.class);
+				Streamlet<T> streamlet = getDecoder().decode(response.getBody(), new TypeToken<Streamlet<T>>() {}.getType());
+				metadata = streamlet.getMetadata();
 			}		
 		}
 
 		return metadata;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void process(StreamProcessor<T> processor) throws Exception
 	{
-		DeliverCallback deliverCallback = (consumerTag, delivery) -> {
-			String streamletAsStr = new String(delivery.getBody());
-			if (EOS.equals(streamletAsStr))
+		Consumer consumer = new DefaultConsumer(channel)
+		{
+			@Override
+			public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException
 			{
-				channel.basicCancel(consumerTag);	
-			}
-			else
-			{
-				Object streamlet = null;
+				Streamlet<T> streamlet = null;
 				try
 				{
-					Class<?>[] typeArgs = TypeResolver.resolveRawArguments(StreamProcessor.class, processor.getClass());
-					
-					streamlet = getDecoder().decode(streamletAsStr.getBytes(), typeArgs[0]);
-					processor.process((T)streamlet);
+					streamlet = getDecoder().decode(body, new TypeToken<Streamlet<T>>() {}.getType());
+
+					/**
+					 * This method helps get the type of <T> of a Geneneric interfaces instance.
+					 * Class<?>[] typeArgs = TypeResolver.resolveRawArguments(StreamProcessor.class, processor.getClass()); 
+					 */
 				}
 				catch (Exception e)
 				{
 					System.err.println("Error processing the stream : " + e.getMessage());
 					e.printStackTrace(System.err);
-					channel.basicCancel(consumerTag);	
+					channel.basicCancel(consumerTag);
+					return;
+				}
+				
+				if (streamlet.isEndOfStreamMessage())
+				{
+					channel.basicCancel(consumerTag);
+//					try
+//					{
+//						channel.close();
+//					}
+//					catch (TimeoutException e)
+//					{
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
+				}
+				else if (StreamMetadata.class.getCanonicalName().equals(streamlet.getType()))
+				{
+					firstStreamlet = false;
+					metadata = streamlet.getMetadata();						
+				}
+				else
+				{
+					processor.process(streamlet.getPayload());
 				}
 			}
 		};
-		channel.basicConsume(streamDetails.getQueueName(), true, deliverCallback, consumerTag -> {});
-		channel.close();
+		channel.basicConsume(streamDetails.getQueueName(), true, consumer);
+		
+//		DeliverCallback deliverCallback = (consumerTag, delivery) -> {
+//			String streamletAsStr = new String(delivery.getBody());
+//			if (EOS.equals(streamletAsStr))
+//			{
+//				channel.basicCancel(consumerTag);	
+//			}
+//			else
+//			{
+//				Object streamlet = null;
+//				try
+//				{
+//					Class<?>[] typeArgs = TypeResolver.resolveRawArguments(StreamProcessor.class, processor.getClass());
+//					
+//					streamlet = getDecoder().decode(streamletAsStr.getBytes(), typeArgs[0]);
+//					processor.process((T)streamlet);
+//				}
+//				catch (Exception e)
+//				{
+//					System.err.println("Error processing the stream : " + e.getMessage());
+//					e.printStackTrace(System.err);
+//					channel.basicCancel(consumerTag);	
+//				}
+//			}
+//		};
+//		channel.basicConsume(streamDetails.getQueueName(), true, deliverCallback, consumerTag -> {});
+		//channel.close();
 	}
 
 	@Override
@@ -129,11 +184,11 @@ public final class StreamImpl<T> extends AbstractRemoter implements Stream<T>
 		t.start();
 	}
 
-	private void pub(Object obj)
+	private void pub(Streamlet<?> streamlet)
 	{
 		try
 		{
-			channel.basicPublish("", streamDetails.getQueueName(), null, getEncoder().encode(obj));
+			channel.basicPublish("", streamDetails.getQueueName(), null, getEncoder().encode(streamlet));
 		}
 		catch (Exception e)
 		{

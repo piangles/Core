@@ -60,7 +60,7 @@ public final class ReqRespController extends AbstractController
 															getServiceName(), getService(),
 															getPreApprovedSessionId(), getSessionValidator(),
 															getEncoder(), getDecoder(), 
-															delivery.getBody(), new ResponseSenderImpl(rmqSystem, channel, delivery));
+															delivery.getBody(), new ResponseSenderImpl(getServiceName(), getProperties(), rmqSystem, channel, delivery));
 					rpt.start();
 				}
 			};
