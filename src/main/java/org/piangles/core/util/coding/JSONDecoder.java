@@ -6,9 +6,8 @@ import com.google.gson.Gson;
 
 final class JSONDecoder implements Decoder
 {
-	@SuppressWarnings("unchecked")
 	@Override
-	public <T> T decode(byte[] data, Class<?> destClass) throws Exception
+	public <T> T decode(byte[] data, Class<T> destClass) throws Exception
 	{
 		T decodeObject = null;
 		try

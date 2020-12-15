@@ -7,17 +7,17 @@ import java.lang.reflect.Type;
 
 public class JavaDecoder implements Decoder
 {
-
+	@SuppressWarnings("unchecked")
 	@Override
-	public <T> T decode(byte[] data, Class<?> destClass) throws Exception
+	public <T> T decode(byte[] data, Class<T> destClass) throws Exception
 	{
-		Object returnValue = null;
+		T returnValue = null;
 		
 		try
 		{
 			ByteArrayInputStream bis = new ByteArrayInputStream(data);
 			ObjectInputStream in = new ObjectInputStream(bis);
-			returnValue = in.readObject();
+			returnValue = (T)in.readObject();
 		}
 		catch (ClassNotFoundException | IOException e)
 		{
@@ -30,7 +30,6 @@ public class JavaDecoder implements Decoder
 	@Override
 	public <T> T decode(byte[] data, Type destType) throws Exception
 	{
-		return decode(data, (Class)null);
+		return decode(data, (Class<T>)null);
 	}
-
 }
