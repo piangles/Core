@@ -20,7 +20,7 @@ public class RabbitMQReceiver
 		try
 		{
 			ConnectionFactory factory = new ConnectionFactory();
-			factory.setHost("ec2-54-172-250-220.compute-1.amazonaws.com");
+			factory.setHost("ec2-100-25-191-222.compute-1.amazonaws.com");
 			factory.setPort(5672);
 			factory.setUsername("msgUser");
 			factory.setPassword("msgPassword");
@@ -35,11 +35,13 @@ public class RabbitMQReceiver
 				@Override
 				public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException
 				{
+					System.out.println("cosumer handleDelivery : " + Thread.currentThread());
 					String message = new String(body, "UTF-8");
 					System.out.println(" [x] Received '" + message + "'");
 				}
 			};
 			channel.basicConsume(QUEUE_NAME, true, consumer);
+			System.out.println("Post channel.basicConsume : " + Thread.currentThread());
 		}
 		catch (IOException | TimeoutException e)
 		{

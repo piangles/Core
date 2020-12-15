@@ -16,7 +16,7 @@ public class RabbitMQSender
 		try
 		{
 			ConnectionFactory factory = new ConnectionFactory();
-			factory.setHost("ec2-54-172-250-220.compute-1.amazonaws.com");
+			factory.setHost("ec2-100-25-191-222.compute-1.amazonaws.com");
 			factory.setPort(5672);
 			factory.setUsername("msgUser");
 			factory.setPassword("msgPassword");
