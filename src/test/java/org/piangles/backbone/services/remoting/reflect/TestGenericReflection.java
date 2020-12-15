@@ -2,15 +2,15 @@ package org.piangles.backbone.services.remoting.reflect;
 
 import java.lang.reflect.Method;
 
-import org.piangles.core.stream.StreamProcessor;
 import org.piangles.core.stream.Stream;
+import org.piangles.core.stream.StreamProcessor;
 import org.piangles.core.util.reflect.TypeResolver;
 
 public class TestGenericReflection
 {
 	public static void main(String[] args)
 	{
-		StreamProcessor<SomeClass> processor = (obj) -> {};  
+		StreamProcessor<SomeClass, Object> processor = (obj) -> {return null;};  
 
 		for (Method method : processor.getClass().getMethods())
 		{

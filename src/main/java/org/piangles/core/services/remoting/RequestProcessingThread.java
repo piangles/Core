@@ -1,6 +1,5 @@
 package org.piangles.core.services.remoting;
 
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.piangles.core.services.Request;
@@ -16,7 +15,7 @@ import org.piangles.core.util.coding.Encoder;
  * This needs to be pooled eventually for faster creation of thread. 
  *
  */
-public final class RequestProcessingThread extends Thread implements Traceable, SessionAwareable
+public final class RequestProcessingThread extends AbstractContextAwareThread
 {
 	private String serviceName = null;
 	private String preApprovedSessionId = null;
@@ -54,7 +53,8 @@ public final class RequestProcessingThread extends Thread implements Traceable, 
 		try
 		{
 			request = decoder.decode(requestAsBytes, Request.class);
-			sessionDetails = new SessionDetails(request.getUserId(), request.getSessionId()); 
+			sessionDetails = new SessionDetails(request.getUserId(), request.getSessionId());
+			super.init(sessionDetails, request.getTraceId());
 			response = processRequest(request);
 		}
 		catch (Exception e)
@@ -98,18 +98,6 @@ public final class RequestProcessingThread extends Thread implements Traceable, 
 		return preApprovedSessionId;
 	}
 	
-	@Override
-	public UUID getTraceId()
-	{
-		return request.getTraceId();
-	}
-	
-	@Override
-	public SessionDetails getSessionDetails()
-	{
-		return sessionDetails;
-	}
-
 	protected final Response processRequest(Request request) throws Exception
 	{
 		long startTime = System.nanoTime();
@@ -126,10 +114,8 @@ public final class RequestProcessingThread extends Thread implements Traceable, 
 
 					//Step 1 create StreamProcessingThread
 					Stream<?> stream = responseSender.createStream(details);
-					BeneficiaryThread bt = new BeneficiaryThread(stream, () -> {
-						new StreamingRequestProcessor(service, request, stream).run();
-					});
-					bt.start();
+					StreamRequestProcessingThread spt = new StreamRequestProcessingThread(service, request, stream);
+					spt.start();
 
 					//Step 2 return response with StreamDetails so client can start processing the stream
 					response = new Response(request.getServiceName(), request.getEndPoint(), details);

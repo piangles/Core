@@ -1,6 +1,6 @@
 package org.piangles.core.stream;
 
-public interface StreamProcessor<T>
+public interface StreamProcessor<T,U>
 {
-	public void process(T obj);
+	public U process(T obj);
 }

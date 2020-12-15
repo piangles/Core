@@ -11,5 +11,5 @@ public final class EndOfStream<T> implements Stream<T>
 	@Override
 	public StreamMetadata getMetadata(){return null;}
 	@Override
-	public void processAsync(StreamProcessor<T> processor){}
+	public <U> void processAsync(StreamProcessor<T,U> processor){}
 }

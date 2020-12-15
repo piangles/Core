@@ -9,5 +9,5 @@ public interface Stream<T>
 
 	//Consumer methods
 	public StreamMetadata getMetadata() throws Exception;
-	public void processAsync(StreamProcessor<T> processor) throws Exception;
+	public <U> void processAsync(StreamProcessor<T,U> processor) throws Exception;
 }

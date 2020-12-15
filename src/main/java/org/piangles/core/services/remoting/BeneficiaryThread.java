@@ -2,32 +2,42 @@ package org.piangles.core.services.remoting;
 
 import java.util.UUID;
 
-import org.piangles.core.stream.Stream;
-
 /**
  * This thread can be created from RequestProcessingThread or in the Adapter classes
- * where processing of response needs to take place Asynchronously.
- * TODO: This needs to be pooled eventually for faster creation of thread or use Future in RequestProcessingThread 
- *
+ * where processing of response needs to take place Asynchronously. It inherits 
+ * the context (TraceId and SessionDetails) from the parent thread.
+ * 
  * The Passion of the Christ
  * Jesus Christ: Those who live by the sword shall die by the sword
  */
-public final class BeneficiaryThread extends Thread implements Traceable, SessionAwareable
+public class BeneficiaryThread extends AbstractContextAwareThread
 {
-	private SessionDetails sessionDetails = null;
-	private UUID traceId = null;
-	private Stream<?> stream;
 	private Runnable runnable = null;
 	
-	BeneficiaryThread(Stream<?> stream, Runnable runnable)
+	public BeneficiaryThread()
 	{
-		this(runnable);
-		this.stream = stream;
+		init();
 	}
 	
 	public BeneficiaryThread(Runnable runnable)
 	{
+		init();
 		this.runnable = runnable;
+	}
+	
+	public void run()
+	{
+		if (runnable != null)
+		{
+			runnable.run();
+		}
+	}
+	
+	private void init()
+	{
+		SessionDetails sessionDetails = null;
+		UUID traceId = null;
+
 		Object currentThread = Thread.currentThread();
 		if (currentThread instanceof Traceable)
 		{
@@ -37,25 +47,7 @@ public final class BeneficiaryThread extends Thread implements Traceable, Sessio
 		{
 			sessionDetails = ((SessionAwareable)currentThread).getSessionDetails();
 		}
-	}
-	
-	public void run()
-	{
-		runnable.run();
-	}
 
-	public Stream<?> getStream()
-	{
-		return stream;
-	}
-	
-	public UUID getTraceId()
-	{
-		return traceId;
-	}
-	
-	public SessionDetails getSessionDetails()
-	{
-		return sessionDetails;
+		super.init(sessionDetails, traceId);
 	}
 }

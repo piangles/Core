@@ -11,20 +11,19 @@ import org.piangles.core.stream.Stream;
  * 
  * John Dolittle: No, no, Cheech. It's okay to be scared.
  */
-public final class StreamingRequestProcessor implements Runnable
+final class StreamRequestProcessingThread extends AbstractContextAwareThread
 {
 	private Service service = null;
 	private Request request = null;
-
 	private Stream<?> stream;
-	
-	public StreamingRequestProcessor(Service service, Request request, Stream<?> stream)
+
+	StreamRequestProcessingThread(Service service, Request request, Stream<?> stream)
 	{
 		this.service = service;
 		this.request = request;
 		this.stream = stream;
 	}
-	
+
 	public void run()
 	{
 		//This will return a Response object encapsulating an EndOfStream object : We will ignore it.

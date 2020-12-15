@@ -7,6 +7,7 @@ import org.piangles.core.services.remoting.AbstractRemoter;
 import org.piangles.core.stream.Stream;
 import org.piangles.core.stream.StreamDetails;
 import org.piangles.core.stream.StreamMetadata;
+import org.piangles.core.stream.StreamProcessingThread;
 import org.piangles.core.stream.StreamProcessor;
 import org.piangles.core.stream.Streamlet;
 
@@ -18,7 +19,7 @@ import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
 import com.rabbitmq.client.GetResponse;
 
-public final class StreamImpl<T> extends AbstractRemoter implements Stream<T>
+public final class StreamImpl<I> extends AbstractRemoter implements Stream<I>
 {
 	private Channel channel;
 	private StreamDetails streamDetails;
@@ -41,7 +42,7 @@ public final class StreamImpl<T> extends AbstractRemoter implements Stream<T>
 	}
 
 	@Override
-	public void add(T payload)
+	public void add(I payload)
 	{
 		if (firstStreamlet)
 		{
@@ -50,15 +51,15 @@ public final class StreamImpl<T> extends AbstractRemoter implements Stream<T>
 			{
 				metadata = new StreamMetadata();
 			}
-			pub(new Streamlet<T>(metadata));
+			pub(new Streamlet<I>(metadata));
 		}
-		pub(new Streamlet<T>(payload));
+		pub(new Streamlet<I>(payload));
 	}
 
 	@Override
 	public void done()
 	{
-		pub(new Streamlet<T>());
+		pub(new Streamlet<I>());
 		close();
 	}
 
@@ -71,7 +72,7 @@ public final class StreamImpl<T> extends AbstractRemoter implements Stream<T>
 			GetResponse response = channel.basicGet(streamDetails.getQueueName(), true);
 			if (response != null) 
 			{
-				Streamlet<T> streamlet = getDecoder().decode(response.getBody(), new TypeToken<Streamlet<T>>() {}.getType());
+				Streamlet<I> streamlet = getDecoder().decode(response.getBody(), new TypeToken<Streamlet<I>>() {}.getType());
 				metadata = streamlet.getMetadata();
 			}		
 		}
@@ -80,17 +81,24 @@ public final class StreamImpl<T> extends AbstractRemoter implements Stream<T>
 	}
 
 	@Override
-	public void processAsync(StreamProcessor<T> processor) throws Exception
+	public <O> void processAsync(StreamProcessor<I,O> processor) throws Exception
 	{
+		processAsync(new StreamProcessingThread<>(processor));
+	}
+	
+	public <O> void processAsync(StreamProcessingThread<I,O> spt) throws Exception
+	{
+		spt.start();
+		
 		Consumer consumer = new DefaultConsumer(channel)
 		{
 			@Override
 			public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException
 			{
-				Streamlet<T> streamlet = null;
+				Streamlet<I> streamlet = null;
 				try
 				{
-					streamlet = getDecoder().decode(body, new TypeToken<Streamlet<T>>() {}.getType());
+					streamlet = getDecoder().decode(body, new TypeToken<Streamlet<I>>() {}.getType());
 
 					/**
 					 * This method helps get the type of <T> of a Geneneric interfaces instance.
@@ -105,6 +113,14 @@ public final class StreamImpl<T> extends AbstractRemoter implements Stream<T>
 					return;
 				}
 				
+				/**
+				 * Processing of streamlet should be called from a 
+				 * BeneficiaryThread instance. That way it inherits 
+				 * the session and traceId
+				 * 
+				 * so put the streamlet(except metadata) in a queue that 
+				 * the BeneficiaryThread can read from and process. 
+				 */
 				if (StreamMetadata.class.getCanonicalName().equals(streamlet.getType()))
 				{
 					firstStreamlet = false;
@@ -112,13 +128,15 @@ public final class StreamImpl<T> extends AbstractRemoter implements Stream<T>
 				}
 				else if (!streamlet.isEndOfStreamMessage())
 				{
-					processor.process(streamlet.getPayload());
+					spt.getBlockingQueue().offer(streamlet);
 				}
 				else//It is EndOfStreamMessage
 				{
 					channel.basicCancel(consumerTag);
 					channel.queueDelete(streamDetails.getQueueName());
 					close();
+					
+					spt.getBlockingQueue().offer(streamlet);
 				}
 			}
 		};

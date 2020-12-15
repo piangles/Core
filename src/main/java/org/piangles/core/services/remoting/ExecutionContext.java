@@ -22,9 +22,9 @@ public final class ExecutionContext
 		Stream<?> stream = null;
 		
 		Object currentThread = Thread.currentThread();
-		if (currentThread instanceof BeneficiaryThread)
+		if (currentThread instanceof StreamRequestProcessingThread)
 		{
-			stream = ((BeneficiaryThread)currentThread).getStream();
+			stream = ((StreamRequestProcessingThread)currentThread).getStream();
 		}
 		
 		return new ExecutionContext(stream);
