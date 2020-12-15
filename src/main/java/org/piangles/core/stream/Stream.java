@@ -4,7 +4,7 @@ public interface Stream<T>
 {
 	//Producer methods
 	public void setMetadata(StreamMetadata metadata);
-	public void add(T streamlet);
+	public void add(T obj);
 	public void done();
 
 	//Consumer methods
