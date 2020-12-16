@@ -10,7 +10,7 @@ public class StreamTest
 	
 	public Stream<Integer> getIntegerStream()
 	{
-		Stream<Integer> s = new EndOfStream<>();
+		Stream<Integer> s = new StartOfStream<>();
 		return s;
 	}
 	

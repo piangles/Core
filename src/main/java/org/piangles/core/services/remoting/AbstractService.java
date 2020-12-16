@@ -1,8 +1,12 @@
 package org.piangles.core.services.remoting;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 
+import org.piangles.core.services.AuditDetails;
 import org.piangles.core.services.Request;
 import org.piangles.core.services.Response;
 import org.piangles.core.services.Service;
@@ -24,7 +28,10 @@ public abstract class AbstractService implements Service
 		Method[] methods = serviceImpl.getClass().getDeclaredMethods();
 		for (Method method : methods)
 		{
-			endPointMethodMap.put(createKey(method.getName(), method.getParameters()), method);
+			Parameter[] params = Arrays.stream(method.getParameters()).
+										filter(p -> !(p.getType().equals(AuditDetails.class)))
+										.toArray(Parameter[]::new);
+			endPointMethodMap.put(createKey(method.getName(), params), method);
 			
 			ServiceMetadata.Metadata metadata = new ServiceMetadata().new Metadata();
 			metadata.streamBased = (method.getReturnType().getCanonicalName().equals(Stream.class.getCanonicalName()));

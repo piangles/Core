@@ -1,6 +1,6 @@
 package org.piangles.core.stream;
 
-public final class EndOfStream<T> implements Stream<T> 
+public final class StartOfStream<T> implements Stream<T> 
 {
 	@Override
 	public void setMetadata(StreamMetadata metadata){}
