@@ -19,7 +19,12 @@ public final class ServiceMetadata
 	
 	public boolean isEndpointStreamBased(String endpoint)
 	{
-		return endpointMetadataMap.get(endpoint).streamBased;
+		boolean streamBased = false;
+		if (endpointMetadataMap.get(endpoint) != null)
+		{
+			streamBased = endpointMetadataMap.get(endpoint).streamBased;
+		}
+		return streamBased;
 	}
 	
 	public class Metadata

@@ -3,7 +3,6 @@ package org.piangles.core.services.remoting;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 
 import org.piangles.core.services.AuditDetails;
@@ -47,7 +46,7 @@ public abstract class AbstractService implements Service
 		Method method = null;
 		Object[] args = request.getParameters();
 		
-		method = endPointMethodMap.get(createKey(request.getEndPoint(), args));
+		method = lookupMethod(request.getEndPoint(), args);
 		
 		if (method != null)
 		{
@@ -78,6 +77,11 @@ public abstract class AbstractService implements Service
 	protected final Object getServiceImpl()
 	{
 		return serviceImpl;
+	}
+	
+	protected Method lookupMethod(String endpoint, Object[] args)
+	{
+		return endPointMethodMap.get(createKey(endpoint, args));
 	}
 
 	private String createKey(String endpoint, Object[] args)

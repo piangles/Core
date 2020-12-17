@@ -1,10 +1,12 @@
 package org.piangles.core.stream;
 
+import java.util.Optional;
+
 public final class PassThruStreamProcessor<I,O> implements StreamProcessor<I,O>
 {
 	@SuppressWarnings("unchecked")
-	public O process(I obj)
+	public Optional<O> process(Optional<I> obj)
 	{
-		return (O)obj;
+		return (Optional<O>)obj;
 	}
 }

@@ -1,6 +1,8 @@
 package org.piangles.core.stream;
 
+import java.util.Optional;
+
 public interface StreamProcessor<I,O>
 {
-	public O process(I obj);
+	public Optional<O> process(Optional<I> obj);
 }

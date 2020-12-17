@@ -1,5 +1,6 @@
 package org.piangles.core.stream;
 
+import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -25,13 +26,11 @@ public class StreamProcessingThread<I, O> extends BeneficiaryThread
 			try
 			{
 				streamlet = blockingQueue.take();
-				
-				if (!streamlet.isEndOfStreamMessage())
-				{
-					O output = processor.process(streamlet.getPayload());
-					processOutput(output);
-				}
-				else//It is EndOfStreamMessage
+
+				Optional<O> output = processor.process(Optional.ofNullable(streamlet.getPayload()));
+				processOutput(output);
+
+				if (streamlet.isEndOfStreamMessage())
 				{
 					break;
 				}
@@ -51,7 +50,7 @@ public class StreamProcessingThread<I, O> extends BeneficiaryThread
 		return blockingQueue;
 	}
 	
-	protected void processOutput(O output)
+	protected void processOutput(Optional<O> output)
 	{
 		//By default ignore the output of the stream processor
 	}
