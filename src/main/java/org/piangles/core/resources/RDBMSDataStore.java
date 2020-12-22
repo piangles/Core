@@ -24,6 +24,10 @@ public final class RDBMSDataStore
 	private static final String SP_PARAM = "?";
 	private static final String SP_END = ")}";
 
+	private static final String FUNC_BEGIN = "select * from ";
+	private static final String FUNC_PARAM = "?";
+	private static final String FUNC_END = ")";
+
 	private BasicDataSource ds = null;
 
 	RDBMSDataStore(String serviceName, Properties dataStoreProps) throws Exception
@@ -52,7 +56,7 @@ public final class RDBMSDataStore
 		return this.ds.getConnection();
 	}
 
-	public static String createCALLString(String storedProcName, int paramCount)
+	public static String createCallString(String storedProcName, int paramCount)
 	{
 		StringBuffer sb = new StringBuffer(SP_BEGIN);
 		sb.append(storedProcName).append("(");
@@ -67,6 +71,24 @@ public final class RDBMSDataStore
 		}
 
 		sb.append(SP_END);
+		return sb.toString();
+	}
+	
+	public static String createFunctionString(String storedProcName, int paramCount)
+	{
+		StringBuffer sb = new StringBuffer(FUNC_BEGIN);
+		sb.append(storedProcName).append("(");
+
+		for (int i = 0; i < paramCount; ++i)
+		{
+			if (i != 0)
+			{
+				sb.append(",");
+			}
+			sb.append(FUNC_PARAM);
+		}
+
+		sb.append(FUNC_END);
 		return sb.toString();
 	}
 }

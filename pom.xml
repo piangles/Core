@@ -24,6 +24,11 @@
 			<version>${mysql-connector-java-version}</version>
 		</dependency>
 		<dependency>
+    		<groupId>org.postgresql</groupId>
+    		<artifactId>postgresql</artifactId>
+    		<version>${postgres-connector-java-version}</version>
+		</dependency>		
+		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 			<version>${gson-version}</version>
@@ -98,6 +103,8 @@
 
 		<amqp-client-version>5.9.0</amqp-client-version>
 		<mysql-connector-java-version>5.1.36</mysql-connector-java-version>
+		<postgres-connector-java-version>42.2.18</postgres-connector-java-version>
+		
 
 		<gson-version>2.4</gson-version>
 		<jersey-client-version>1.9.1</jersey-client-version>

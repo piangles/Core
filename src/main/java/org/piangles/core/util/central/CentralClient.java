@@ -17,6 +17,9 @@ import org.apache.commons.io.IOUtils;
 
 public final class CentralClient
 {
+	private static final String CENTRAL_HOST = "central.host";
+	private static final String CENTRAL_PORT = "central.port";
+	
 	private static String TIER1_CONFIG_URL = null;
 	private static String DISCOVERY_URL = null;
 	private static String CIPHER_URL = null;
@@ -99,8 +102,8 @@ public final class CentralClient
 	{
 		String centralSocketAddress = null;
 
-		String centralHost = System.getenv("central.host");
-		String centralPort = System.getenv("central.port");
+		String centralHost = System.getenv(CENTRAL_HOST);
+		String centralPort = System.getenv(CENTRAL_PORT);
 		if (centralHost != null && centralPort != null)
 		{
 			//Validate both hostname and port 
@@ -110,7 +113,7 @@ public final class CentralClient
 			}
 			catch (UnknownHostException e)
 			{
-				throw new Exception("central.host is not valid.", e);
+				throw new Exception(CENTRAL_HOST + " is not valid.", e);
 			}
 			
 			try
@@ -119,14 +122,14 @@ public final class CentralClient
 			}
 			catch (NumberFormatException e)
 			{
-				throw new Exception("central.port is not valid integer", e);
+				throw new Exception(CENTRAL_PORT + " is not valid integer", e);
 			}
 			
 			centralSocketAddress = centralHost + ":" + centralPort;
 		}
 		else
 		{
-			String message = "central.host or central.port environment variable(s) are missing.";
+			String message = CENTRAL_HOST + " or " + CENTRAL_PORT + " environment variable(s) are missing.";
 			System.err.println(message);
 			throw new Exception(message);
 		}

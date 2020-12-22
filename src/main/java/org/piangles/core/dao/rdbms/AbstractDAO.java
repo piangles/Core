@@ -119,7 +119,7 @@ public abstract class AbstractDAO
 		try
 		{
 			dbConnection = dataStore.getConnection();
-			call = dbConnection.prepareCall(RDBMSDataStore.createCALLString(storedProcName, paramCount));
+			call = dbConnection.prepareCall(RDBMSDataStore.createCallString(storedProcName, paramCount));
 			sp.prepare(call);
 
 			call.execute();
@@ -144,6 +144,21 @@ public abstract class AbstractDAO
 		}
 	}
 
+	protected final <T> T executeFunctionQuery(String storedProcName, int paramCount, StatementPreparer sp, ResultSetProcessor<T> rsp) throws DAOException
+	{
+		T retValue = null;
+		List<T> results = null;
+
+		results = execute(storedProcName, paramCount, sp, rsp, false);
+
+		if (results != null && results.size() >= 1)
+		{
+			retValue = results.get(0);
+		}
+
+		return retValue;
+	}
+	
 	private final <T> List<T> execute(String storedProcName, int paramCount, StatementPreparer sp, ResultSetProcessor<T> irp, boolean complete) throws DAOException
 	{
 		List<T> results = null;
@@ -152,7 +167,7 @@ public abstract class AbstractDAO
 		try
 		{
 			dbConnection = dataStore.getConnection();
-			call = dbConnection.prepareCall(RDBMSDataStore.createCALLString(storedProcName, paramCount));
+			call = dbConnection.prepareCall(RDBMSDataStore.createCallString(storedProcName, paramCount));
 			if (sp != null)
 			{
 				sp.prepare(call);
