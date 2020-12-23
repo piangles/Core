@@ -20,13 +20,13 @@ public final class RDBMSDataStore
 	private static final String DECRYPTER_CLASS_NAME = "DecrypterClassName";
 	private static final String DECRYPTER_AUTHZ_ID = "DecrypterAuthorizationId";
 
-	private static final String SP_BEGIN = "{call ";
+	private static final String SP_BEGIN = "call ";
 	private static final String SP_PARAM = "?";
-	private static final String SP_END = ")}";
+	private static final String SP_END = ")";
 
-	private static final String FUNC_BEGIN = "select * from ";
+	private static final String FUNC_BEGIN = "{call ";
 	private static final String FUNC_PARAM = "?";
-	private static final String FUNC_END = ")";
+	private static final String FUNC_END = ")}";
 
 	private BasicDataSource ds = null;
 

@@ -59,6 +59,7 @@ public final class RequestProcessingThread extends AbstractContextAwareThread
 		}
 		catch (Exception e)
 		{
+			e.printStackTrace(System.err);
 			if (request != null)
 			{
 				response = new Response(request.getServiceName(), request.getEndPoint(), e);

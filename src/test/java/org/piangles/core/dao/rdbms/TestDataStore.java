@@ -9,5 +9,11 @@ public class TestDataStore
 		System.out.println(RDBMSDataStore.createCallString("TEST_SP", 0));
 		System.out.println(RDBMSDataStore.createCallString("TEST_SP", 1));
 		System.out.println(RDBMSDataStore.createCallString("TEST_SP", 2));
+		
+		
+		System.out.println(RDBMSDataStore.createFunctionString("TEST_SP", 0));
+		System.out.println(RDBMSDataStore.createFunctionString("TEST_SP", 1));
+		System.out.println(RDBMSDataStore.createFunctionString("TEST_SP", 2));
+
 	}
 }

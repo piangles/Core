@@ -59,7 +59,7 @@ public abstract class AbstractDAO
 	 */
 	protected final <T> List<T> executeSPQueryList(String storedProcName, int paramCount, StatementPreparer sp, ResultSetProcessor<T> rsp) throws DAOException
 	{
-		return execute(storedProcName, paramCount, sp, rsp, true);
+		return execute(storedProcName, false, paramCount, sp, rsp, true);
 	}
 
 	/**
@@ -89,7 +89,7 @@ public abstract class AbstractDAO
 		T retValue = null;
 		List<T> results = null;
 
-		results = execute(storedProcName, paramCount, sp, rsp, false);
+		results = execute(storedProcName, false, paramCount, sp, rsp, false);
 
 		if (results != null && results.size() >= 1)
 		{
@@ -144,12 +144,12 @@ public abstract class AbstractDAO
 		}
 	}
 
-	protected final <T> T executeFunctionQuery(String storedProcName, int paramCount, StatementPreparer sp, ResultSetProcessor<T> rsp) throws DAOException
+	protected final <T> T executeFunctionQuery(String functionName, int paramCount, StatementPreparer sp, ResultSetProcessor<T> rsp) throws DAOException
 	{
 		T retValue = null;
 		List<T> results = null;
 
-		results = execute(storedProcName, paramCount, sp, rsp, false);
+		results = execute(functionName, true, paramCount, sp, rsp, false);
 
 		if (results != null && results.size() >= 1)
 		{
@@ -159,7 +159,7 @@ public abstract class AbstractDAO
 		return retValue;
 	}
 	
-	private final <T> List<T> execute(String storedProcName, int paramCount, StatementPreparer sp, ResultSetProcessor<T> irp, boolean complete) throws DAOException
+	private final <T> List<T> execute(String storedFuncOrProcName, boolean isFunction, int paramCount, StatementPreparer sp, ResultSetProcessor<T> irp, boolean complete) throws DAOException
 	{
 		List<T> results = null;
 		Connection dbConnection = null;
@@ -167,7 +167,14 @@ public abstract class AbstractDAO
 		try
 		{
 			dbConnection = dataStore.getConnection();
-			call = dbConnection.prepareCall(RDBMSDataStore.createCallString(storedProcName, paramCount));
+			if (isFunction)
+			{
+				call = dbConnection.prepareCall(RDBMSDataStore.createFunctionString(storedFuncOrProcName, paramCount));
+			}
+			else
+			{
+				call = dbConnection.prepareCall(RDBMSDataStore.createCallString(storedFuncOrProcName, paramCount));
+			}
 			if (sp != null)
 			{
 				sp.prepare(call);

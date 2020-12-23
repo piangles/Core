@@ -12,12 +12,12 @@ public abstract class AbstractServiceTestClient extends Thread implements Sessio
 		try
 		{
 			runImpl();
-			System.exit(1);
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
+		System.exit(1);
 	}
 	
 	@Override

@@ -55,6 +55,11 @@ public abstract class AbstractService implements Service
 				//This is where we make the actual call to the underlying service
 				returnValue = process(method, args, request);
 			}
+			catch (RuntimeException e)
+			{
+				e.printStackTrace(System.err);
+				returnValue = e;
+			}
 			catch (Exception e)
 			{
 				returnValue = e;
