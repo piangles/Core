@@ -35,12 +35,12 @@ public final class Trie
 			TrieNode node = current.getChildren().get(ch);
 			if (node == null)
 			{
-				System.out.println("Search result for [" + word + "] found is : false");
+				//System.out.println("Search result for [" + word + "] found is : false");
 				return false;
 			}
 			current = node;
 		}
-		System.out.println("Search result for [" + word + "] found is : " + current.isEndOfWord());
+		//System.out.println("Search result for [" + word + "] found is : " + current.isEndOfWord());
 		return current.isEndOfWord();
 	}
 

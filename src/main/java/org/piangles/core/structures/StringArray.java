@@ -35,7 +35,7 @@ final class StringArray
 	 * ArrayList with elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA will be
 	 * expanded to DEFAULT_CAPACITY when the first element is added.
 	 */
-	transient String[] elementData; // non-private to simplify nested class
+	private transient String[] elementData; // non-private to simplify nested class
 									// access
 
 	/**
@@ -86,7 +86,7 @@ final class StringArray
      * @return the element at the specified position in this list
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
-	public String elementAt(int index)
+	public String get(int index)
 	{
 		return elementData[index];
 	}
