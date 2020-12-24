@@ -6,8 +6,6 @@ import java.io.FileReader;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 
-import org.piangles.core.structures.Trie;
-
 //https://github.com/eugenp/tutorials/blob/master/data-structures/src/test/java/com/baeldung/trie/TrieUnitTest.java
 public class BitmapTrieTest
 {
@@ -66,17 +64,17 @@ public class BitmapTrieTest
 //		trie.insert("life");
 
 		startTime = System.nanoTime();
-		trie.contains("3");
-		trie.contains("vida");
+		trie.search("3");
+		trie.search("vida");
 
-		trie.contains("Programming");
-		trie.contains("is");
-		trie.contains("a");
-		trie.contains("way");
-		trie.contains("of");
-		trie.contains("life");
-		trie.contains("anal");
-		trie.contains("anallise");
+		trie.search("Programming");
+		trie.search("is");
+		trie.search("a");
+		trie.search("way");
+		trie.search("of");
+		trie.search("life");
+		trie.search("anal");
+		trie.search("anallise");
 		System.out.println("Look up Time Taken : " + (System.nanoTime() - startTime));
 		memory();
 	}

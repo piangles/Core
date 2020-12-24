@@ -27,7 +27,8 @@ public final class Trie
 		{
 			word = universeOfWords.get(i).toLowerCase();
 			TrieNode current = root;
-			//System.out.println("" + i + ":" + word);
+//			if (word.startsWith("ana"))
+//			System.out.println("" + i + ":" + word);
 
 			for (char ch : word.toCharArray())
 			{
@@ -45,7 +46,19 @@ public final class Trie
 		SearchResults searchResults = null;
 		
 		word = word.toLowerCase();
-		TraverseResult traverseResult = traverse(root, word.toCharArray(), -1);
+
+		char[] wordAsArray = word.toCharArray();
+		TraverseResult traverseResult = null; 
+		TrieNode nextNode = root.get(wordAsArray[0]);
+		if (nextNode == null)//There is nothing in our universe that starts with this character
+		{
+			traverseResult = new TraverseResult();
+		}
+		else
+		{
+			traverseResult = traverse(nextNode, wordAsArray, 0);
+		}
+
 		if (traverseResult.noneFoundInOurUniverse())
 		{
 			searchResults = new SearchResults(false, false, false, suggestionEngine.suggestTopTen());	
@@ -71,23 +84,34 @@ public final class Trie
 	{
 		TraverseResult result = null;
 		
-		TrieNode nextNode = currentNode.get(word[index+1]);
-		if (nextNode == null && index == 0)//There is nothing in the universe that starts with this
+		if (word.length == index+1)
 		{
-			result = new TraverseResult();
+			/**
+			 * We reached the end of the word. We might or might not have more nodes in this branch.
+			 * But for certain we have words that being with this search word. 
+			 * 
+			 * Ex:  Search word is 3 and we have 369.
+			 * 
+			 * Here hit is defined by if the current node is a complete word or not.
+			 */
+			result = new TraverseResult(currentNode.isCompleteWord(), currentNode.getIndexIntoUniverse(), true, currentNode.isCompleteWord());
 		}
-		else if (nextNode == null)//We are in the chain and there is no match for the next character
+		else//we continue traversal
 		{
-			result = new TraverseResult(false, currentNode.getIndexIntoUniverse(), false, currentNode.isCompleteWord());
-		}
-		else if (word.length == index+2) //We reached the end of the word, however we have a nextNode => we have longer words which start with this word
-		{
-			//We had a hit and there is a next node so it is a prefix 
-			result = new TraverseResult(true, currentNode.getIndexIntoUniverse(), true, currentNode.isCompleteWord());
-		}
-		else//we are in the middle of traversal
-		{
-			result = traverse(nextNode, word, ++index);
+			TrieNode nextNode = currentNode.get(word[index+1]);
+			if (nextNode != null)
+			{
+				result = traverse(nextNode, word, index+1);
+			}
+			else
+			{
+				/**
+				 * The search word's next character is not present in out list.
+				 * Ex: Search word is cartz and we have cart, carton and cartoon.
+				 * Post carT(currentNode) we do not have anyword starting with Z. 
+				 */
+				result = new TraverseResult(false, currentNode.getIndexIntoUniverse(), false, false);
+			}
 		}
 		
 		return result;
