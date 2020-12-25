@@ -14,8 +14,13 @@ final class SuggestionEngine
 		return null;
 	}
 	
-	public String[] suggest(int indexIntoUniverse)
+	public String[] suggest(int[] indexesIntoOurUniverse)
 	{
-		return new String[]{universeOfWords.get(indexIntoUniverse)};
+		String[] suggestions = new String[indexesIntoOurUniverse.length];
+		for (int i=0; i < indexesIntoOurUniverse.length; ++i)
+		{
+			suggestions[i] = universeOfWords.get(indexesIntoOurUniverse[i]);
+		}
+		return suggestions;
 	}
 }

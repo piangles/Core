@@ -5,11 +5,13 @@ import java.io.File;
 import java.io.FileReader;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
+import static org.piangles.core.structures.TrieConstants.PERF_MONITORING;;
 
-//https://github.com/eugenp/tutorials/blob/master/data-structures/src/test/java/com/baeldung/trie/TrieUnitTest.java
 public class BitmapTrieTest
 {
 	private static CharsetEncoder encoder =Charset.forName("US-ASCII").newEncoder();
+
+	
 	public static void main(String[] args) throws Exception
 	{
 		Trie trie = new Trie(1100000);
@@ -34,12 +36,16 @@ public class BitmapTrieTest
 				System.out.println(st);
 			}
 		}
-		boolean perMonitoring = false;
-		if (perMonitoring) Thread.sleep(5000);
+		br.close();
 		
+		if (PERF_MONITORING) Thread.sleep(5000);
+		System.out.println("Total number of words inscope: " + count + " Skipped : " + skipCount + " Time Taken : " + (System.currentTimeMillis() - startTime) + " MiliSeconds.");
+		
+		startTime = System.currentTimeMillis();
 		trie.indexIt();
-		System.out.println("Total number of words inscope: " + count + " Skipped : " + skipCount + " Time Taken : " + (System.currentTimeMillis() - startTime));
-		if (perMonitoring) Thread.sleep(5000);
+		System.out.println("Time Taken to Index : " + (System.currentTimeMillis() - startTime) + " MiliSeconds.");
+		
+		if (PERF_MONITORING) Thread.sleep(5000);
 
 //		trie.insert("Programming");
 //		trie.insert("Programmer");
@@ -61,7 +67,7 @@ public class BitmapTrieTest
 		trie.search("life");
 		trie.search("anal");
 		trie.search("anallise");
-		System.out.println("Look up Time Taken : " + (System.nanoTime() - startTime));
+		System.out.println("Look up Time Taken : " + (System.nanoTime() - startTime) + " NanoSeconds.");
 		memory();
 	}
 

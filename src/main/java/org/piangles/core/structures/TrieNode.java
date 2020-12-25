@@ -1,12 +1,16 @@
 package org.piangles.core.structures;
 
-public final class TrieNode
+import java.util.Arrays;
+import static org.piangles.core.structures.TrieConstants.SUGGESTIONS_LIMIT;;
+
+final class TrieNode
 {
 	private char ch;
-	private int indexIntoUniverse;
-	private int[] indexesIntoUniverse;
+	private int[] indexesIntoOurUniverse;
+	private boolean recycled = false;
+	private int indexesCount = 0;
 	
-	private TrieNode[] children = null;
+	private TrieNode[] children = null; //TODO Need to start it with a small count
 	private long childrenBitmap = Vocabulary.NULL;
 	
 	private boolean completeWord = false;
@@ -15,18 +19,45 @@ public final class TrieNode
 	{
 	}
 
-	private TrieNode(char ch, int indexIntoUniverse)
+	private TrieNode(char ch)
 	{
 		this.ch = ch;
-		this.indexIntoUniverse = indexIntoUniverse;
+		indexesIntoOurUniverse = new int[SUGGESTIONS_LIMIT];
+		Arrays.fill(indexesIntoOurUniverse, -1);
 	}
 
-	public boolean isEmpty()
+	boolean isEmpty()
 	{
 		return Vocabulary.NULL == childrenBitmap;
 	}
 
-	public TrieNode get(char ch)
+	void indexIt()
+	{
+		/**
+		 * Eliminate all indexesIntoOurUniverse which are -1;
+		 */
+		if (!recycled) //There are some negative indexes into our universe
+		{
+			if (indexesCount != 0)
+			{
+				indexesIntoOurUniverse = Arrays.copyOf(indexesIntoOurUniverse, indexesCount-1);
+			}
+			else
+			{
+				indexesIntoOurUniverse = null;
+			}
+		}
+		
+		if (children != null)
+		{
+			for (int i=0; i < children.length; ++i)
+			{
+				children[i].indexIt();
+			}
+		}
+	}
+	
+	TrieNode get(char ch)
 	{
 		TrieNode child = null;
 		if (doesChildExist(ch))
@@ -43,12 +74,12 @@ public final class TrieNode
 		return child;
 	}
 
-	public TrieNode getOrElseCreate(char ch, int indexIntoUniverse)
+	TrieNode getOrElseCreate(char ch)
 	{
 		TrieNode child = get(ch);
 		if (child == null)
 		{
-			child = new TrieNode(ch, indexIntoUniverse); 
+			child = new TrieNode(ch); 
 
 			if (children == null)
 			{
@@ -67,12 +98,19 @@ public final class TrieNode
 		return child;
 	}
 	
-	public void addIndexIntoUniverse(int indexIntoUniverse)
+	void addIndexIntoOurUniverse(int indexIntoOurUniverse)
 	{
+		indexesCount = indexesCount + 1;
+		if (indexesCount > SUGGESTIONS_LIMIT)
+		{
+			indexesCount = 1;
+			recycled = true;
+		}
 		
+		indexesIntoOurUniverse[indexesCount-1] = indexIntoOurUniverse;
 	}
 
-	public boolean doesChildExist(char ch)
+	boolean doesChildExist(char ch)
 	{
 		//Need to check whether the bit at given position is set or unset.
 		long charBitPosition = Vocabulary.getIndex(ch) + 1;
@@ -86,14 +124,14 @@ public final class TrieNode
 		return (shiftedChildren & 1) == 1;
 	}
 	
-	public boolean haveAnyChildren()
+	boolean haveAnyChildren()
 	{
 		return childrenBitmap == Vocabulary.NULL;
 	}
 	
-	public int getIndexIntoUniverse()
+	int[] getIndexesIntoOurUniverse()
 	{
-		return indexIntoUniverse;
+		return indexesIntoOurUniverse;
 	}
 	//Set specific bit
 	//https://stackoverflow.com/questions/4674006/set-specific-bit-in-byte

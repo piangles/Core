@@ -10,17 +10,17 @@ final class TraverseResult
 	 */
 	private boolean prefix;
 	private boolean completeWord;
-	private int indexIntoUniverse = -1;
+	private int[] indexesIntoOurUniverse = null;
 
 	TraverseResult()
 	{
-		this(false, -1, false, false);
+		this(false, null, false, false);
 	}
 	
-	TraverseResult(boolean found, int indexIntoUniverse, boolean prefix, boolean completeWord)
+	TraverseResult(boolean found, int[] indexesIntoOurUniverse, boolean prefix, boolean completeWord)
 	{
 		this.found = found;
-		this.indexIntoUniverse = indexIntoUniverse;
+		this.indexesIntoOurUniverse = indexesIntoOurUniverse;
 		this.prefix = prefix;
 		this.completeWord = completeWord;
 	}
@@ -30,9 +30,9 @@ final class TraverseResult
 		return found;
 	}
 	
-	int getIndexIntoUniverse()
+	int[] getIndexesIntoOurUniverse()
 	{
-		return indexIntoUniverse;
+		return indexesIntoOurUniverse;
 	}
 	
 	boolean isPrefix()
@@ -47,6 +47,6 @@ final class TraverseResult
 	
 	boolean noneFoundInOurUniverse()
 	{
-		return indexIntoUniverse == -1;
+		return indexesIntoOurUniverse == null;
 	}
 }
