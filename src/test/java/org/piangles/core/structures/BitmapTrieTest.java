@@ -67,6 +67,7 @@ public class BitmapTrieTest
 		trie.search("life");
 		trie.search("anal");
 		trie.search("anallise");
+		trie.search("{");
 		System.out.println("Look up Time Taken : " + (System.nanoTime() - startTime) + " NanoSeconds.");
 		memory();
 	}

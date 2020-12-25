@@ -84,11 +84,11 @@ public final class Trie
 
 		if (traverseResult.noneFoundInOurUniverse())
 		{
-			searchResults = new SearchResults(false, false, false, suggestionEngine.suggestTopTen());
+			searchResults = new SearchResults(MatchQuality.None, false, false, suggestionEngine.suggestTopTen());
 		}
 		else
 		{
-			searchResults = new SearchResults(traverseResult.wasFound(), traverseResult.isPrefix(), traverseResult.isCompleteWord(),
+			searchResults = new SearchResults(traverseResult.getMatchQuality(), traverseResult.isPrefix(), traverseResult.isCompleteWord(),
 					suggestionEngine.suggest(traverseResult.getIndexesIntoOurUniverse()));
 		}
 		System.out.println("Search result for [" + word + "] : " + searchResults);
@@ -116,7 +116,8 @@ public final class Trie
 			 * Here hit is defined by if the current node is a complete word or
 			 * not.
 			 */
-			result = new TraverseResult(true, currentNode.getIndexesIntoOurUniverse(), currentNode.haveAnyChildren(), currentNode.isCompleteWord());
+			MatchQuality matchQuality = currentNode.isCompleteWord()? MatchQuality.Exact : MatchQuality.Partial;
+			result = new TraverseResult(matchQuality, currentNode.getIndexesIntoOurUniverse(), currentNode.haveAnyChildren(), currentNode.isCompleteWord());
 		}
 		else// we continue traversal
 		{
@@ -127,13 +128,14 @@ public final class Trie
 			}
 			else
 			{
+				System.out.println("WHEN DOES IT COME HERE????????????????");
 				/**
 				 * The search word's next character is not present in out list.
 				 * Ex: Search word is cartz and we have cart, carton and
 				 * cartoon. Post carT(currentNode) we do not have anyword
 				 * starting with Z.
 				 */
-				result = new TraverseResult(false, currentNode.getIndexesIntoOurUniverse(), false, false);
+				result = new TraverseResult(MatchQuality.None, currentNode.getIndexesIntoOurUniverse(), false, false);
 			}
 		}
 
@@ -148,10 +150,11 @@ public final class Trie
 			TrieNode childNode = currentNode.get(ch);
 			if (childNode == null)
 			{
-				return new TraverseResult(false, currentNode.getIndexesIntoOurUniverse(), false, false);
+				return new TraverseResult(MatchQuality.None, currentNode.getIndexesIntoOurUniverse(), false, false);
 			}
 			currentNode = childNode;
 		}
-		return new TraverseResult(true, currentNode.getIndexesIntoOurUniverse(), currentNode.haveAnyChildren(), currentNode.isCompleteWord());
+		MatchQuality matchQuality = currentNode.isCompleteWord()? MatchQuality.Exact : MatchQuality.Partial;
+		return new TraverseResult(matchQuality, currentNode.getIndexesIntoOurUniverse(), currentNode.haveAnyChildren(), currentNode.isCompleteWord());
 	}
 }

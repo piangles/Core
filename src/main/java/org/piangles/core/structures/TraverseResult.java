@@ -2,7 +2,7 @@ package org.piangles.core.structures;
 
 final class TraverseResult
 {
-	private boolean found = false;
+	private MatchQuality matchQuality = null;
 	/**
 	 * Prefix and Complete word are not complimentary. 
 	 * They both operate independentaly.
@@ -14,20 +14,20 @@ final class TraverseResult
 
 	TraverseResult()
 	{
-		this(false, null, false, false);
+		this(MatchQuality.None, null, false, false);
 	}
 	
-	TraverseResult(boolean found, int[] indexesIntoOurUniverse, boolean prefix, boolean completeWord)
+	TraverseResult(MatchQuality matchQuality, int[] indexesIntoOurUniverse, boolean prefix, boolean completeWord)
 	{
-		this.found = found;
+		this.matchQuality = matchQuality;
 		this.indexesIntoOurUniverse = indexesIntoOurUniverse;
 		this.prefix = prefix;
 		this.completeWord = completeWord;
 	}
 	
-	boolean wasFound()
+	public MatchQuality getMatchQuality()
 	{
-		return found;
+		return matchQuality;	
 	}
 	
 	int[] getIndexesIntoOurUniverse()
@@ -45,6 +45,11 @@ final class TraverseResult
 		return completeWord;
 	}
 	
+	/**
+	 * Should not use MatchQuality.None for this method.
+	 * indexesIntoOurUniverse being null reflects accurately
+	 * purpose of this method.
+	 */
 	boolean noneFoundInOurUniverse()
 	{
 		return indexesIntoOurUniverse == null;

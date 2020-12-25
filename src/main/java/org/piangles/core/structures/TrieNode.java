@@ -126,7 +126,7 @@ final class TrieNode
 	
 	boolean haveAnyChildren()
 	{
-		return childrenBitmap == Vocabulary.NULL;
+		return !(childrenBitmap == Vocabulary.NULL);
 	}
 	
 	int[] getIndexesIntoOurUniverse()
