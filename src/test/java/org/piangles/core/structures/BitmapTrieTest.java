@@ -55,8 +55,9 @@ public class BitmapTrieTest
 //		trie.insert("of");
 //		trie.insert("life");
 
-		startTime = System.nanoTime();
+		startTime = System.currentTimeMillis();
 		trie.search("3");
+		trie.search("3r");
 		trie.search("vida");
 
 		trie.search("Programming");
@@ -68,7 +69,7 @@ public class BitmapTrieTest
 		trie.search("anal");
 		trie.search("anallise");
 		trie.search("{");
-		System.out.println("Look up Time Taken : " + (System.nanoTime() - startTime) + " NanoSeconds.");
+		System.out.println("Look up Time Taken : " + (System.currentTimeMillis() - startTime) + " MiliSeconds.");
 		memory();
 	}
 

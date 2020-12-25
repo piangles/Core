@@ -91,7 +91,7 @@ public final class Trie
 			searchResults = new SearchResults(traverseResult.getMatchQuality(), traverseResult.isPrefix(), traverseResult.isCompleteWord(),
 					suggestionEngine.suggest(traverseResult.getIndexesIntoOurUniverse()));
 		}
-		System.out.println("Search result for [" + word + "] : " + searchResults);
+		//System.out.println("Search result for [" + word + "] : " + searchResults);
 		return searchResults;
 	}
 

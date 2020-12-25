@@ -1,10 +1,7 @@
 package org.piangles.core.structures;
 
-import java.text.Collator;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Locale;
-import java.util.stream.Stream;
 
 final class StringArray
 {
@@ -188,13 +185,58 @@ final class StringArray
 	public void sort()
 	{
 		//https://stackoverflow.com/questions/23362143/change-sort-order-of-strings-includes-with-a-special-character-e-g
+		sort(elementData);
 		//Arrays.sort(elementData, 0, size);
 //		List<String> temp = Arrays.asList(elementData);
 //		Collections.sort(temp, Collator.getInstance(Locale.US));
 //		elementData = temp.toArray(new String[0]);
-		Collator c = Collator.getInstance(Locale.US);
-		elementData = Stream.of(elementData).parallel().sorted(c).toArray(String[]::new);
+//		Collator c = Collator.getInstance(Locale.US);
+//		elementData = Stream.of(elementData).parallel().sorted(c).toArray(String[]::new);
 	}
+	
+    void sort(String array[]) {
+        if (array == null || array.length == 0) {
+            return;
+        }
+        this.elementData = array;
+        this.size = array.length;
+        quickSort(0, size - 1);
+    }
+
+    void quickSort(int lowerIndex, int higherIndex) {
+        int i = lowerIndex;
+        int j = higherIndex;
+        String pivot = this.elementData[lowerIndex + (higherIndex - lowerIndex) / 2];
+
+        while (i <= j) {
+            while (this.elementData[i].compareToIgnoreCase(pivot) < 0) {
+                i++;
+            }
+
+            while (this.elementData[j].compareToIgnoreCase(pivot) > 0) {
+                j--;
+            }
+
+            if (i <= j) {
+                exchangeNames(i, j);
+                i++;
+                j--;
+            }
+        }
+        //call quickSort recursively
+        if (lowerIndex < j) {
+            quickSort(lowerIndex, j);
+        }
+        if (i < higherIndex) {
+            quickSort(i, higherIndex);
+        }
+    }
+
+    void exchangeNames(int i, int j) {
+        String temp = this.elementData[i];
+        this.elementData[i] = this.elementData[j];
+        this.elementData[j] = temp;
+    }
 
 	private void ensureCapacityInternal(int minCapacity)
 	{
