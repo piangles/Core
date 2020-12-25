@@ -4,8 +4,11 @@ public final class TrieNode
 {
 	private char ch;
 	private int indexIntoUniverse;
-	private long bitmap = Vocabulary.NULL;
+	private int[] indexesIntoUniverse;
+	
 	private TrieNode[] children = null;
+	private long childrenBitmap = Vocabulary.NULL;
+	
 	private boolean completeWord = false;
 
 	TrieNode()
@@ -20,7 +23,7 @@ public final class TrieNode
 
 	public boolean isEmpty()
 	{
-		return Vocabulary.NULL == bitmap;
+		return Vocabulary.NULL == childrenBitmap;
 	}
 
 	public TrieNode get(char ch)
@@ -58,31 +61,35 @@ public final class TrieNode
 				children = newChildren;
 			}
 			children[children.length - 1] = child;
-			bitmap = bitmap | Vocabulary.getBinaryRepresentation(ch);
+			childrenBitmap = childrenBitmap | Vocabulary.getBinaryRepresentation(ch);
 		}
 		
 		return child;
 	}
+	
+	public void addIndexIntoUniverse(int indexIntoUniverse)
+	{
+		
+	}
 
-	/**
-	 * function to check whether the bit at given position is set or unset.
-	 * 
-	 * @param ch
-	 * @return
-	 */
 	public boolean doesChildExist(char ch)
 	{
-		long k = Vocabulary.getIndex(ch) + 1;
+		//Need to check whether the bit at given position is set or unset.
+		long charBitPosition = Vocabulary.getIndex(ch) + 1;
 
-		// to shift the kth bit at 1st position
-		long shiftedChildren = bitmap >> (k - 1);
+		//Shift the charBitPosition to the 1st(right most) position
+		long shiftedChildren = childrenBitmap >> (charBitPosition - 1);
 
 		/**
-		 * Since, last bit is now kth bit, so doing AND with 1 will give result.
+		 * Since, right most position is now charBitPosition, AND with 1 will give result.
 		 */
 		return (shiftedChildren & 1) == 1;
 	}
 	
+	public boolean haveAnyChildren()
+	{
+		return childrenBitmap == Vocabulary.NULL;
+	}
 	
 	public int getIndexIntoUniverse()
 	{

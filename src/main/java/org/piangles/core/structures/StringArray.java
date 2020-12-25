@@ -1,7 +1,11 @@
 package org.piangles.core.structures;
 
+import java.text.Collator;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.Locale;
+import java.util.stream.Stream;
 
 final class StringArray
 {
@@ -184,7 +188,13 @@ final class StringArray
 
 	public void sort()
 	{
-		Arrays.sort(elementData, 0, size);
+		//https://stackoverflow.com/questions/23362143/change-sort-order-of-strings-includes-with-a-special-character-e-g
+		//Arrays.sort(elementData, 0, size);
+//		List<String> temp = Arrays.asList(elementData);
+//		Collections.sort(temp, Collator.getInstance(Locale.US));
+//		elementData = temp.toArray(new String[0]);
+		Collator c = Collator.getInstance(Locale.US);
+		elementData = Stream.of(elementData).parallel().sorted(c).toArray(String[]::new);
 	}
 
 	private void ensureCapacityInternal(int minCapacity)

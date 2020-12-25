@@ -26,25 +26,7 @@ public class BitmapTrieTest
 			if (isPureAscii(st) && st.length() > 0)
 			{
 				count++;
-				//st = st.trim();
-				//System.out.println("["+st+"]" + count);
-				//System.out.println(count);
-
-//				if (!st.matches("\\S+"))
-//				{
-//					continue;
-////					String[] strs = st.split("\\S+");
-////					//String[] strs = st.split(" ");
-////					for (String str : strs)
-////					{
-////						trie.insert(str.trim());	
-////					}
-//				}
-//				else
-				{
-					trie.insert(st);
-				}
-				//break;
+				trie.insert(st);
 			}
 			else
 			{
@@ -52,8 +34,12 @@ public class BitmapTrieTest
 				System.out.println(st);
 			}
 		}
+		boolean perMonitoring = false;
+		if (perMonitoring) Thread.sleep(5000);
+		
 		trie.indexIt();
 		System.out.println("Total number of words inscope: " + count + " Skipped : " + skipCount + " Time Taken : " + (System.currentTimeMillis() - startTime));
+		if (perMonitoring) Thread.sleep(5000);
 
 //		trie.insert("Programming");
 //		trie.insert("Programmer");

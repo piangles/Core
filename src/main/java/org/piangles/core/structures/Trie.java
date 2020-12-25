@@ -20,6 +20,7 @@ public final class Trie
 	
 	public void indexIt()
 	{
+		universeOfWords.trimToSize();
 		universeOfWords.sort();
 		suggestionEngine = new SuggestionEngine(universeOfWords);
 		String word = null;
@@ -27,8 +28,10 @@ public final class Trie
 		{
 			word = universeOfWords.get(i).toLowerCase();
 			TrieNode current = root;
-//			if (word.startsWith("ana"))
-//			System.out.println("" + i + ":" + word);
+			if (word.startsWith("ana"))
+			{
+				System.out.println("" + i + ":" + word + "*");
+			}
 
 			for (char ch : word.toCharArray())
 			{
@@ -48,15 +51,24 @@ public final class Trie
 		word = word.toLowerCase();
 
 		char[] wordAsArray = word.toCharArray();
-		TraverseResult traverseResult = null; 
-		TrieNode nextNode = root.get(wordAsArray[0]);
-		if (nextNode == null)//There is nothing in our universe that starts with this character
+		
+		boolean useRecursiveAlgorithm = true;
+		TraverseResult traverseResult = null;
+		if (useRecursiveAlgorithm)
 		{
-			traverseResult = new TraverseResult();
+			TrieNode firstNode = root.get(wordAsArray[0]);
+			if (firstNode == null)//There is nothing in our universe that starts with this character
+			{
+				traverseResult = new TraverseResult();
+			}
+			else
+			{
+				traverseResult = traverse(firstNode, wordAsArray, 0);
+			}
 		}
 		else
 		{
-			traverseResult = traverse(nextNode, wordAsArray, 0);
+			traverseResult = traverseLoop(root, wordAsArray, 0);
 		}
 
 		if (traverseResult.noneFoundInOurUniverse())
@@ -65,12 +77,12 @@ public final class Trie
 		}
 		else
 		{
-			searchResults = new SearchResults(traverseResult.isHit(), 
+			searchResults = new SearchResults(traverseResult.wasFound(), 
 					traverseResult.isPrefix(), 
 					traverseResult.isCompleteWord(), 
 					suggestionEngine.suggest(traverseResult.getIndexIntoUniverse()));
 		}
-		//System.out.println("Search result for [" + word + "] : " + searchResults);
+		System.out.println("Search result for [" + word + "] : " + searchResults);
 		return searchResults;
 	}
 	
@@ -94,14 +106,14 @@ public final class Trie
 			 * 
 			 * Here hit is defined by if the current node is a complete word or not.
 			 */
-			result = new TraverseResult(currentNode.isCompleteWord(), currentNode.getIndexIntoUniverse(), true, currentNode.isCompleteWord());
+			result = new TraverseResult(true, currentNode.getIndexIntoUniverse(), currentNode.haveAnyChildren(), currentNode.isCompleteWord());
 		}
 		else//we continue traversal
 		{
-			TrieNode nextNode = currentNode.get(word[index+1]);
-			if (nextNode != null)
+			TrieNode childNode = currentNode.get(word[index+1]);
+			if (childNode != null)
 			{
-				result = traverse(nextNode, word, index+1);
+				result = traverse(childNode, word, index+1);
 			}
 			else
 			{
@@ -116,21 +128,19 @@ public final class Trie
 		
 		return result;
 	}
+	
+	private TraverseResult traverseLoop(TrieNode currentNode, char[] word, int index)
+	{
+		for (int i = 0; i < word.length; i++)
+		{
+			char ch = word[i];
+			TrieNode childNode = currentNode.get(ch);
+			if (childNode == null)
+			{
+				return new TraverseResult(false, currentNode.getIndexIntoUniverse(), false, false);
+			}
+			currentNode = childNode;
+		}
+		return new TraverseResult(true, currentNode.getIndexIntoUniverse(), currentNode.haveAnyChildren(), currentNode.isCompleteWord());
+	}
 }
-
-//
-//TrieNode current = root;
-//
-//for (int i = 0; i < word.length(); i++)
-//{
-//	char ch = word.charAt(i);
-//	TrieNode node = current.get(ch);
-//	if (node == null)
-//	{
-//		System.out.println("Search result for [" + word + "] found is : false");
-//		return false;
-//	}
-//	current = node;
-//}
-//System.out.println("Search result for [" + word + "] found is : " + current.isCompleteWord() + " : Actual : " + universeOfWords.elementAt(current.getIndexIntoUniverse()));
-//return current.isCompleteWord();

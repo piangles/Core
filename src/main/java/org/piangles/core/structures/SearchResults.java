@@ -4,22 +4,22 @@ import java.util.Arrays;
 
 public final class SearchResults
 {
-	private boolean hit; //=> we found something or not at all
+	private boolean found; //=> Datastore had an exact match of the word
 	private boolean prefix;
 	private boolean completeWord;
 	private String[] suggestions;
 	
-	public SearchResults(boolean hit, boolean prefix, boolean completeWord, String[] suggestions)
+	public SearchResults(boolean found, boolean prefix, boolean completeWord, String[] suggestions)
 	{
-		this.hit = hit;
+		this.found = found;
 		this.prefix = prefix;
 		this.completeWord = completeWord;
 		this.suggestions = suggestions;
 	}
 
-	public boolean isHit()
+	public boolean wasFound()
 	{
-		return hit;
+		return found;
 	}
 
 	public boolean isPrefix()
@@ -40,6 +40,6 @@ public final class SearchResults
 	@Override
 	public String toString()
 	{
-		return "SearchResults [hit=" + hit + ", prefix=" + prefix + ", completeWord=" + completeWord + ", suggestions=" + Arrays.toString(suggestions) + "]";
+		return "SearchResults [found=" + found + ", prefix=" + prefix + ", completeWord=" + completeWord + ", suggestions=" + Arrays.toString(suggestions) + "]";
 	}
 }

@@ -2,7 +2,7 @@ package org.piangles.core.structures;
 
 final class TraverseResult
 {
-	private boolean hit = false;
+	private boolean found = false;
 	/**
 	 * Prefix and Complete word are not complimentary. 
 	 * They both operate independentaly.
@@ -17,17 +17,17 @@ final class TraverseResult
 		this(false, -1, false, false);
 	}
 	
-	TraverseResult(boolean hit, int indexIntoUniverse, boolean prefix, boolean completeWord)
+	TraverseResult(boolean found, int indexIntoUniverse, boolean prefix, boolean completeWord)
 	{
-		this.hit = hit;
+		this.found = found;
 		this.indexIntoUniverse = indexIntoUniverse;
 		this.prefix = prefix;
 		this.completeWord = completeWord;
 	}
 	
-	boolean isHit()
+	boolean wasFound()
 	{
-		return hit;
+		return found;
 	}
 	
 	int getIndexIntoUniverse()
