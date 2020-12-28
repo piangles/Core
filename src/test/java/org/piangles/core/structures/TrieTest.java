@@ -6,7 +6,7 @@ import java.io.FileReader;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 
-import org.piangles.core.structures.impl1.Trie;
+import org.piangles.core.structures.hash.Trie;
 
 //https://github.com/eugenp/tutorials/blob/master/data-structures/src/test/java/com/baeldung/trie/TrieUnitTest.java
 public class TrieTest

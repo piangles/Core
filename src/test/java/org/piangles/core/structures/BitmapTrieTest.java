@@ -1,11 +1,12 @@
 package org.piangles.core.structures;
 
+import static org.piangles.core.structures.TrieConstants.PERF_MONITORING;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.nio.charset.Charset;
-import java.nio.charset.CharsetEncoder;
-import static org.piangles.core.structures.TrieConstants.PERF_MONITORING;;
+import java.nio.charset.CharsetEncoder;;
 
 public class BitmapTrieTest
 {
