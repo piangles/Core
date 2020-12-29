@@ -134,7 +134,7 @@ public final class RequestProcessingThread extends AbstractContextAwareThread
 				long delayMS = TimeUnit.NANOSECONDS.toMillis(delayNS);
 				String endpoint = request.getServiceName() + "::" + request.getEndPoint();
 				String traceId = null;
-				if (request != null)
+				if (request != null && request.getTraceId() != null)
 				{
 					traceId = request.getTraceId().toString();
 				}
