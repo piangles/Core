@@ -56,6 +56,7 @@ public class BitmapTrieTest
 //		trie.insert("life");
 
 		startTime = System.currentTimeMillis();
+		long startTimeNano = System.nanoTime();
 		trie.search("3");
 		trie.search("3r");
 		trie.search("vida");
@@ -70,7 +71,8 @@ public class BitmapTrieTest
 		trie.search("anallise");
 		trie.search("{");
 		System.out.println("Look up Time Taken : " + (System.currentTimeMillis() - startTime) + " MiliSeconds.");
-		memory();
+		System.out.println("Look up Time Taken : " + (System.nanoTime() - startTimeNano) + " NanoSeconds.");
+		trie.getStatistics().memory();
 	}
 
 	public static boolean isAlpha(String name)
@@ -93,29 +95,5 @@ public class BitmapTrieTest
 		return encoder.canEncode(v);
 		// or "ISO-8859-1" for ISO Latin 1
 		// or StandardCharsets.US_ASCII with JDK1.7+
-	}
-
-	private static void memory()
-	{
-		int mb = 1024*1024;
-		
-		//Getting the runtime reference from system
-		Runtime runtime = Runtime.getRuntime();
-		
-		System.out.println("##### Heap utilization statistics [MB] #####");
-		
-		//Print used memory
-		System.out.println("Used Memory:" 
-			+ (runtime.totalMemory() - runtime.freeMemory()) / mb);
-
-		//Print free memory
-		System.out.println("Free Memory:" 
-			+ runtime.freeMemory() / mb);
-		
-		//Print total available memory
-		System.out.println("Total Memory:" + runtime.totalMemory() / mb);
-
-		//Print Maximum available memory
-		System.out.println("Max Memory:" + runtime.maxMemory() / mb);		
 	}
 }
