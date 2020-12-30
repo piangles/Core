@@ -2,6 +2,7 @@ package org.piangles.core.structures;
 
 final class TraverseResult
 {
+	private int totalSuggestionsAvailable;
 	private MatchQuality matchQuality = null;
 	/**
 	 * Prefix and Complete word are not complimentary. 
@@ -14,12 +15,13 @@ final class TraverseResult
 
 	TraverseResult()
 	{
-		this(MatchQuality.None, null, false, false);
+		this(MatchQuality.None, 0, null, false, false);
 	}
 	
-	TraverseResult(MatchQuality matchQuality, int[] indexesIntoOurUniverse, boolean prefix, boolean completeWord)
+	TraverseResult(MatchQuality matchQuality, int totalSuggestionsAvailable, int[] indexesIntoOurUniverse, boolean prefix, boolean completeWord)
 	{
 		this.matchQuality = matchQuality;
+		this.totalSuggestionsAvailable = totalSuggestionsAvailable;
 		this.indexesIntoOurUniverse = indexesIntoOurUniverse;
 		this.prefix = prefix;
 		this.completeWord = completeWord;
@@ -28,6 +30,11 @@ final class TraverseResult
 	public MatchQuality getMatchQuality()
 	{
 		return matchQuality;	
+	}
+	
+	public int getTotalSuggestionsAvailable()
+	{
+		return totalSuggestionsAvailable;
 	}
 	
 	int[] getIndexesIntoOurUniverse()
