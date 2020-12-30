@@ -3,6 +3,7 @@ package org.piangles.core.structures;
 public final class Trie
 {
 	private TrieConfig trieConfig = null;
+	private TrieStatistics trieStatistics = null;
 	private TrieNode root = null;
 	private boolean indexed = false;
 	private StringArray universeOfWords = null; // TODO Need to address compostie objects
@@ -11,10 +12,16 @@ public final class Trie
 	public Trie(TrieConfig trieConfig)
 	{
 		this.trieConfig = trieConfig;
+		this.trieStatistics = new TrieStatistics();
 		root = new TrieNode();
 		universeOfWords = new StringArray(trieConfig.getInitialSize());
 	}
 
+	public TrieStatistics getStatistics()
+	{
+		return trieStatistics; 
+	}
+	
 	public void insert(String word)
 	{
 		if (indexed)
@@ -53,11 +60,15 @@ public final class Trie
 		}
 		long startTime = System.currentTimeMillis();
 		root.indexIt();
-		System.out.println("Time Taken to Index nodes: " + (System.currentTimeMillis() - startTime) + " MiliSeconds.");
+		if (trieConfig.isPerformanceMonitoringEnabled())
+		{
+			System.out.println("Time Taken to Index nodes: " + (System.currentTimeMillis() - startTime) + " MiliSeconds.");
+		}
 	}
 
 	public SearchResults search(String word)
 	{
+		long startTime = System.nanoTime();
 		SearchResults searchResults = null;
 
 		word = word.toLowerCase();
@@ -67,10 +78,21 @@ public final class Trie
 		TraverseResult traverseResult = null;
 		if (trieConfig.useRecursiveAlgorithm())
 		{
-			TrieNode firstNode = root.get(wordAsArray[0]);
-			if (firstNode == null)// There is nothing in our universe that
-									// starts with this character
+			TrieNode firstNode = null;
+			
+			if (Vocabulary.exists(wordAsArray[0]))
 			{
+				System.out.println("**************" + wordAsArray[0] + ":" + (System.nanoTime() - startTime));
+
+				firstNode = root.get(wordAsArray[0]);
+			}
+			if (firstNode == null)
+			{
+				System.out.println("**************" + (System.nanoTime() - startTime));
+				/**
+				 * There is nothing in our universe that
+				 * starts with this characters
+				 */
 				traverseResult = new TraverseResult();
 			}
 			else
@@ -82,17 +104,21 @@ public final class Trie
 		{
 			traverseResult = traverseLoop(root, wordAsArray, 0);
 		}
-
+		long timeTaken = System.nanoTime() - startTime;
+		
 		if (traverseResult.noneFoundInOurUniverse())
 		{
-			searchResults = new SearchResults(MatchQuality.None, false, false, suggestionEngine.suggestTopTen());
+			searchResults = new SearchResults(timeTaken, MatchQuality.None, false, false, 0, suggestionEngine.suggestTopTen());
 		}
 		else
 		{
-			searchResults = new SearchResults(traverseResult.getMatchQuality(), traverseResult.isPrefix(), traverseResult.isCompleteWord(),
-					suggestionEngine.suggest(traverseResult.getIndexesIntoOurUniverse()));
+			searchResults = new SearchResults(timeTaken, traverseResult.getMatchQuality(), traverseResult.isPrefix(), traverseResult.isCompleteWord(),
+					traverseResult.getTotalSuggestionsAvailable(), suggestionEngine.suggest(traverseResult.getIndexesIntoOurUniverse()));
 		}
-		//System.out.println("Search result for [" + word + "] : " + searchResults);
+		if (trieConfig.isPerformanceMonitoringEnabled())
+		{
+			System.out.println("Search result for [" + word + "] : " + searchResults);
+		}
 		return searchResults;
 	}
 
@@ -118,7 +144,7 @@ public final class Trie
 			 * not.
 			 */
 			MatchQuality matchQuality = currentNode.isCompleteWord()? MatchQuality.Exact : MatchQuality.Partial;
-			result = new TraverseResult(matchQuality, currentNode.getIndexesIntoOurUniverse(), currentNode.haveAnyChildren(), currentNode.isCompleteWord());
+			result = new TraverseResult(matchQuality, currentNode.getTotalIndexesCount(), currentNode.getIndexesIntoOurUniverse(), currentNode.haveAnyChildren(), currentNode.isCompleteWord());
 		}
 		else// we continue traversal
 		{
@@ -132,11 +158,12 @@ public final class Trie
 				System.out.println("WHEN DOES IT COME HERE????????????????");
 				/**
 				 * The search word's next character is not present in out list.
-				 * Ex: Search word is cartz and we have cart, carton and
-				 * cartoon. Post carT(currentNode) we do not have anyword
-				 * starting with Z.
+				 * Ex: Search word is *cartz* and we have 
+				 * Scenario 1 : cart 
+				 * Scenario 2 : carton and cartoon. Post carT(currentNode) we do 
+				 * not have any word starting with Z.
 				 */
-				result = new TraverseResult(MatchQuality.None, currentNode.getIndexesIntoOurUniverse(), false, false);
+				result = new TraverseResult(MatchQuality.None, currentNode.getTotalIndexesCount(), currentNode.getIndexesIntoOurUniverse(), false, false);
 			}
 		}
 
@@ -151,11 +178,11 @@ public final class Trie
 			TrieNode childNode = currentNode.get(ch);
 			if (childNode == null)
 			{
-				return new TraverseResult(MatchQuality.None, currentNode.getIndexesIntoOurUniverse(), false, false);
+				return new TraverseResult(MatchQuality.None, currentNode.getTotalIndexesCount(), currentNode.getIndexesIntoOurUniverse(), false, false);
 			}
 			currentNode = childNode;
 		}
 		MatchQuality matchQuality = currentNode.isCompleteWord()? MatchQuality.Exact : MatchQuality.Partial;
-		return new TraverseResult(matchQuality, currentNode.getIndexesIntoOurUniverse(), currentNode.haveAnyChildren(), currentNode.isCompleteWord());
+		return new TraverseResult(matchQuality, currentNode.getTotalIndexesCount(), currentNode.getIndexesIntoOurUniverse(), currentNode.haveAnyChildren(), currentNode.isCompleteWord());
 	}
 }
