@@ -1,10 +1,10 @@
 package org.piangles.core.structures;
 
-import java.util.Arrays;
-import static org.piangles.core.structures.TrieConstants.SUGGESTIONS_LIMIT;;
+import java.util.Arrays;;
 
 final class TrieNode
 {
+	private TrieConfig trieConfig = null;
 	private char ch;
 	private int[] indexesIntoOurUniverse;
 	private boolean recycled = false;
@@ -19,10 +19,11 @@ final class TrieNode
 	{
 	}
 
-	private TrieNode(char ch)
+	private TrieNode(TrieConfig trieConfig, char ch)
 	{
+		this.trieConfig = trieConfig;
 		this.ch = ch;
-		indexesIntoOurUniverse = new int[SUGGESTIONS_LIMIT];
+		indexesIntoOurUniverse = new int[trieConfig.getSuggestionsLimit()];
 		Arrays.fill(indexesIntoOurUniverse, -1);
 	}
 
@@ -74,12 +75,12 @@ final class TrieNode
 		return child;
 	}
 
-	TrieNode getOrElseCreate(char ch)
+	TrieNode getOrElseCreate(TrieConfig trieConfig, char ch)
 	{
 		TrieNode child = get(ch);
 		if (child == null)
 		{
-			child = new TrieNode(ch); 
+			child = new TrieNode(trieConfig, ch); 
 
 			if (children == null)
 			{
@@ -101,7 +102,7 @@ final class TrieNode
 	void addIndexIntoOurUniverse(int indexIntoOurUniverse)
 	{
 		indexesCount = indexesCount + 1;
-		if (indexesCount > SUGGESTIONS_LIMIT)
+		if (indexesCount > trieConfig.getSuggestionsLimit())
 		{
 			indexesCount = 1;
 			recycled = true;

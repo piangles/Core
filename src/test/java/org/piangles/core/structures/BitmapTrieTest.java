@@ -1,7 +1,5 @@
 package org.piangles.core.structures;
 
-import static org.piangles.core.structures.TrieConstants.PERF_MONITORING;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -15,8 +13,9 @@ public class BitmapTrieTest
 	
 	public static void main(String[] args) throws Exception
 	{
-		Trie trie = new Trie(1100000);
-		File file = new File("C:\\Users\\sarad\\git\\Export\\1mwords.txt");
+		TrieConfig trieConfig = new TrieConfig();
+		Trie trie = new Trie(trieConfig);
+		File file = new File("./resources/1mwords.txt");
 
 		long startTime = System.currentTimeMillis();
 		BufferedReader br = new BufferedReader(new FileReader(file));
@@ -39,14 +38,14 @@ public class BitmapTrieTest
 		}
 		br.close();
 		
-		if (PERF_MONITORING) Thread.sleep(5000);
+		if (trieConfig.isPerformanceMonitoringEnabled()) Thread.sleep(5000);
 		System.out.println("Total number of words inscope: " + count + " Skipped : " + skipCount + " Time Taken : " + (System.currentTimeMillis() - startTime) + " MiliSeconds.");
 		
 		startTime = System.currentTimeMillis();
 		trie.indexIt();
 		System.out.println("Time Taken to Index : " + (System.currentTimeMillis() - startTime) + " MiliSeconds.");
 		
-		if (PERF_MONITORING) Thread.sleep(5000);
+		if (trieConfig.isPerformanceMonitoringEnabled()) Thread.sleep(5000);
 
 //		trie.insert("Programming");
 //		trie.insert("Programmer");

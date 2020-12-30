@@ -196,48 +196,6 @@ final class StringArray
 		quickSort(0, size - 1);
 	}
 
-	private void quickSort(int lowerIndex, int higherIndex)
-	{
-		int i = lowerIndex;
-		int j = higherIndex;
-		String pivot = this.elementData[lowerIndex + (higherIndex - lowerIndex) / 2];
-
-		while (i <= j)
-		{
-			while (this.elementData[i].compareToIgnoreCase(pivot) < 0)
-			{
-				i++;
-			}
-
-			while (this.elementData[j].compareToIgnoreCase(pivot) > 0)
-			{
-				j--;
-			}
-
-			if (i <= j)
-			{
-				swap(i, j);
-				i++;
-				j--;
-			}
-		}
-		// call quickSort recursively
-		if (lowerIndex < j)
-		{
-			quickSort(lowerIndex, j);
-		}
-		if (i < higherIndex)
-		{
-			quickSort(i, higherIndex);
-		}
-	}
-
-	private void swap(int i, int j)
-	{
-		String temp = this.elementData[i];
-		this.elementData[i] = this.elementData[j];
-		this.elementData[j] = temp;
-	}
 
 	private void ensureCapacityInternal(int minCapacity)
 	{
@@ -279,5 +237,46 @@ final class StringArray
 		}
 		// minCapacity is usually close to size, so this is a win:
 		elementData = Arrays.copyOf(elementData, newCapacity);
+	}
+	
+	private void quickSort(int lowerIndex, int higherIndex)
+	{
+		int i = lowerIndex;
+		int j = higherIndex;
+		String temp = null;
+		String pivot = this.elementData[lowerIndex + (higherIndex - lowerIndex) / 2];
+
+		while (i <= j)
+		{
+			while (this.elementData[i].compareToIgnoreCase(pivot) < 0)
+			{
+				i++;
+			}
+
+			while (this.elementData[j].compareToIgnoreCase(pivot) > 0)
+			{
+				j--;
+			}
+
+			if (i <= j)
+			{
+				temp = this.elementData[i];
+				this.elementData[i] = this.elementData[j];
+				this.elementData[j] = temp;
+				temp = null;
+
+				i++;
+				j--;
+			}
+		}
+		// call quickSort recursively
+		if (lowerIndex < j)
+		{
+			quickSort(lowerIndex, j);
+		}
+		if (i < higherIndex)
+		{
+			quickSort(i, higherIndex);
+		}
 	}
 }

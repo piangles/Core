@@ -2,15 +2,17 @@ package org.piangles.core.structures;
 
 public final class Trie
 {
+	private TrieConfig trieConfig = null;
 	private TrieNode root = null;
 	private boolean indexed = false;
 	private StringArray universeOfWords = null; // TODO Need to address compostie objects
 	private SuggestionEngine suggestionEngine = null;
 
-	public Trie(int size)
+	public Trie(TrieConfig trieConfig)
 	{
+		this.trieConfig = trieConfig;
 		root = new TrieNode();
-		universeOfWords = new StringArray(size);
+		universeOfWords = new StringArray(trieConfig.getInitialSize());
 	}
 
 	public void insert(String word)
@@ -43,7 +45,7 @@ public final class Trie
 			{
 				if (Vocabulary.exists(ch))
 				{
-					current = current.getOrElseCreate(ch);
+					current = current.getOrElseCreate(trieConfig, ch);
 					current.addIndexIntoOurUniverse(i);
 				}
 			}
@@ -62,9 +64,8 @@ public final class Trie
 
 		char[] wordAsArray = word.toCharArray();
 
-		boolean useRecursiveAlgorithm = true;
 		TraverseResult traverseResult = null;
-		if (useRecursiveAlgorithm)
+		if (trieConfig.useRecursiveAlgorithm())
 		{
 			TrieNode firstNode = root.get(wordAsArray[0]);
 			if (firstNode == null)// There is nothing in our universe that
