@@ -6,6 +6,7 @@ final class TrieNode
 {
 	private TrieConfig trieConfig = null;
 	private char ch;
+	private int totalIndexesCount;
 	private int[] indexesIntoOurUniverse;
 	private boolean recycled = false;
 	private int indexesCount = 0;
@@ -101,6 +102,7 @@ final class TrieNode
 	
 	void addIndexIntoOurUniverse(int indexIntoOurUniverse)
 	{
+		totalIndexesCount++;
 		indexesCount = indexesCount + 1;
 		if (indexesCount > trieConfig.getSuggestionsLimit())
 		{
@@ -137,6 +139,11 @@ final class TrieNode
 	//Set specific bit
 	//https://stackoverflow.com/questions/4674006/set-specific-bit-in-byte
 
+	int getTotalIndexesCount()
+	{
+		return totalIndexesCount;
+	}
+	
 	boolean isCompleteWord()
 	{
 		return completeWord;
