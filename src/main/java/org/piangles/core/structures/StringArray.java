@@ -35,8 +35,9 @@ final class StringArray
 	 * ArrayList with elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA will be
 	 * expanded to DEFAULT_CAPACITY when the first element is added.
 	 */
-	private transient String[] elementData; // non-private to simplify nested class
-									// access
+	private transient String[] elementData; // non-private to simplify nested
+											// class
+	// access
 
 	/**
 	 * The size of the ArrayList (the number of elements it contains).
@@ -79,13 +80,15 @@ final class StringArray
 		return size - 1;
 	}
 
-    /**
-     * Returns the element at the specified position in this list.
-     *
-     * @param  index index of the element to return
-     * @return the element at the specified position in this list
-     * @throws IndexOutOfBoundsException {@inheritDoc}
-     */
+	/**
+	 * Returns the element at the specified position in this list.
+	 *
+	 * @param index
+	 *            index of the element to return
+	 * @return the element at the specified position in this list
+	 * @throws IndexOutOfBoundsException
+	 *             {@inheritDoc}
+	 */
 	public String get(int index)
 	{
 		return elementData[index];
@@ -95,6 +98,7 @@ final class StringArray
 	{
 		return Arrays.copyOfRange(elementData, 1, elementData.length);
 	}
+
 	/**
 	 * Trims the capacity of this <tt>ArrayList</tt> instance to be the list's
 	 * current size. An application can use this operation to minimize the
@@ -184,59 +188,56 @@ final class StringArray
 
 	public void sort()
 	{
-		//https://stackoverflow.com/questions/23362143/change-sort-order-of-strings-includes-with-a-special-character-e-g
-		sort(elementData);
-		//Arrays.sort(elementData, 0, size);
-//		List<String> temp = Arrays.asList(elementData);
-//		Collections.sort(temp, Collator.getInstance(Locale.US));
-//		elementData = temp.toArray(new String[0]);
-//		Collator c = Collator.getInstance(Locale.US);
-//		elementData = Stream.of(elementData).parallel().sorted(c).toArray(String[]::new);
+		// https://stackoverflow.com/questions/23362143/change-sort-order-of-strings-includes-with-a-special-character-e-g
+		if (elementData == null || elementData.length == 0)
+		{
+			return;
+		}
+		quickSort(0, size - 1);
 	}
-	
-    void sort(String array[]) {
-        if (array == null || array.length == 0) {
-            return;
-        }
-        this.elementData = array;
-        this.size = array.length;
-        quickSort(0, size - 1);
-    }
 
-    void quickSort(int lowerIndex, int higherIndex) {
-        int i = lowerIndex;
-        int j = higherIndex;
-        String pivot = this.elementData[lowerIndex + (higherIndex - lowerIndex) / 2];
+	private void quickSort(int lowerIndex, int higherIndex)
+	{
+		int i = lowerIndex;
+		int j = higherIndex;
+		String pivot = this.elementData[lowerIndex + (higherIndex - lowerIndex) / 2];
 
-        while (i <= j) {
-            while (this.elementData[i].compareToIgnoreCase(pivot) < 0) {
-                i++;
-            }
+		while (i <= j)
+		{
+			while (this.elementData[i].compareToIgnoreCase(pivot) < 0)
+			{
+				i++;
+			}
 
-            while (this.elementData[j].compareToIgnoreCase(pivot) > 0) {
-                j--;
-            }
+			while (this.elementData[j].compareToIgnoreCase(pivot) > 0)
+			{
+				j--;
+			}
 
-            if (i <= j) {
-                exchangeNames(i, j);
-                i++;
-                j--;
-            }
-        }
-        //call quickSort recursively
-        if (lowerIndex < j) {
-            quickSort(lowerIndex, j);
-        }
-        if (i < higherIndex) {
-            quickSort(i, higherIndex);
-        }
-    }
+			if (i <= j)
+			{
+				swap(i, j);
+				i++;
+				j--;
+			}
+		}
+		// call quickSort recursively
+		if (lowerIndex < j)
+		{
+			quickSort(lowerIndex, j);
+		}
+		if (i < higherIndex)
+		{
+			quickSort(i, higherIndex);
+		}
+	}
 
-    void exchangeNames(int i, int j) {
-        String temp = this.elementData[i];
-        this.elementData[i] = this.elementData[j];
-        this.elementData[j] = temp;
-    }
+	private void swap(int i, int j)
+	{
+		String temp = this.elementData[i];
+		this.elementData[i] = this.elementData[j];
+		this.elementData[j] = temp;
+	}
 
 	private void ensureCapacityInternal(int minCapacity)
 	{
@@ -268,7 +269,7 @@ final class StringArray
 		{
 			newCapacity = minCapacity;
 		}
-		if (newCapacity - MAX_ARRAY_SIZE > 0) 
+		if (newCapacity - MAX_ARRAY_SIZE > 0)
 		{
 			if (minCapacity < 0) // overflow
 			{
