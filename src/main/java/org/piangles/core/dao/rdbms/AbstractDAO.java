@@ -59,7 +59,7 @@ public abstract class AbstractDAO
 	 */
 	protected final <T> List<T> executeSPQueryList(String storedProcName, int paramCount, StatementPreparer sp, ResultSetProcessor<T> rsp) throws DAOException
 	{
-		return execute(storedProcName, false, paramCount, sp, rsp, true);
+		return execute(storedProcName, true, paramCount, sp, rsp, true);
 	}
 
 	/**
@@ -89,7 +89,7 @@ public abstract class AbstractDAO
 		T retValue = null;
 		List<T> results = null;
 
-		results = execute(storedProcName, false, paramCount, sp, rsp, false);
+		results = execute(storedProcName, true, paramCount, sp, rsp, false);
 
 		if (results != null && results.size() >= 1)
 		{
@@ -144,21 +144,6 @@ public abstract class AbstractDAO
 		}
 	}
 
-	protected final <T> T executeFunctionQuery(String functionName, int paramCount, StatementPreparer sp, ResultSetProcessor<T> rsp) throws DAOException
-	{
-		T retValue = null;
-		List<T> results = null;
-
-		results = execute(functionName, true, paramCount, sp, rsp, false);
-
-		if (results != null && results.size() >= 1)
-		{
-			retValue = results.get(0);
-		}
-
-		return retValue;
-	}
-	
 	private final <T> List<T> execute(String storedFuncOrProcName, boolean isFunction, int paramCount, StatementPreparer sp, ResultSetProcessor<T> irp, boolean complete) throws DAOException
 	{
 		List<T> results = null;
