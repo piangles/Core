@@ -14,6 +14,6 @@ public class CentralConfigProvider  extends AbstractConfigProvider
 	@Override
 	public Properties getProperties() throws Exception
 	{
-		return CentralClient.tier1Config(getComponentId());
+		return CentralClient.getInstance().tier1Config(getComponentId());
 	}
 }

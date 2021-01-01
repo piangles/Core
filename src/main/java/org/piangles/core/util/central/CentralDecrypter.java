@@ -6,7 +6,7 @@ public final class CentralDecrypter extends AbstractDecrypter
 {
 	@Override
 	public String decrypt(String encryptedValueName, String encryptedValue) throws Exception {
-		return CentralClient.decrypt(
+		return CentralClient.getInstance().decrypt(
 				getServiceName(), 
 				getEncryptedCategory(), encryptedValueName, encryptedValue, 
 				getCipherAuthorizationIdName(), getCipherAuthorizationId());
