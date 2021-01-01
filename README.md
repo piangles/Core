@@ -1,15 +1,14 @@
-# Core
+Core
+========
+See our [web site](https://www.piangles.org) for details on the project.
 
+### Introduction ###
 
-		<module>../idl-service</module>
+### Credits ###
+- Saradhi Vemuri
+- Sachin Mittal
 
-		<module>../mod-util</module>
-
-		<!-- Depends on (service/controllers/handlers) mod-util -->
-		<module>../mod-remoting</module>
-
-		<module>../mod-resources</module>
-
-		<module>../mod-dao</module>
-
-		<module>../mod-email</module>
+### Contribution ###
+PiAngles is interested in building the community; we would welcome any thoughts that will enhance the product. You can reach us at 
+To contribute follow the instructions here:
+ * https://github.com/piangles/Manifesto/blob/main/README.md
