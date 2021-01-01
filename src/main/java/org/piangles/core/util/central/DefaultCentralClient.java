@@ -71,7 +71,7 @@ public final class DefaultCentralClient extends CentralClient
 			discoverURL = "http://" + centralSocketAddress + CENTRAL_SERVICE + "discover?ServiceName=";
 		}
 		System.out.println("CentralClient:Discovering properties for Service : " + serviceName);
-		return getProperties(discoverURL, serviceName);
+		return getProperties("Discovery", discoverURL, serviceName);
 	}
 
 	@Override
@@ -82,7 +82,7 @@ public final class DefaultCentralClient extends CentralClient
 			tier1ConfigURL = "http://" + centralSocketAddress + CENTRAL_SERVICE + "tier1config?ServiceName=";
 		}
 		System.out.println("CentralClient:Retriving tier1Config for Service : " + serviceName);
-		return getProperties(tier1ConfigURL, serviceName);
+		return getProperties("Tier1Config", tier1ConfigURL, serviceName);
 	}
 
 	@Override
@@ -119,11 +119,11 @@ public final class DefaultCentralClient extends CentralClient
 			{
 				BufferedReader in = new BufferedReader(new InputStreamReader(discoveryConn.getInputStream()));
 				decryptedString = in.readLine();
+				in.close();
 			}
 			else
 			{
-				response.append("Response Code : ").append(responseCode).append("\n");
-				response.append("Response Message : ").append(discoveryConn.getResponseMessage()).append("\n");
+				response = handleNon200(discoveryConn, responseCode);
 			}
 		}
 		catch (IOException e)
@@ -139,7 +139,7 @@ public final class DefaultCentralClient extends CentralClient
 		return decryptedString;
 	}
 
-	private Properties getProperties(String URL, String serviceName) throws Exception
+	private Properties getProperties(String propertyName, String URL, String serviceName) throws Exception
 	{
 		Properties discoveryProps = null;
 		StringBuffer response = new StringBuffer();
@@ -170,11 +170,7 @@ public final class DefaultCentralClient extends CentralClient
 			}
 			else
 			{
-				StringWriter writer = new StringWriter();
-				IOUtils.copy(discoveryConn.getErrorStream(), writer, StandardCharsets.UTF_8);
-
-				response.append("Response Code : ").append(responseCode).append("\n");
-				response.append("Response Message : ").append(writer.toString()).append("\n");
+				response = handleNon200(discoveryConn, responseCode);
 			}
 		}
 		catch (IOException e)
@@ -184,9 +180,22 @@ public final class DefaultCentralClient extends CentralClient
 
 		if (discoveryProps == null)
 		{
-			throw new Exception("Unable to retrieve discoveryProperties : " + response.toString());
+			throw new Exception("Unable to retrieve " + propertyName + " Properties for : " + serviceName + " Because : " + response.toString());
 		}
 
 		return discoveryProps;
+	}
+	
+	private StringBuffer handleNon200(HttpURLConnection discoveryConn, int responseCode) throws IOException
+	{
+		StringBuffer response = new StringBuffer();
+
+		StringWriter writer = new StringWriter();
+		IOUtils.copy(discoveryConn.getErrorStream(), writer, StandardCharsets.UTF_8);
+
+		response.append("Response Code : ").append(responseCode).append("\n");
+		response.append("Response Message : ").append(writer.toString()).append("\n");
+
+		return response;
 	}
 }
