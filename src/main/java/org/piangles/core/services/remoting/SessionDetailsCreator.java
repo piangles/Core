@@ -11,7 +11,7 @@ public final class SessionDetailsCreator
 	
 	public static SessionDetails createSessionDetails(String serviceName) throws Exception
 	{
-		return createSessionDetails(serviceName, CentralClient.discover(serviceName));
+		return createSessionDetails(serviceName, CentralClient.getInstance().discover(serviceName));
 	}
 	
 	static SessionDetails createSessionDetails(String serviceName, Properties props) throws Exception

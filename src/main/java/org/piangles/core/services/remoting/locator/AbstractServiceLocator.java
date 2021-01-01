@@ -56,7 +56,7 @@ public abstract class AbstractServiceLocator
 			Properties props = null;
 			try
 			{
-				props = CentralClient.discover(serviceName);
+				props = CentralClient.getInstance().discover(serviceName);
 			}
 			catch (Exception e)
 			{

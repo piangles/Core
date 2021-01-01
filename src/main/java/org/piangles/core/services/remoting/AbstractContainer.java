@@ -80,7 +80,7 @@ public abstract class AbstractContainer
 				}
 			}
 			
-			discoveryProps = CentralClient.discover(serviceName);
+			discoveryProps = CentralClient.getInstance().discover(serviceName);
 
 			/**
 			 * Create SessionDetails using Predetermined configuration
