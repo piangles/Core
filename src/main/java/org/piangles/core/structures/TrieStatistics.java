@@ -29,6 +29,7 @@ package org.piangles.core.structures;
  */
 public final class TrieStatistics
 {
+	private String context;
 	private int datasetSize;
 	
 	private long noOfCalls;
@@ -47,9 +48,14 @@ public final class TrieStatistics
 	private int freeMemoryInMB;
 	private int usedMemoryInMB;
 	
-	TrieStatistics()
+	TrieStatistics(String context)
 	{
-		
+		this.context = context;
+	}
+	
+	public String getContext()
+	{
+		return context;
 	}
 	
 	void start(TrieMetrics tm)

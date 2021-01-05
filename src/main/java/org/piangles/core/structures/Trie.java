@@ -19,12 +19,15 @@
  
 package org.piangles.core.structures;
 
-public final class Trie
+final class Trie
 {
 	private static final TraverseResult NONE_FOUND = new TraverseResult();
 	private static final String WARM_UP = "az";
+	
+	private String context;
 	private TrieConfig trieConfig = null;
 	private TrieStatistics trieStatistics = null;
+	
 	private TrieNode root = null;
 	private boolean indexed = false;
 	
@@ -32,23 +35,28 @@ public final class Trie
 	
 	private SuggestionEngine suggestionEngine = null;
 	
-	private Vocabulary vocabulary = null; 
-
-	public Trie(TrieConfig trieConfig)
+	Trie(String context, TrieConfig trieConfig)
 	{
+		this.context = context;
 		this.trieConfig = trieConfig;
-		vocabulary = trieConfig.getVocabulary();
-		trieStatistics = new TrieStatistics();
+		
+		trieStatistics = new TrieStatistics(context);
+		
 		root = new TrieNode(trieConfig);
 		universeOfWords = new StringArray(trieConfig.getInitialSize());
 	}
+	
+	String getContext()
+	{
+		return context;
+	}
 
-	public TrieStatistics getStatistics()
+	TrieStatistics getStatistics()
 	{
 		return trieStatistics; 
 	}
 	
-	public void insert(String word)
+	void insert(String word)
 	{
 		if (indexed)
 		{
@@ -57,14 +65,13 @@ public final class Trie
 		universeOfWords.add(word);
 	}
 
-	public synchronized void indexIt()
+	synchronized boolean indexIt()
 	{
 		if (indexed)
 		{
 			throw new IllegalStateException("Trie has already been indexed.");
 		}
 		trieStatistics.start(TrieMetrics.Readiness);
-		indexed = true;
 		trieStatistics.start(TrieMetrics.SortDataset);
 		universeOfWords.trimToSize();
 		universeOfWords.sort();
@@ -96,15 +103,17 @@ public final class Trie
 		trieStatistics.end(TrieMetrics.IndexTrie);
 		search(WARM_UP);
 		trieStatistics.end(TrieMetrics.Readiness);
+		indexed = true;
+		return indexed; 
 	}
 
-	public boolean isEmpty()
+	boolean isEmpty()
 	{
 		return root.isEmpty();
 	}
 
 
-	public SearchResults search(String searchString)
+	SearchResults search(String searchString)
 	{
 		long startTime = System.nanoTime();
 		SearchResults searchResults = null;

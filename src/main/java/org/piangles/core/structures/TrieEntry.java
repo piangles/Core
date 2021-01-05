@@ -22,6 +22,7 @@ public final class TrieEntry
 {
 	private String id;
 	private int rank;
+	private String value;
 	
 	public TrieEntry(int rank)
 	{
