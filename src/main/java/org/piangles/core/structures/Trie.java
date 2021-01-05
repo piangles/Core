@@ -1,19 +1,42 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+ 
+ 
+ 
 package org.piangles.core.structures;
 
 public final class Trie
 {
+	private static final TraverseResult NONE_FOUND = new TraverseResult();
 	private TrieConfig trieConfig = null;
 	private TrieStatistics trieStatistics = null;
 	private TrieNode root = null;
 	private boolean indexed = false;
 	private StringArray universeOfWords = null; // TODO Need to address compostie objects
 	private SuggestionEngine suggestionEngine = null;
+	
+	private Vocabulary vocabulary = null; 
 
 	public Trie(TrieConfig trieConfig)
 	{
 		this.trieConfig = trieConfig;
+		vocabulary = trieConfig.getVocabulary();
 		this.trieStatistics = new TrieStatistics();
-		root = new TrieNode();
+		root = new TrieNode(trieConfig);
 		universeOfWords = new StringArray(trieConfig.getInitialSize());
 	}
 
@@ -38,11 +61,15 @@ public final class Trie
 			throw new IllegalStateException("Trie has already been indexed.");
 		}
 		indexed = true;
+		long startTime = System.currentTimeMillis();
 		universeOfWords.trimToSize();
 		universeOfWords.sort();
+		System.out.println("Time Taken to sort: " + (System.currentTimeMillis() - startTime) + " MiliSeconds.");
+
 		suggestionEngine = new SuggestionEngine(universeOfWords);
 		
 		//TODO Parallel stream this
+		startTime = System.currentTimeMillis();
 		String word = null;
 		for (int i = 0; i < universeOfWords.size(); ++i)
 		{
@@ -50,15 +77,17 @@ public final class Trie
 			TrieNode current = root;
 			for (char ch : word.toCharArray())
 			{
-				if (Vocabulary.exists(ch))
+				if (trieConfig.getVocabulary().exists(ch))
 				{
-					current = current.getOrElseCreate(trieConfig, ch);
+					current = current.getOrElseCreate(ch);
 					current.addIndexIntoOurUniverse(i);
 				}
 			}
 			current.markAsCompleteWord();
 		}
-		long startTime = System.currentTimeMillis();
+		System.out.println("Time Taken to Index : " + (System.currentTimeMillis() - startTime) + " MiliSeconds.");
+
+		startTime = System.currentTimeMillis();
 		root.indexIt();
 		if (trieConfig.isPerformanceMonitoringEnabled())
 		{
@@ -80,24 +109,24 @@ public final class Trie
 		{
 			TrieNode firstNode = null;
 			
-			if (Vocabulary.exists(wordAsArray[0]))
+			if (trieConfig.getVocabulary().exists(wordAsArray[0]))
 			{
 				System.out.println("**************" + wordAsArray[0] + ":" + (System.nanoTime() - startTime));
 
 				firstNode = root.get(wordAsArray[0]);
 			}
-			if (firstNode == null)
+			if (firstNode != null)
+			{
+				traverseResult = traverse(firstNode, wordAsArray, 0);
+			}
+			else
 			{
 				System.out.println("**************" + (System.nanoTime() - startTime));
 				/**
 				 * There is nothing in our universe that
 				 * starts with this characters
 				 */
-				traverseResult = new TraverseResult();
-			}
-			else
-			{
-				traverseResult = traverse(firstNode, wordAsArray, 0);
+				traverseResult = NONE_FOUND;
 			}
 		}
 		else

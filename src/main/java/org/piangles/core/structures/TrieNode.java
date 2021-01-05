@@ -1,7 +1,33 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+ 
+ 
+ 
 package org.piangles.core.structures;
 
 import java.util.Arrays;;
 
+/**
+ *  
+ *  
+ * 	Bitwise Operations
+ * 	https://stackoverflow.com/questions/4674006/set-specific-bit-in-byte
+ * 	https://en.wikiversity.org/wiki/Advanced_Java/Bitwise_Operators 
+ */
 final class TrieNode
 {
 	private TrieConfig trieConfig = null;
@@ -16,8 +42,9 @@ final class TrieNode
 	
 	private boolean completeWord = false;
 
-	TrieNode()
+	TrieNode(TrieConfig trieConfig)
 	{
+		this.trieConfig = trieConfig;
 	}
 
 	private TrieNode(TrieConfig trieConfig, char ch)
@@ -76,7 +103,7 @@ final class TrieNode
 		return child;
 	}
 
-	TrieNode getOrElseCreate(TrieConfig trieConfig, char ch)
+	TrieNode getOrElseCreate(char ch)
 	{
 		TrieNode child = get(ch);
 		if (child == null)
@@ -94,7 +121,7 @@ final class TrieNode
 				children = newChildren;
 			}
 			children[children.length - 1] = child;
-			childrenBitmap = childrenBitmap | Vocabulary.getBinaryRepresentation(ch);
+			childrenBitmap = childrenBitmap | trieConfig.getVocabulary().getBinaryRepresentation(ch);
 		}
 		
 		return child;
@@ -109,14 +136,14 @@ final class TrieNode
 			indexesCount = 1;
 			recycled = true;
 		}
-		
+
 		indexesIntoOurUniverse[indexesCount-1] = indexIntoOurUniverse;
 	}
 
 	boolean doesChildExist(char ch)
 	{
 		//Need to check whether the bit at given position is set or unset.
-		long charBitPosition = Vocabulary.getIndex(ch) + 1;
+		long charBitPosition = trieConfig.getVocabulary().getIndex(ch) + 1;
 
 		//Shift the charBitPosition to the 1st(right most) position
 		long shiftedChildren = childrenBitmap >> (charBitPosition - 1);
@@ -136,8 +163,12 @@ final class TrieNode
 	{
 		return indexesIntoOurUniverse;
 	}
-	//Set specific bit
-	//https://stackoverflow.com/questions/4674006/set-specific-bit-in-byte
+	
+	void removeChild(char ch)
+	{
+		long charBitPosition = trieConfig.getVocabulary().getIndex(ch) + 1;
+		childrenBitmap &= ~(1 << charBitPosition);
+	}
 
 	int getTotalIndexesCount()
 	{
