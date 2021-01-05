@@ -23,6 +23,7 @@ import java.util.Arrays;
 
 public final class SearchResults
 {
+	private String searchedString;
 	private long timeTakenInNanoSeconds;
 	private int totalSuggestionsAvailable;
 	
@@ -31,9 +32,10 @@ public final class SearchResults
 	private boolean completeWord;
 	private String[] suggestions;
 	
-	public SearchResults(long timeTakenInMilliSeconds, MatchQuality matchQuality, boolean prefix, boolean completeWord, 
+	public SearchResults(String searchedString, long timeTakenInMilliSeconds, MatchQuality matchQuality, boolean prefix, boolean completeWord, 
 						int totalSuggestionsAvailable, String[] suggestions)
 	{
+		this.searchedString = searchedString;
 		this.timeTakenInNanoSeconds = timeTakenInMilliSeconds;
 		this.totalSuggestionsAvailable = totalSuggestionsAvailable;
 		
@@ -41,6 +43,11 @@ public final class SearchResults
 		this.prefix = prefix;
 		this.completeWord = completeWord;
 		this.suggestions = suggestions;
+	}
+	
+	public String getSearchedString()
+	{
+		return searchedString;
 	}
 	
 	public long getTimeTakenInNanoSeconds()

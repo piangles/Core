@@ -27,18 +27,66 @@ package org.piangles.core.structures;
  * 2. Memory Usage
  *
  */
-final class TrieStatistics
+public final class TrieStatistics
 {
 	private int datasetSize;
 	
-	private long timeTakenToIndex;
-	private long timeTakenToIndexNodes;
+	private long noOfCalls;
+	private long noOfCallsWithoutResults;
+	private long averageResponseTime;
+	private long averageSearchWordSize;
+
+	//Metrics
+	private long timeTakenToGetReady;
 	private long timeTakenToSortDataset;
+	private long timeTakenToPopulateTrie;
+	private long timeTakenToIndex;
 	
 	private int maxMemoryInMB;
 	private int totalMemoryInMB;
 	private int freeMemoryInMB;
 	private int usedMemoryInMB;
+	
+	TrieStatistics()
+	{
+		
+	}
+	
+	void start(TrieMetrics tm)
+	{
+		long startTime = System.currentTimeMillis();
+		switch(tm)
+		{
+		case Readiness: timeTakenToGetReady = startTime; break;
+		case SortDataset: timeTakenToSortDataset = startTime; break;
+		case PopulateTrie: timeTakenToPopulateTrie = startTime; break;
+		case IndexTrie: timeTakenToIndex = startTime; break;
+		}
+	}
+	
+	void end(TrieMetrics tm)
+	{
+		long endTime = System.currentTimeMillis();
+		switch(tm)
+		{
+		case Readiness: timeTakenToGetReady = endTime - timeTakenToGetReady; break;
+		case SortDataset: timeTakenToSortDataset = endTime - timeTakenToSortDataset; break;
+		case PopulateTrie: timeTakenToPopulateTrie = endTime - timeTakenToPopulateTrie; break;
+		case IndexTrie: timeTakenToIndex = endTime - timeTakenToIndex; break;
+		}
+	}
+	
+	@Override
+	public String toString()
+	{
+		StringBuffer sb = new StringBuffer();
+		sb.append("Time Taken to sort: " + timeTakenToSortDataset + " in MiliSeconds.").append("\n");
+		sb.append("Time Taken to populate Trie: " + timeTakenToPopulateTrie + " in MiliSeconds.").append("\n");
+		sb.append("Time Taken to index Trie: " + timeTakenToIndex + " in MiliSeconds.").append("\n");
+		sb.append("Time Taken to for Trie to be Ready: " + timeTakenToGetReady + " in MiliSeconds.").append("\n");
+
+		return sb.toString();
+	}
 	
 	public void memory()
 	{

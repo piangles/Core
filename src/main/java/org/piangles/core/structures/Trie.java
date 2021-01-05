@@ -22,11 +22,14 @@ package org.piangles.core.structures;
 public final class Trie
 {
 	private static final TraverseResult NONE_FOUND = new TraverseResult();
+	private static final String WARM_UP = "az";
 	private TrieConfig trieConfig = null;
 	private TrieStatistics trieStatistics = null;
 	private TrieNode root = null;
 	private boolean indexed = false;
+	
 	private StringArray universeOfWords = null; // TODO Need to address compostie objects
+	
 	private SuggestionEngine suggestionEngine = null;
 	
 	private Vocabulary vocabulary = null; 
@@ -35,7 +38,7 @@ public final class Trie
 	{
 		this.trieConfig = trieConfig;
 		vocabulary = trieConfig.getVocabulary();
-		this.trieStatistics = new TrieStatistics();
+		trieStatistics = new TrieStatistics();
 		root = new TrieNode(trieConfig);
 		universeOfWords = new StringArray(trieConfig.getInitialSize());
 	}
@@ -60,16 +63,17 @@ public final class Trie
 		{
 			throw new IllegalStateException("Trie has already been indexed.");
 		}
+		trieStatistics.start(TrieMetrics.Readiness);
 		indexed = true;
-		long startTime = System.currentTimeMillis();
+		trieStatistics.start(TrieMetrics.SortDataset);
 		universeOfWords.trimToSize();
 		universeOfWords.sort();
-		System.out.println("Time Taken to sort: " + (System.currentTimeMillis() - startTime) + " MiliSeconds.");
+		trieStatistics.end(TrieMetrics.SortDataset);
 
 		suggestionEngine = new SuggestionEngine(universeOfWords);
 		
 		//TODO Parallel stream this
-		startTime = System.currentTimeMillis();
+		trieStatistics.start(TrieMetrics.PopulateTrie);
 		String word = null;
 		for (int i = 0; i < universeOfWords.size(); ++i)
 		{
@@ -85,43 +89,45 @@ public final class Trie
 			}
 			current.markAsCompleteWord();
 		}
-		System.out.println("Time Taken to Index : " + (System.currentTimeMillis() - startTime) + " MiliSeconds.");
+		trieStatistics.end(TrieMetrics.PopulateTrie);
 
-		startTime = System.currentTimeMillis();
+		trieStatistics.start(TrieMetrics.IndexTrie);
 		root.indexIt();
-		if (trieConfig.isPerformanceMonitoringEnabled())
-		{
-			System.out.println("Time Taken to Index nodes: " + (System.currentTimeMillis() - startTime) + " MiliSeconds.");
-		}
+		trieStatistics.end(TrieMetrics.IndexTrie);
+		search(WARM_UP);
+		trieStatistics.end(TrieMetrics.Readiness);
 	}
 
-	public SearchResults search(String word)
+	public boolean isEmpty()
+	{
+		return root.isEmpty();
+	}
+
+
+	public SearchResults search(String searchString)
 	{
 		long startTime = System.nanoTime();
 		SearchResults searchResults = null;
 
-		word = word.toLowerCase();
+		searchString = searchString.toLowerCase();
 
-		char[] wordAsArray = word.toCharArray();
+		char[] searchStringAsArray = searchString.toCharArray();
 
 		TraverseResult traverseResult = null;
 		if (trieConfig.useRecursiveAlgorithm())
 		{
 			TrieNode firstNode = null;
 			
-			if (trieConfig.getVocabulary().exists(wordAsArray[0]))
+			if (trieConfig.getVocabulary().exists(searchStringAsArray[0]))
 			{
-				System.out.println("**************" + wordAsArray[0] + ":" + (System.nanoTime() - startTime));
-
-				firstNode = root.get(wordAsArray[0]);
+				firstNode = root.get(searchStringAsArray[0]);
 			}
 			if (firstNode != null)
 			{
-				traverseResult = traverse(firstNode, wordAsArray, 0);
+				traverseResult = traverse(firstNode, searchStringAsArray, 0);
 			}
 			else
 			{
-				System.out.println("**************" + (System.nanoTime() - startTime));
 				/**
 				 * There is nothing in our universe that
 				 * starts with this characters
@@ -131,29 +137,21 @@ public final class Trie
 		}
 		else
 		{
-			traverseResult = traverseLoop(root, wordAsArray, 0);
+			traverseResult = traverseLoop(root, searchStringAsArray, 0);
 		}
-		long timeTaken = System.nanoTime() - startTime;
 		
+		long timeTaken = System.nanoTime() - startTime;
 		if (traverseResult.noneFoundInOurUniverse())
 		{
-			searchResults = new SearchResults(timeTaken, MatchQuality.None, false, false, 0, suggestionEngine.suggestTopTen());
+			searchResults = new SearchResults(searchString, timeTaken, MatchQuality.None, false, false, 0, suggestionEngine.suggestTopTen());
 		}
 		else
 		{
-			searchResults = new SearchResults(timeTaken, traverseResult.getMatchQuality(), traverseResult.isPrefix(), traverseResult.isCompleteWord(),
+			searchResults = new SearchResults(searchString, timeTaken, traverseResult.getMatchQuality(), traverseResult.isPrefix(), traverseResult.isCompleteWord(),
 					traverseResult.getTotalSuggestionsAvailable(), suggestionEngine.suggest(traverseResult.getIndexesIntoOurUniverse()));
 		}
-		if (trieConfig.isPerformanceMonitoringEnabled())
-		{
-			System.out.println("Search result for [" + word + "] : " + searchResults);
-		}
+		
 		return searchResults;
-	}
-
-	public boolean isEmpty()
-	{
-		return root.isEmpty();
 	}
 
 	private TraverseResult traverse(TrieNode currentNode, char[] word, int index)
