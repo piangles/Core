@@ -26,7 +26,6 @@ public final class SearchResults
 	private long timeTakenInNanoSeconds;
 	private int totalSuggestionsAvailable;
 	
-	private boolean found; //=> Datastore had an exact match of the word
 	private MatchQuality matchQuality;
 	private boolean prefix;
 	private boolean completeWord;
@@ -54,11 +53,6 @@ public final class SearchResults
 		return totalSuggestionsAvailable;
 	}
 
-	public boolean wasFound()
-	{
-		return found;
-	}
-	
 	public MatchQuality getMatchQuality()
 	{
 		return matchQuality;
@@ -82,7 +76,7 @@ public final class SearchResults
 	@Override
 	public String toString()
 	{
-		return "SearchResults [timeTakenInNanoSeconds=" + timeTakenInNanoSeconds + ", totalSuggestionsAvailable=" + totalSuggestionsAvailable + ", found=" + found + ", matchQuality=" + matchQuality
+		return "SearchResults [timeTakenInNanoSeconds=" + timeTakenInNanoSeconds + ", totalSuggestionsAvailable=" + totalSuggestionsAvailable + ", matchQuality=" + matchQuality
 				+ ", prefix=" + prefix + ", completeWord=" + completeWord + ", suggestions=" + Arrays.toString(suggestions) + "]";
 	}
 }

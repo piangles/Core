@@ -33,19 +33,22 @@ public final class TrieConfig
 	
 	private boolean recursiveAlgorithm;
 	private boolean performanceMonitoringEnabled;
+	
+	private Vocabulary vocabulary;
 
 	public TrieConfig()
 	{
-		this(DEFAULT_INITIAL_SIZE, DEFAULT_MAX_WORD_LENGTH, DEFAULT_SUGGESTIONS_LIMIT, DEFAULT_USE_RECURSIVE_ALGORITHM, DEFAULT_PERF_MONITORING);
+		this(DEFAULT_INITIAL_SIZE, DEFAULT_MAX_WORD_LENGTH, DEFAULT_SUGGESTIONS_LIMIT, DEFAULT_USE_RECURSIVE_ALGORITHM, DEFAULT_PERF_MONITORING, new DefaultVocabulary());
 	}
 	
-	public TrieConfig(int initialSize, int maximumWordLength, int suggestionsLimit, boolean recursiveAlgorithm, boolean performanceMonitoringEnabled)
+	public TrieConfig(int initialSize, int maximumWordLength, int suggestionsLimit, boolean recursiveAlgorithm, boolean performanceMonitoringEnabled, Vocabulary vocabulary)
 	{
 		this.initialSize = initialSize;
 		this.maximumWordLength = maximumWordLength;
 		this.suggestionsLimit = suggestionsLimit;
 		this.recursiveAlgorithm = recursiveAlgorithm;
 		this.performanceMonitoringEnabled = performanceMonitoringEnabled;
+		this.vocabulary = vocabulary;
 	}
 	
 	public int getInitialSize()
@@ -71,5 +74,10 @@ public final class TrieConfig
 	public boolean isPerformanceMonitoringEnabled()
 	{
 		return performanceMonitoringEnabled;
+	}
+	
+	public Vocabulary getVocabulary()
+	{
+		return vocabulary;
 	}
 }
