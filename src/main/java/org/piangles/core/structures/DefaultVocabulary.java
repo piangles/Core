@@ -19,7 +19,9 @@
  
 package org.piangles.core.structures;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public final class DefaultVocabulary implements Vocabulary
 {
@@ -91,9 +93,11 @@ public final class DefaultVocabulary implements Vocabulary
 //	private static final long A = 0b0010000000000000000000000000000000000000000000000000000000000000L;
 //	private static final long A = 0b0100000000000000000000000000000000000000000000000000000000000000L;
 
+	private static final String STOP_WORDS = "of,the,is,and,on,a,for,at";
 	
 	private static long[] list = null;
 	private static int[] specialCharIndexLookupMap = new int[128];//Since we are not subtracting one and using ascii value directly
+	private List<String> stopWords = new ArrayList<String>();
 	
 	static //Initialize 
 	{
@@ -133,6 +137,12 @@ public final class DefaultVocabulary implements Vocabulary
 		specialCharIndexLookupMap['@'] = 48;
 		specialCharIndexLookupMap['^'] = 49;
 		specialCharIndexLookupMap['_'] = 50;
+		
+	}
+	
+	public DefaultVocabulary()
+	{
+		stopWords = Arrays.asList(STOP_WORDS.split(","));
 	}
 	
 	@Override
@@ -151,5 +161,11 @@ public final class DefaultVocabulary implements Vocabulary
 	public long getBinaryRepresentation(char ch)
 	{
 		return list[getIndex(ch)];
+	}
+
+	@Override
+	public List<String> getStopWords()
+	{
+		return stopWords;
 	}
 }
