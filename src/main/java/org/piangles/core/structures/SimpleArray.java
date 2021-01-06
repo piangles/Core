@@ -75,7 +75,7 @@ final class SimpleArray
 	{
 		if (initialCapacity > 0)
 		{
-			this.elementData = new TrieEntry[initialCapacity];
+			elementData = new TrieEntry[initialCapacity];
 		}
 		else
 		{
@@ -261,25 +261,25 @@ final class SimpleArray
 		int i = lowerIndex;
 		int j = higherIndex;
 		TrieEntry temp = null;
-		TrieEntry pivot = this.elementData[lowerIndex + (higherIndex - lowerIndex) / 2];
+		TrieEntry pivot = elementData[lowerIndex + (higherIndex - lowerIndex) / 2];
 
 		while (i <= j)
 		{
-			while (this.elementData[i].getValue().compareToIgnoreCase(pivot.getValue()) < 0)
+			while (elementData[i].getValue().compareToIgnoreCase(pivot.getValue()) < 0)
 			{
 				i++;
 			}
 
-			while (this.elementData[j].getValue().compareToIgnoreCase(pivot.getValue()) > 0)
+			while (elementData[j].getValue().compareToIgnoreCase(pivot.getValue()) > 0)
 			{
 				j--;
 			}
 
 			if (i <= j)
 			{
-				temp = this.elementData[i];
-				this.elementData[i] = this.elementData[j];
-				this.elementData[j] = temp;
+				temp = elementData[i];
+				elementData[i] = elementData[j]; elementData[i].setIndex(i);
+				elementData[j] = temp; elementData[j].setIndex(j);
 				temp = null;
 
 				i++;

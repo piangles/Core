@@ -21,18 +21,25 @@ package org.piangles.core.structures;
 public final class TrieEntry
 {
 	private String id;
-	private boolean derived;
+	private int index;
+	private TrieEntry parent;
 	private int rank;
 	private String value;
 
 	public TrieEntry(String value)
 	{
-		this(null, -1, value);
+		this(null, null, -1, value);
 	}
 
 	public TrieEntry(String id, int rank, String value)
 	{
+		this(null, null, rank, value);
+	}
+
+	public TrieEntry(String id, TrieEntry parent, int rank, String value)
+	{
 		this.id = id;
+		this.parent = parent;
 		this.rank = rank;
 		this.value = value;
 	}
@@ -54,6 +61,21 @@ public final class TrieEntry
 	
 	public boolean isDerived()
 	{
-		return derived;
+		return parent != null;
+	}
+	
+	TrieEntry getParent()
+	{
+		return parent;
+	}
+	
+	void setIndex(int index)
+	{
+		this.index = index;
+	}
+	
+	int getIndex()
+	{
+		return index;
 	}
 }

@@ -42,6 +42,10 @@ final class SuggestionEngine
 		for (int i=0; i < indexesIntoOurUniverse.length; ++i)
 		{
 			te = universeOfWords.get(indexesIntoOurUniverse[i]);
+			if (te.isDerived())
+			{
+				te = universeOfWords.get(te.getParent().getIndex());
+			}
 			suggestions[i] = new Suggestion(context, te.getId(), te.getValue());
 		}
 		return suggestions;
