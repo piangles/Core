@@ -69,7 +69,7 @@ final class TrieNode
 		{
 			if (indexesCount != 0)
 			{
-				indexesIntoOurUniverse = Arrays.copyOf(indexesIntoOurUniverse, indexesCount-1);
+				indexesIntoOurUniverse = Arrays.copyOf(indexesIntoOurUniverse, indexesCount);
 			}
 			else
 			{
