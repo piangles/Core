@@ -19,6 +19,8 @@
  
 package org.piangles.core.structures;
 
+import java.util.List;
+
 public interface Vocabulary
 {
 	public static final long NULL = 0b0000000000000000000000000000000000000000000000000000000000000000L;
@@ -26,4 +28,5 @@ public interface Vocabulary
 	public boolean exists(char ch);
 	public int getIndex(char ch);
 	public long getBinaryRepresentation(char ch);
+	public List<String> getStopWords();
 }
