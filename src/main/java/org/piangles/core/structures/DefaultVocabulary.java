@@ -93,7 +93,7 @@ public final class DefaultVocabulary implements Vocabulary
 
 	
 	private static long[] list = null;
-	private static int[] specialCharIndexLookupMap = new int[96];
+	private static int[] specialCharIndexLookupMap = new int[128];//Since we are not subtracting one and using ascii value directly
 	
 	static //Initialize 
 	{
@@ -108,6 +108,16 @@ public final class DefaultVocabulary implements Vocabulary
 				};
 		
 		Arrays.fill(specialCharIndexLookupMap, -1);
+		
+		int index = 0;
+		for (int i='a'; i <= 'z'; ++i)
+		{
+			specialCharIndexLookupMap[i] = index++;
+		}
+		for (int i=48; i <= 57; ++i)
+		{
+			specialCharIndexLookupMap[i] = index++;
+		}
 		specialCharIndexLookupMap[' '] = 36;
 		specialCharIndexLookupMap['#'] = 37;
 		specialCharIndexLookupMap['$'] = 38;
@@ -134,11 +144,7 @@ public final class DefaultVocabulary implements Vocabulary
 	@Override
 	public int getIndex(char ch)
 	{
-		int ascii = (int)ch;
-		//TODO Is there a way to optimize this?
-		int index = (ascii > 122)? -1 : (ascii > 96)? (ascii % 97) : Math.abs(48-ascii) < 10 ? (48-ascii) + 26 : specialCharIndexLookupMap[ascii];
-		//System.out.println("For : " + ch + " ASCII is " + ascii + " is : " + index);
-		return index;
+		return specialCharIndexLookupMap[(int)ch];
 	}
 	
 	@Override
