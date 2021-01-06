@@ -34,7 +34,6 @@ final class TrieNode
 	private char ch;
 	private int totalIndexesCount;
 	private int[] indexesIntoOurUniverse;
-	private boolean recycled = false;
 	private int indexesCount = 0;
 	
 	private TrieNode[] children = null; //TODO Need to start it with a small count
@@ -65,16 +64,13 @@ final class TrieNode
 		/**
 		 * Eliminate all indexesIntoOurUniverse which are -1;
 		 */
-		if (!recycled) //There are some negative indexes into our universe
+		if (indexesCount != 0)
 		{
-			if (indexesCount != 0)
-			{
-				indexesIntoOurUniverse = Arrays.copyOf(indexesIntoOurUniverse, indexesCount);
-			}
-			else
-			{
-				indexesIntoOurUniverse = null;
-			}
+			indexesIntoOurUniverse = Arrays.copyOf(indexesIntoOurUniverse, indexesCount);
+		}
+		else
+		{
+			indexesIntoOurUniverse = null;
 		}
 		
 		if (children != null)
@@ -130,14 +126,13 @@ final class TrieNode
 	void addIndexIntoOurUniverse(int indexIntoOurUniverse)
 	{
 		totalIndexesCount++;
-		indexesCount = indexesCount + 1;
-		if (indexesCount > trieConfig.getSuggestionsLimit())
+
+		if (indexesCount < trieConfig.getSuggestionsLimit())
 		{
-			indexesCount = 1;
-			recycled = true;
+			indexesCount = indexesCount + 1;
+			indexesIntoOurUniverse[indexesCount-1] = indexIntoOurUniverse;
 		}
 
-		indexesIntoOurUniverse[indexesCount-1] = indexIntoOurUniverse;
 	}
 
 	boolean doesChildExist(char ch)

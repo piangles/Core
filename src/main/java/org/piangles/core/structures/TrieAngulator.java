@@ -39,10 +39,6 @@ public final class TrieAngulator
 	private int noOfContexts = 0;
 	private boolean started = false;
 	
-	 // TODO Need to address compostie objects
-	private SimpleArray universeOfWords = null;
-	private List<TrieEntry> entries = null;
-	
 	public TrieAngulator(TrieConfig trieConfig) //Where do we get context names from?
 	{
 		this(Arrays.asList(new String[]{DEFAULT_CONTEXT}), trieConfig);
@@ -99,7 +95,7 @@ public final class TrieAngulator
 		
 		for (Future<Boolean> indexResultFuture : indexResultFutures)
 		{
-			//TODO which one failed?
+			//TODO which one failed??
 			indexResultFuture.get(10, TimeUnit.SECONDS);			
 		}
 		
@@ -117,15 +113,21 @@ public final class TrieAngulator
 				return trie.search(searchString);
 			}));
 		}
+
+		SearchResults searchResult = null;
+		List<SearchResults> searchResultsList = new ArrayList<>(noOfContexts);
+		for (Future<SearchResults> searchResultFuture : searchResultFutures)
+		{
+			//TODO which one failed??
+			searchResult = searchResultFuture.get(100, TimeUnit.MILLISECONDS);
+			//if (searchResult.getMatchQuality() != MatchQuality.None)
+			{
+				searchResultsList.add(searchResult);
+			}
+		}
 		
-//		for (Future<SearchResults> searchResultFuture : searchResultFutures)
-//		{
-//			//TODO which one failed?
-//			searchResultFuture.get(100, TimeUnit.MILLISECONDS);
-//		}
-		
-		//Stich results here.
-		return searchResultFutures.get(0).get(100, TimeUnit.MILLISECONDS);
+		//Stitch/Triangulate SuggestionResult results here.
+		return searchResultsList.get(0);
 	}
 	
 	public void stop()

@@ -19,6 +19,8 @@
  
 package org.piangles.core.structures;
 
+import java.util.Arrays;
+
 final class Trie
 {
 	private static final TraverseResult NONE_FOUND = new TraverseResult();
@@ -63,6 +65,22 @@ final class Trie
 			throw new IllegalStateException("Trie is immutable once it has been indexed.");
 		}
 		universeOfWords.add(te);
+//		String[] splits = te.getValue().split("\\s+");
+//		if (splits.length != 1)
+//		{
+//			for (int i=1; i < splits.length; ++i)
+//			{
+//				universeOfWords.add(new TrieEntry(te.getId(), te, te.getRank(), splits[i]));	
+//			}
+//			
+////			Will need recuression
+////			String str = te.getValue();
+////			for (int i=0; i < splits.length -2; ++i)
+////			{
+////				str = str.substring(str.indexOf(' ')+1);
+////				universeOfWords.add(new TrieEntry(te.getId(), true, te.getRank(), str));
+////			}
+//		}
 	}
 
 	synchronized boolean indexIt()
@@ -76,6 +94,8 @@ final class Trie
 		universeOfWords.trimToSize();
 		universeOfWords.sort();
 		trieStatistics.end(TrieMetrics.SortDataset);
+		
+		//System.out.println(Arrays.toString(universeOfWords.toArray()));
 
 		suggestionEngine = new SuggestionEngine(context, universeOfWords);
 		
@@ -106,6 +126,10 @@ final class Trie
 			{
 				if (trieConfig.getVocabulary().exists(ch))
 				{
+					if (ch == ' ')
+					{
+						current.markAsCompleteWord();			
+					}
 					current = current.getOrElseCreate(ch);
 					current.addIndexIntoOurUniverse(i);
 				}
@@ -117,7 +141,7 @@ final class Trie
 		trieStatistics.start(TrieMetrics.IndexTrie);
 		root.indexIt();
 		trieStatistics.end(TrieMetrics.IndexTrie);
-		search(WARM_UP);
+		//search(WARM_UP);
 		trieStatistics.end(TrieMetrics.Readiness);
 		indexed = true;
 		return indexed; 
@@ -207,7 +231,7 @@ final class Trie
 			}
 			else
 			{
-				System.out.println("WHEN DOES IT COME HERE????????????????");
+				System.out.println("WHEN DOES IT COME HERE ::::::: " + new String(word));
 				/**
 				 * The search word's next character is not present in out list.
 				 * Ex: Search word is *cartz* and we have 

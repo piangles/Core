@@ -265,12 +265,12 @@ final class SimpleArray
 
 		while (i <= j)
 		{
-			while (elementData[i].getValue().compareToIgnoreCase(pivot.getValue()) < 0)
+			while (elementData[i].compare(pivot) < 0)
 			{
 				i++;
 			}
 
-			while (elementData[j].getValue().compareToIgnoreCase(pivot.getValue()) > 0)
+			while (elementData[j].compare(pivot) > 0)
 			{
 				j--;
 			}

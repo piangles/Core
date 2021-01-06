@@ -64,6 +64,44 @@ public final class TrieEntry
 		return parent != null;
 	}
 	
+    /**
+     * @return  a negative integer, zero, or a positive integer as the
+     *          specified String is greater than, equal to, or less
+     *          than this String, ignoring case considerations.
+     */
+    public int compare(TrieEntry other)
+    {
+    	int compareResult = 0;
+    	if (!this.isDerived() && !other.isDerived())
+    	{
+    		/**
+    		 * Use Rank first to compare and in absence of Rank 
+    		 * use lexical sorting.
+    		 */
+    		if (this.rank != -1 && other.rank != -1)
+    		{
+    			compareResult = (this.rank == other.rank)? 0 : (this.rank > other.rank)  ? 1 : -1;
+    		}
+    		else
+    		{
+        		compareResult = this.value.compareToIgnoreCase(other.value); 
+    		}
+    	}
+    	else if (this.isDerived() && other.isDerived())
+    	{
+    		compareResult = this.parent.compare(other.parent); 
+    	}
+    	else if (this.isDerived())
+    	{
+    		compareResult = 1;
+    	}
+    	else if (other.isDerived())
+    	{
+    		compareResult = -1;
+    	}
+        return compareResult;
+    }
+	
 	TrieEntry getParent()
 	{
 		return parent;
@@ -77,5 +115,11 @@ public final class TrieEntry
 	int getIndex()
 	{
 		return index;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return value;
 	}
 }
