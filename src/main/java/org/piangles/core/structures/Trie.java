@@ -20,6 +20,8 @@
 package org.piangles.core.structures;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 final class Trie
 {
@@ -33,6 +35,7 @@ final class Trie
 	private TrieNode root = null;
 	private boolean indexed = false;
 	
+	private Map<String, String> stopWordsMap = null; 
 	private SimpleArray universeOfWords = null; // TODO Need to address compostie objects
 	
 	private SuggestionEngine suggestionEngine = null;
@@ -43,6 +46,12 @@ final class Trie
 		this.trieConfig = trieConfig;
 		
 		trieStatistics = new TrieStatistics(context);
+		
+		stopWordsMap = new HashMap<>();
+		for (String stopWord : trieConfig.getVocabulary().getStopWords())
+		{
+			stopWordsMap.put(stopWord, stopWord);
+		}
 		
 		root = new TrieNode(trieConfig);
 		universeOfWords = new SimpleArray(trieConfig.getInitialSize());
@@ -65,22 +74,18 @@ final class Trie
 			throw new IllegalStateException("Trie is immutable once it has been indexed.");
 		}
 		universeOfWords.add(te);
-//		String[] splits = te.getValue().split("\\s+");
-//		if (splits.length != 1)
-//		{
-//			for (int i=1; i < splits.length; ++i)
-//			{
-//				universeOfWords.add(new TrieEntry(te.getId(), te, te.getRank(), splits[i]));	
-//			}
-//			
-////			Will need recuression
-////			String str = te.getValue();
-////			for (int i=0; i < splits.length -2; ++i)
-////			{
-////				str = str.substring(str.indexOf(' ')+1);
-////				universeOfWords.add(new TrieEntry(te.getId(), true, te.getRank(), str));
-////			}
-//		}
+		
+		if (te.getValue().indexOf(Vocabulary.TOKEN_DELIMITER) != -1)
+		{
+			String[] splits = te.getValue().split("\\s+");
+			for (int i=1; i < splits.length; ++i)
+			{
+				if (!stopWordsMap.containsKey(splits[i]))
+				{
+					universeOfWords.add(new TrieEntry(te.getId(), te, te.getRank(), splits[i]));	
+				}
+			}
+		}
 	}
 
 	synchronized boolean indexIt()
@@ -95,8 +100,6 @@ final class Trie
 		universeOfWords.sort();
 		trieStatistics.end(TrieMetrics.SortDataset);
 		
-		//System.out.println(Arrays.toString(universeOfWords.toArray()));
-
 		suggestionEngine = new SuggestionEngine(context, universeOfWords);
 		
 		trieStatistics.start(TrieMetrics.PopulateTrie);
@@ -122,7 +125,8 @@ final class Trie
 		{
 			word = universeOfWords.get(i).getValue().toLowerCase();
 			TrieNode current = root;
-			for (char ch : word.toCharArray())
+			char[] charArray = Arrays.copyOfRange(word.toCharArray(), 0, trieConfig.getMaximumWordLength());
+			for (char ch : charArray)
 			{
 				if (trieConfig.getVocabulary().exists(ch))
 				{
@@ -141,7 +145,7 @@ final class Trie
 		trieStatistics.start(TrieMetrics.IndexTrie);
 		root.indexIt();
 		trieStatistics.end(TrieMetrics.IndexTrie);
-		//search(WARM_UP);
+		search(WARM_UP);
 		trieStatistics.end(TrieMetrics.Readiness);
 		indexed = true;
 		return indexed; 
@@ -231,7 +235,6 @@ final class Trie
 			}
 			else
 			{
-				System.out.println("WHEN DOES IT COME HERE ::::::: " + new String(word));
 				/**
 				 * The search word's next character is not present in out list.
 				 * Ex: Search word is *cartz* and we have 
