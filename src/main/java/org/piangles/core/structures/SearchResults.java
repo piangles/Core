@@ -30,10 +30,10 @@ public final class SearchResults
 	private MatchQuality matchQuality;
 	private boolean prefix;
 	private boolean completeWord;
-	private String[] suggestions;
+	private Suggestion[] suggestions;
 	
 	public SearchResults(String searchedString, long timeTakenInMilliSeconds, MatchQuality matchQuality, boolean prefix, boolean completeWord, 
-						int totalSuggestionsAvailable, String[] suggestions)
+						int totalSuggestionsAvailable, Suggestion[] suggestions)
 	{
 		this.searchedString = searchedString;
 		this.timeTakenInNanoSeconds = timeTakenInMilliSeconds;
@@ -75,7 +75,7 @@ public final class SearchResults
 		return completeWord;
 	}
 	
-	public String[] getSuggestions()
+	public Suggestion[] getSuggestions()
 	{
 		return suggestions;
 	}

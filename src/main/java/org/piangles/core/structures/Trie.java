@@ -31,7 +31,7 @@ final class Trie
 	private TrieNode root = null;
 	private boolean indexed = false;
 	
-	private StringArray universeOfWords = null; // TODO Need to address compostie objects
+	private SimpleArray universeOfWords = null; // TODO Need to address compostie objects
 	
 	private SuggestionEngine suggestionEngine = null;
 	
@@ -43,7 +43,7 @@ final class Trie
 		trieStatistics = new TrieStatistics(context);
 		
 		root = new TrieNode(trieConfig);
-		universeOfWords = new StringArray(trieConfig.getInitialSize());
+		universeOfWords = new SimpleArray(trieConfig.getInitialSize());
 	}
 	
 	String getContext()
@@ -56,13 +56,13 @@ final class Trie
 		return trieStatistics; 
 	}
 	
-	void insert(String word)
+	void insert(TrieEntry te)
 	{
 		if (indexed)
 		{
 			throw new IllegalStateException("Trie is immutable once it has been indexed.");
 		}
-		universeOfWords.add(word);
+		universeOfWords.add(te);
 	}
 
 	synchronized boolean indexIt()
@@ -77,14 +77,30 @@ final class Trie
 		universeOfWords.sort();
 		trieStatistics.end(TrieMetrics.SortDataset);
 
-		suggestionEngine = new SuggestionEngine(universeOfWords);
+		suggestionEngine = new SuggestionEngine(context, universeOfWords);
 		
-		//TODO Parallel stream this
 		trieStatistics.start(TrieMetrics.PopulateTrie);
+//		Arrays.stream(universeOfWords.elementData).
+//			parallel().
+//			forEach(word -> {
+//				char[] wordsAsCharArray = word.toCharArray();
+//				Stream<Character> cStream = IntStream.range(0, wordsAsCharArray.length).mapToObj(i -> wordsAsCharArray[i]);
+//				cStream.parallel().forEach(ch -> {
+//					TrieNode current = root;
+//					if (trieConfig.getVocabulary().exists(ch))
+//					{
+//						current = current.getOrElseCreate(ch);
+//						current.addIndexIntoOurUniverse(0);//TODO
+//					}
+//					current.markAsCompleteWord();
+//				});
+//		});
+
+
 		String word = null;
 		for (int i = 0; i < universeOfWords.size(); ++i)
 		{
-			word = universeOfWords.get(i).toLowerCase();
+			word = universeOfWords.get(i).getValue().toLowerCase();
 			TrieNode current = root;
 			for (char ch : word.toCharArray())
 			{

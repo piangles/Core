@@ -22,7 +22,7 @@ package org.piangles.core.structures;
 import java.util.Arrays;
 import java.util.Collection;
 
-final class StringArray
+final class SimpleArray
 {
 	/**
 	 * Default initial capacity.
@@ -39,14 +39,14 @@ final class StringArray
 	/**
 	 * Shared empty array instance used for empty instances.
 	 */
-	private static final String[] EMPTY_ELEMENTDATA = {};
+	private static final TrieEntry[] EMPTY_ELEMENTDATA = {};
 
 	/**
 	 * Shared empty array instance used for default sized empty instances. We
 	 * distinguish this from EMPTY_ELEMENTDATA to know how much to inflate when
 	 * first element is added.
 	 */
-	private static final String[] DEFAULTCAPACITY_EMPTY_ELEMENTDATA = {};
+	private static final TrieEntry[] DEFAULTCAPACITY_EMPTY_ELEMENTDATA = {};
 
 	/**
 	 * The array buffer into which the elements of the ArrayList are stored. The
@@ -54,9 +54,7 @@ final class StringArray
 	 * ArrayList with elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA will be
 	 * expanded to DEFAULT_CAPACITY when the first element is added.
 	 */
-	private transient String[] elementData; // non-private to simplify nested
-											// class
-	// access
+	private transient TrieEntry[] elementData; 
 
 	/**
 	 * The size of the ArrayList (the number of elements it contains).
@@ -73,11 +71,11 @@ final class StringArray
 	 * @throws IllegalArgumentException
 	 *             if the specified initial capacity is negative
 	 */
-	public StringArray(int initialCapacity)
+	public SimpleArray(int initialCapacity)
 	{
 		if (initialCapacity > 0)
 		{
-			this.elementData = new String[initialCapacity];
+			this.elementData = new TrieEntry[initialCapacity];
 		}
 		else
 		{
@@ -92,7 +90,7 @@ final class StringArray
 	 *            element to be appended to this list
 	 * @return <tt>true</tt> (as specified by {@link Collection#add})
 	 */
-	public int add(String e)
+	public int add(TrieEntry e)
 	{
 		ensureCapacityInternal(size + 1); // Increments modCount!!
 		elementData[size++] = e;
@@ -108,12 +106,12 @@ final class StringArray
 	 * @throws IndexOutOfBoundsException
 	 *             {@inheritDoc}
 	 */
-	public String get(int index)
+	public TrieEntry get(int index)
 	{
 		return elementData[index];
 	}
 
-	public String[] subsetIfPossible(int index, int elements)
+	public TrieEntry[] subsetIfPossible(int index, int elements)
 	{
 		return Arrays.copyOfRange(elementData, 1, elementData.length);
 	}
@@ -181,7 +179,7 @@ final class StringArray
 	{
 		try
 		{
-			StringArray v = (StringArray) super.clone();
+			SimpleArray v = (SimpleArray) super.clone();
 			v.elementData = Arrays.copyOf(elementData, size);
 			return v;
 		}
@@ -262,17 +260,17 @@ final class StringArray
 	{
 		int i = lowerIndex;
 		int j = higherIndex;
-		String temp = null;
-		String pivot = this.elementData[lowerIndex + (higherIndex - lowerIndex) / 2];
+		TrieEntry temp = null;
+		TrieEntry pivot = this.elementData[lowerIndex + (higherIndex - lowerIndex) / 2];
 
 		while (i <= j)
 		{
-			while (this.elementData[i].compareToIgnoreCase(pivot) < 0)
+			while (this.elementData[i].getValue().compareToIgnoreCase(pivot.getValue()) < 0)
 			{
 				i++;
 			}
 
-			while (this.elementData[j].compareToIgnoreCase(pivot) > 0)
+			while (this.elementData[j].getValue().compareToIgnoreCase(pivot.getValue()) > 0)
 			{
 				j--;
 			}

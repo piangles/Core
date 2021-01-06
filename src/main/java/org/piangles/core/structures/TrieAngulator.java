@@ -37,10 +37,10 @@ public final class TrieAngulator
 	private HashMap<String, Trie> contextTrieMap = null;
 	private Collection<Trie> tries = null;
 	private int noOfContexts = 0;
-	private boolean indexed = false;
+	private boolean started = false;
 	
 	 // TODO Need to address compostie objects
-	private StringArray universeOfWords = null;
+	private SimpleArray universeOfWords = null;
 	private List<TrieEntry> entries = null;
 	
 	public TrieAngulator(TrieConfig trieConfig) //Where do we get context names from?
@@ -67,9 +67,9 @@ public final class TrieAngulator
 		tries = contextTrieMap.values();
 	}
 
-	public void insert(String word)
+	public void insert(TrieEntry te)
 	{
-		contextTrieMap.get(DEFAULT_CONTEXT).insert(word);
+		contextTrieMap.get(DEFAULT_CONTEXT).insert(te);
 	}
 	
 	public TrieStatistics getStatistics()
@@ -82,11 +82,11 @@ public final class TrieAngulator
 		return contextTrieMap.get(DEFAULT_CONTEXT).getStatistics(); 
 	}
 
-	public synchronized void indexIt() throws Exception
+	public synchronized void start() throws Exception
 	{
-		if (indexed)
+		if (started)
 		{
-			throw new IllegalStateException("Trie has already been indexed.");
+			throw new IllegalStateException("TrieAngulator has already been started.");
 		}
 
 		List<Future<Boolean>> indexResultFutures = new ArrayList<>(noOfContexts);
@@ -103,7 +103,7 @@ public final class TrieAngulator
 			indexResultFuture.get(10, TimeUnit.SECONDS);			
 		}
 		
-		indexed = true;
+		started = true;
 	}
 	
 	public SearchResults search(String searchString) throws Exception
@@ -126,5 +126,10 @@ public final class TrieAngulator
 		
 		//Stich results here.
 		return searchResultFutures.get(0).get(100, TimeUnit.MILLISECONDS);
+	}
+	
+	public void stop()
+	{
+		executor.shutdown();
 	}
 }

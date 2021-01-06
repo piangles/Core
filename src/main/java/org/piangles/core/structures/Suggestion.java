@@ -14,27 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
+ 
+ 
 package org.piangles.core.structures;
 
-public final class TrieEntry
+public final class Suggestion
 {
+	private String context;
 	private String id;
-	private boolean derived;
-	private int rank;
 	private String value;
 
-	public TrieEntry(String value)
+	public Suggestion(String context, String id, String value)
 	{
-		this(null, -1, value);
+		this.context = context;
+		this.id = id;
+		this.value = value;
 	}
 
-	public TrieEntry(String id, int rank, String value)
+	public String getContext()
 	{
-		this.id = id;
-		this.rank = rank;
-		this.value = value;
+		return context;
 	}
 	
 	public String getId()
@@ -42,18 +41,14 @@ public final class TrieEntry
 		return id;
 	}
 	
-	public int getRank()
-	{
-		return rank;
-	}
-	
 	public String getValue()
 	{
 		return value;
 	}
 	
-	public boolean isDerived()
+	@Override
+	public String toString()
 	{
-		return derived;
+		return value;
 	}
 }

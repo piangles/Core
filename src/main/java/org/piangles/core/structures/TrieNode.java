@@ -103,7 +103,7 @@ final class TrieNode
 		return child;
 	}
 
-	TrieNode getOrElseCreate(char ch)
+	synchronized TrieNode getOrElseCreate(char ch)
 	{
 		TrieNode child = get(ch);
 		if (child == null)
