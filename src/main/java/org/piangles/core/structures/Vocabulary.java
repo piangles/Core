@@ -23,6 +23,7 @@ import java.util.List;
 
 public interface Vocabulary
 {
+	public static final char TOKEN_DELIMITER = ' ';
 	public static final long NULL = 0b0000000000000000000000000000000000000000000000000000000000000000L;
 
 	public boolean exists(char ch);
