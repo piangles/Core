@@ -103,29 +103,30 @@ final class Trie
 		suggestionEngine = new SuggestionEngine(context, universeOfWords);
 		
 		trieStatistics.start(TrieMetrics.PopulateTrie);
-//		Arrays.stream(universeOfWords.elementData).
-//			parallel().
-//			forEach(word -> {
-//				char[] wordsAsCharArray = word.toCharArray();
-//				Stream<Character> cStream = IntStream.range(0, wordsAsCharArray.length).mapToObj(i -> wordsAsCharArray[i]);
-//				cStream.parallel().forEach(ch -> {
-//					TrieNode current = root;
-//					if (trieConfig.getVocabulary().exists(ch))
-//					{
-//						current = current.getOrElseCreate(ch);
-//						current.addIndexIntoOurUniverse(0);//TODO
-//					}
-//					current.markAsCompleteWord();
-//				});
-//		});
-
-
 		Arrays.stream(universeOfWords.elementData).
 		parallel().
 		forEach(te -> {
 			String word = te.getValue().toLowerCase();
-			TrieNode current = root;
 			char[] charArray = Arrays.copyOfRange(word.toCharArray(), 0, trieConfig.getMaximumWordLength());
+			
+//			Stream<Character> cStream = IntStream.range(0, charArray.length).mapToObj(i -> charArray[i]);
+//			final int teIndex = te.getIndex();
+//			TrieNode[] newCurrent = new TrieNode[1];
+//			newCurrent[0] = root;
+//			cStream.forEach(ch -> {
+//				if (trieConfig.getVocabulary().exists(ch))
+//				{
+//					if (ch == ' ')
+//					{
+//						newCurrent[0].markAsCompleteWord();			
+//					}
+//					newCurrent[0] = newCurrent[0].getOrElseCreate(ch);
+//					newCurrent[0].addIndexIntoOurUniverse(teIndex);
+//				}
+//			});
+//			newCurrent[0].markAsCompleteWord();
+
+			TrieNode current = root;
 			for (char ch : charArray)
 			{
 				if (trieConfig.getVocabulary().exists(ch))
@@ -140,27 +141,6 @@ final class Trie
 			}
 			current.markAsCompleteWord();
 		});
-
-//		String word = null;
-//		for (int i = 0; i < universeOfWords.size(); ++i)
-//		{
-//			word = universeOfWords.get(i).getValue().toLowerCase();
-//			TrieNode current = root;
-//			char[] charArray = Arrays.copyOfRange(word.toCharArray(), 0, trieConfig.getMaximumWordLength());
-//			for (char ch : charArray)
-//			{
-//				if (trieConfig.getVocabulary().exists(ch))
-//				{
-//					if (ch == ' ')
-//					{
-//						current.markAsCompleteWord();			
-//					}
-//					current = current.getOrElseCreate(ch);
-//					current.addIndexIntoOurUniverse(i);
-//				}
-//			}
-//			current.markAsCompleteWord();
-//		}
 		trieStatistics.end(TrieMetrics.PopulateTrie);
 
 		trieStatistics.start(TrieMetrics.IndexTrie);
