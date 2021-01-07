@@ -30,18 +30,18 @@ final class TraverseResult
 	 */
 	private boolean prefix;
 	private boolean completeWord;
-	private int[] indexesIntoOurUniverse = null;
+	private int[] indexesIntoTrieEntryList = null;
 
 	TraverseResult()
 	{
 		this(MatchQuality.None, 0, null, false, false);
 	}
 	
-	TraverseResult(MatchQuality matchQuality, int totalSuggestionsAvailable, int[] indexesIntoOurUniverse, boolean prefix, boolean completeWord)
+	TraverseResult(MatchQuality matchQuality, int totalSuggestionsAvailable, int[] indexesIntoTrieEntryList, boolean prefix, boolean completeWord)
 	{
 		this.matchQuality = matchQuality;
 		this.totalSuggestionsAvailable = totalSuggestionsAvailable;
-		this.indexesIntoOurUniverse = indexesIntoOurUniverse;
+		this.indexesIntoTrieEntryList = indexesIntoTrieEntryList;
 		this.prefix = prefix;
 		this.completeWord = completeWord;
 	}
@@ -56,9 +56,9 @@ final class TraverseResult
 		return totalSuggestionsAvailable;
 	}
 	
-	int[] getIndexesIntoOurUniverse()
+	int[] getIndexesIntoTrieEntryList()
 	{
-		return indexesIntoOurUniverse;
+		return indexesIntoTrieEntryList;
 	}
 	
 	boolean isPrefix()
@@ -73,11 +73,11 @@ final class TraverseResult
 	
 	/**
 	 * Should not use MatchQuality.None for this method.
-	 * indexesIntoOurUniverse being null reflects accurately
+	 * indexesIntoTrieEntryList being null reflects accurately
 	 * purpose of this method.
 	 */
-	boolean noneFoundInOurUniverse()
+	boolean noneFoundInTrieEntryList()
 	{
-		return indexesIntoOurUniverse == null;
+		return indexesIntoTrieEntryList == null;
 	}
 }

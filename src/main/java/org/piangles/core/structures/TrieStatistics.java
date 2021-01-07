@@ -23,7 +23,7 @@ package org.piangles.core.structures;
  * For Internal Use Only.
  * 
  * This class captures at Trie level performance metrics
- * 1. Universe/DataSet Size
+ * 1. DataSet Size
  * 2. Memory Usage
  *
  */
@@ -56,6 +56,11 @@ public final class TrieStatistics
 	public String getContext()
 	{
 		return context;
+	}
+	
+	public void incrementDatasetSize()
+	{
+		datasetSize++;
 	}
 	
 	void start(TrieMetrics tm)

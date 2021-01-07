@@ -22,7 +22,7 @@ package org.piangles.core.structures;
 import java.util.Arrays;
 import java.util.Collection;
 
-final class SimpleArray
+final class TrieEntryList
 {
 	/**
 	 * Default initial capacity.
@@ -54,7 +54,7 @@ final class SimpleArray
 	 * ArrayList with elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA will be
 	 * expanded to DEFAULT_CAPACITY when the first element is added.
 	 */
-	private transient TrieEntry[] elementData; 
+	transient TrieEntry[] elementData; 
 
 	/**
 	 * The size of the ArrayList (the number of elements it contains).
@@ -71,7 +71,7 @@ final class SimpleArray
 	 * @throws IllegalArgumentException
 	 *             if the specified initial capacity is negative
 	 */
-	public SimpleArray(int initialCapacity)
+	public TrieEntryList(int initialCapacity)
 	{
 		if (initialCapacity > 0)
 		{
@@ -179,7 +179,7 @@ final class SimpleArray
 	{
 		try
 		{
-			SimpleArray v = (SimpleArray) super.clone();
+			TrieEntryList v = (TrieEntryList) super.clone();
 			v.elementData = Arrays.copyOf(elementData, size);
 			return v;
 		}

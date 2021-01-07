@@ -22,12 +22,12 @@ package org.piangles.core.structures;
 final class SuggestionEngine
 {
 	private String context = null;
-	private SimpleArray universeOfWords = null;
+	private TrieEntryList trieEntryList = null;
 	
-	SuggestionEngine(String context, SimpleArray universeOfWords)
+	SuggestionEngine(String context, TrieEntryList trieEntryList)
 	{
 		this.context = context;
-		this.universeOfWords = universeOfWords;
+		this.trieEntryList = trieEntryList;
 	}
 	
 	public Suggestion[] suggestTopTen()
@@ -35,16 +35,16 @@ final class SuggestionEngine
 		return null;
 	}
 	
-	public Suggestion[] suggest(int[] indexesIntoOurUniverse)
+	public Suggestion[] suggest(int[] indexesIntoTrieEntryList)
 	{
 		TrieEntry te = null;
-		Suggestion[] suggestions = new Suggestion[indexesIntoOurUniverse.length];
-		for (int i=0; i < indexesIntoOurUniverse.length; ++i)
+		Suggestion[] suggestions = new Suggestion[indexesIntoTrieEntryList.length];
+		for (int i=0; i < indexesIntoTrieEntryList.length; ++i)
 		{
-			te = universeOfWords.get(indexesIntoOurUniverse[i]);
+			te = trieEntryList.get(indexesIntoTrieEntryList[i]);
 			if (te.isDerived())
 			{
-				te = universeOfWords.get(te.getParent().getIndex());
+				te = trieEntryList.get(te.getParent().getIndex());
 			}
 			suggestions[i] = new Suggestion(context, te.getId(), te.getValue());
 		}

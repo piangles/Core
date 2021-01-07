@@ -28,7 +28,7 @@ final class Trie
 	private static final TraverseResult NONE_FOUND = new TraverseResult();
 	private static final String WARM_UP = "az";
 	
-	private String context;
+	private String attribute;
 	private TrieConfig trieConfig = null;
 	private TrieStatistics trieStatistics = null;
 	
@@ -36,16 +36,16 @@ final class Trie
 	private boolean indexed = false;
 	
 	private Map<String, String> stopWordsMap = null; 
-	private SimpleArray universeOfWords = null; // TODO Need to address compostie objects
+	private TrieEntryList trieEntryList = null;
 	
 	private SuggestionEngine suggestionEngine = null;
 	
-	Trie(String context, TrieConfig trieConfig)
+	Trie(String attribute, TrieConfig trieConfig)
 	{
-		this.context = context;
+		this.attribute = attribute;
 		this.trieConfig = trieConfig;
 		
-		trieStatistics = new TrieStatistics(context);
+		trieStatistics = new TrieStatistics(attribute);
 		
 		stopWordsMap = new HashMap<>();
 		for (String stopWord : trieConfig.getVocabulary().getStopWords())
@@ -54,12 +54,12 @@ final class Trie
 		}
 		
 		root = new TrieNode(trieConfig);
-		universeOfWords = new SimpleArray(trieConfig.getInitialSize());
+		trieEntryList = new TrieEntryList(trieConfig.getInitialSize());
 	}
 	
-	String getContext()
+	String getAttribute()
 	{
-		return context;
+		return attribute;
 	}
 
 	TrieStatistics getStatistics()
@@ -73,7 +73,7 @@ final class Trie
 		{
 			throw new IllegalStateException("Trie is immutable once it has been indexed.");
 		}
-		universeOfWords.add(te);
+		trieEntryList.add(te);
 		
 		if (te.getValue().indexOf(Vocabulary.TOKEN_DELIMITER) != -1)
 		{
@@ -82,7 +82,7 @@ final class Trie
 			{
 				if (!stopWordsMap.containsKey(splits[i]))
 				{
-					universeOfWords.add(new TrieEntry(te.getId(), te, te.getRank(), splits[i]));	
+					trieEntryList.add(new TrieEntry(te.getId(), te, te.getRank(), splits[i]));	
 				}
 			}
 		}
@@ -96,14 +96,14 @@ final class Trie
 		}
 		trieStatistics.start(TrieMetrics.Readiness);
 		trieStatistics.start(TrieMetrics.SortDataset);
-		universeOfWords.trimToSize();
-		universeOfWords.sort();
+		trieEntryList.trimToSize();
+		trieEntryList.sort();
 		trieStatistics.end(TrieMetrics.SortDataset);
 		
-		suggestionEngine = new SuggestionEngine(context, universeOfWords);
+		suggestionEngine = new SuggestionEngine(attribute, trieEntryList);
 		
 		trieStatistics.start(TrieMetrics.PopulateTrie);
-		Arrays.stream(universeOfWords.elementData).
+		Arrays.stream(trieEntryList.elementData).
 		parallel().
 		forEach(te -> {
 			String word = te.getValue().toLowerCase();
@@ -121,7 +121,7 @@ final class Trie
 //						newCurrent[0].markAsCompleteWord();			
 //					}
 //					newCurrent[0] = newCurrent[0].getOrElseCreate(ch);
-//					newCurrent[0].addIndexIntoOurUniverse(teIndex);
+//					newCurrent[0].addTrieEntryListIndex(teIndex);
 //				}
 //			});
 //			newCurrent[0].markAsCompleteWord();
@@ -136,7 +136,7 @@ final class Trie
 						current.markAsCompleteWord();			
 					}
 					current = current.getOrElseCreate(ch);
-					current.addIndexIntoOurUniverse(te.getIndex());
+					current.addTrieEntryListIndex(te.getIndex());
 				}
 			}
 			current.markAsCompleteWord();
@@ -183,7 +183,7 @@ final class Trie
 			else
 			{
 				/**
-				 * There is nothing in our universe that
+				 * There is nothing in our trieEntryList that
 				 * starts with this characters
 				 */
 				traverseResult = NONE_FOUND;
@@ -195,14 +195,14 @@ final class Trie
 		}
 		
 		long timeTaken = System.nanoTime() - startTime;
-		if (traverseResult.noneFoundInOurUniverse())
+		if (traverseResult.noneFoundInTrieEntryList())
 		{
 			searchResults = new SearchResults(searchString, timeTaken, MatchQuality.None, false, false, 0, suggestionEngine.suggestTopTen());
 		}
 		else
 		{
 			searchResults = new SearchResults(searchString, timeTaken, traverseResult.getMatchQuality(), traverseResult.isPrefix(), traverseResult.isCompleteWord(),
-					traverseResult.getTotalSuggestionsAvailable(), suggestionEngine.suggest(traverseResult.getIndexesIntoOurUniverse()));
+					traverseResult.getTotalSuggestionsAvailable(), suggestionEngine.suggest(traverseResult.getIndexesIntoTrieEntryList()));
 		}
 		
 		return searchResults;
@@ -225,7 +225,7 @@ final class Trie
 			 * not.
 			 */
 			MatchQuality matchQuality = currentNode.isCompleteWord()? MatchQuality.Exact : MatchQuality.Partial;
-			result = new TraverseResult(matchQuality, currentNode.getTotalIndexesCount(), currentNode.getIndexesIntoOurUniverse(), currentNode.haveAnyChildren(), currentNode.isCompleteWord());
+			result = new TraverseResult(matchQuality, currentNode.getTotalIndexesCount(), currentNode.getIndexesIntoTrieEntryList(), currentNode.haveAnyChildren(), currentNode.isCompleteWord());
 		}
 		else// we continue traversal
 		{
@@ -243,7 +243,7 @@ final class Trie
 				 * Scenario 2 : carton and cartoon. Post carT(currentNode) we do 
 				 * not have any word starting with Z.
 				 */
-				result = new TraverseResult(MatchQuality.None, currentNode.getTotalIndexesCount(), currentNode.getIndexesIntoOurUniverse(), false, false);
+				result = new TraverseResult(MatchQuality.None, currentNode.getTotalIndexesCount(), currentNode.getIndexesIntoTrieEntryList(), false, false);
 			}
 		}
 
@@ -258,11 +258,11 @@ final class Trie
 			TrieNode childNode = currentNode.get(ch);
 			if (childNode == null)
 			{
-				return new TraverseResult(MatchQuality.None, currentNode.getTotalIndexesCount(), currentNode.getIndexesIntoOurUniverse(), false, false);
+				return new TraverseResult(MatchQuality.None, currentNode.getTotalIndexesCount(), currentNode.getIndexesIntoTrieEntryList(), false, false);
 			}
 			currentNode = childNode;
 		}
 		MatchQuality matchQuality = currentNode.isCompleteWord()? MatchQuality.Exact : MatchQuality.Partial;
-		return new TraverseResult(matchQuality, currentNode.getTotalIndexesCount(), currentNode.getIndexesIntoOurUniverse(), currentNode.haveAnyChildren(), currentNode.isCompleteWord());
+		return new TraverseResult(matchQuality, currentNode.getTotalIndexesCount(), currentNode.getIndexesIntoTrieEntryList(), currentNode.haveAnyChildren(), currentNode.isCompleteWord());
 	}
 }

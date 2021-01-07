@@ -31,9 +31,9 @@ import java.util.Arrays;;
 final class TrieNode
 {
 	private TrieConfig trieConfig = null;
-	private char ch;
+	private char ch = 0;
 	private int totalIndexesCount;
-	private int[] indexesIntoOurUniverse;
+	private int[] indexesIntoTrieEntryList;
 	private int indexesCount = 0;
 	
 	private TrieNode[] children = null; //TODO Need to start it with a small count
@@ -50,8 +50,13 @@ final class TrieNode
 	{
 		this.trieConfig = trieConfig;
 		this.ch = ch;
-		indexesIntoOurUniverse = new int[trieConfig.getSuggestionsLimit()];
-		Arrays.fill(indexesIntoOurUniverse, -1);
+		indexesIntoTrieEntryList = new int[trieConfig.getSuggestionsLimit()];
+		Arrays.fill(indexesIntoTrieEntryList, -1);
+	}
+	
+	char getCharacter()
+	{
+		return ch;
 	}
 
 	boolean isEmpty()
@@ -62,15 +67,15 @@ final class TrieNode
 	void indexIt()
 	{
 		/**
-		 * Eliminate all indexesIntoOurUniverse which are -1;
+		 * Eliminate all indexesIntoTrieEntryList which are -1;
 		 */
 		if (indexesCount != 0)
 		{
-			indexesIntoOurUniverse = Arrays.copyOf(indexesIntoOurUniverse, indexesCount);
+			indexesIntoTrieEntryList = Arrays.copyOf(indexesIntoTrieEntryList, indexesCount);
 		}
 		else
 		{
-			indexesIntoOurUniverse = null;
+			indexesIntoTrieEntryList = null;
 		}
 		
 		if (children != null)
@@ -123,14 +128,14 @@ final class TrieNode
 		return child;
 	}
 	
-	void addIndexIntoOurUniverse(int indexIntoOurUniverse)
+	void addTrieEntryListIndex(int trieEntryListIndex)
 	{
 		totalIndexesCount++;
 
 		if (indexesCount < trieConfig.getSuggestionsLimit())
 		{
 			indexesCount = indexesCount + 1;
-			indexesIntoOurUniverse[indexesCount-1] = indexIntoOurUniverse;
+			indexesIntoTrieEntryList[indexesCount-1] = trieEntryListIndex;
 		}
 
 	}
@@ -154,9 +159,9 @@ final class TrieNode
 		return !(childrenBitmap == Vocabulary.NULL);
 	}
 	
-	int[] getIndexesIntoOurUniverse()
+	int[] getIndexesIntoTrieEntryList()
 	{
-		return indexesIntoOurUniverse;
+		return indexesIntoTrieEntryList;
 	}
 	
 	void removeChild(char ch)

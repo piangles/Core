@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -30,52 +31,73 @@ import java.util.concurrent.TimeUnit;
 
 public final class TrieAngulator
 {
-	private static final String DEFAULT_CONTEXT = "Default";
+	private static final String DEFAULT_ATTRIBUTE = "Default";
 	
-    private ExecutorService executor = null;
+    private String datasetName = null;
 	
-	private HashMap<String, Trie> contextTrieMap = null;
+    private HashMap<String, Trie> attributeTrieMap = null;
 	private Collection<Trie> tries = null;
-	private int noOfContexts = 0;
+	
+	private int noOfAttributes = 0;
+    private ExecutorService executor = null;
 	private boolean started = false;
 	
-	public TrieAngulator(TrieConfig trieConfig) //Where do we get context names from?
+	public TrieAngulator(String datasetName, TrieConfig trieConfig)
 	{
-		this(Arrays.asList(new String[]{DEFAULT_CONTEXT}), trieConfig);
+		this(datasetName, Arrays.asList(new String[]{DEFAULT_ATTRIBUTE}), trieConfig);
 	}
 
-	public TrieAngulator(List<String> contexts, TrieConfig trieConfig) //Where do we get context names from?
+	public TrieAngulator(String datasetName, List<String> attributes, TrieConfig trieConfig)
 	{
-		noOfContexts = contexts.size();
-		if (noOfContexts == 1)
+		this.datasetName = datasetName;
+		noOfAttributes = attributes.size();
+		if (noOfAttributes == 1)
 		{
 			executor = Executors.newSingleThreadExecutor();
 		}
 		else
 		{
-			executor = Executors.newFixedThreadPool(noOfContexts);
+			executor = Executors.newFixedThreadPool(noOfAttributes);
 		}
-		contextTrieMap = new HashMap<>(noOfContexts);
-		for (String context : contexts)
+		attributeTrieMap = new HashMap<>(noOfAttributes);
+		for (String attribute : attributes)
 		{
-			contextTrieMap.put(context, new Trie(context, trieConfig));
+			attributeTrieMap.put(attribute, new Trie(attribute, trieConfig));
 		}
-		tries = contextTrieMap.values();
+		tries = attributeTrieMap.values();
+	}
+	
+	public String getDatasetName()
+	{
+		return datasetName;
 	}
 
 	public void insert(TrieEntry te)
 	{
-		contextTrieMap.get(DEFAULT_CONTEXT).insert(te);
-	}
-	
-	public TrieStatistics getStatistics()
-	{
-		return getStatistics(DEFAULT_CONTEXT); 
+		attributeTrieMap.get(DEFAULT_ATTRIBUTE).insert(te);
 	}
 
-	public TrieStatistics getStatistics(String context)
+	public void insert(String attribute, TrieEntry te)
 	{
-		return contextTrieMap.get(DEFAULT_CONTEXT).getStatistics(); 
+		Trie trie = attributeTrieMap.get(attribute);
+		if (trie != null)
+		{
+			trie.insert(te);	
+		}
+		else
+		{
+			throw new NoSuchElementException("No Trie exists for Dataset : " + attribute);
+		}
+	}
+
+	public TrieStatistics getStatistics()
+	{
+		return getStatistics(DEFAULT_ATTRIBUTE); 
+	}
+
+	public TrieStatistics getStatistics(String attribute)
+	{
+		return attributeTrieMap.get(DEFAULT_ATTRIBUTE).getStatistics(); 
 	}
 
 	public synchronized void start() throws Exception
@@ -85,7 +107,7 @@ public final class TrieAngulator
 			throw new IllegalStateException("TrieAngulator has already been started.");
 		}
 
-		List<Future<Boolean>> indexResultFutures = new ArrayList<>(noOfContexts);
+		List<Future<Boolean>> indexResultFutures = new ArrayList<>(noOfAttributes);
 		for (Trie trie : tries)
 		{
 			indexResultFutures.add(executor.submit(() -> {
@@ -96,7 +118,7 @@ public final class TrieAngulator
 		for (Future<Boolean> indexResultFuture : indexResultFutures)
 		{
 			//TODO which one failed??
-			indexResultFuture.get(10, TimeUnit.SECONDS);			
+			indexResultFuture.get(60, TimeUnit.SECONDS);			
 		}
 		
 		started = true;
@@ -106,7 +128,7 @@ public final class TrieAngulator
 	{
 		SearchResults searchResults = null;
 		
-		List<Future<SearchResults>> searchResultFutures = new ArrayList<>(noOfContexts);
+		List<Future<SearchResults>> searchResultFutures = new ArrayList<>(noOfAttributes);
 		for (Trie trie : tries)
 		{
 			searchResultFutures.add(executor.submit(() -> {
@@ -115,7 +137,7 @@ public final class TrieAngulator
 		}
 
 		SearchResults searchResult = null;
-		List<SearchResults> searchResultsList = new ArrayList<>(noOfContexts);
+		List<SearchResults> searchResultsList = new ArrayList<>(noOfAttributes);
 		for (Future<SearchResults> searchResultFuture : searchResultFutures)
 		{
 			//TODO which one failed??
