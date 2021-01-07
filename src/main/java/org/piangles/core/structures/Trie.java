@@ -120,10 +120,10 @@ final class Trie
 //		});
 
 
-		String word = null;
-		for (int i = 0; i < universeOfWords.size(); ++i)
-		{
-			word = universeOfWords.get(i).getValue().toLowerCase();
+		Arrays.stream(universeOfWords.elementData).
+		parallel().
+		forEach(te -> {
+			String word = te.getValue().toLowerCase();
 			TrieNode current = root;
 			char[] charArray = Arrays.copyOfRange(word.toCharArray(), 0, trieConfig.getMaximumWordLength());
 			for (char ch : charArray)
@@ -135,11 +135,32 @@ final class Trie
 						current.markAsCompleteWord();			
 					}
 					current = current.getOrElseCreate(ch);
-					current.addIndexIntoOurUniverse(i);
+					current.addIndexIntoOurUniverse(te.getIndex());
 				}
 			}
 			current.markAsCompleteWord();
-		}
+		});
+
+//		String word = null;
+//		for (int i = 0; i < universeOfWords.size(); ++i)
+//		{
+//			word = universeOfWords.get(i).getValue().toLowerCase();
+//			TrieNode current = root;
+//			char[] charArray = Arrays.copyOfRange(word.toCharArray(), 0, trieConfig.getMaximumWordLength());
+//			for (char ch : charArray)
+//			{
+//				if (trieConfig.getVocabulary().exists(ch))
+//				{
+//					if (ch == ' ')
+//					{
+//						current.markAsCompleteWord();			
+//					}
+//					current = current.getOrElseCreate(ch);
+//					current.addIndexIntoOurUniverse(i);
+//				}
+//			}
+//			current.markAsCompleteWord();
+//		}
 		trieStatistics.end(TrieMetrics.PopulateTrie);
 
 		trieStatistics.start(TrieMetrics.IndexTrie);
