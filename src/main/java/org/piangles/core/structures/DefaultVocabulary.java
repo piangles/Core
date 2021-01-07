@@ -93,10 +93,10 @@ public final class DefaultVocabulary implements Vocabulary
 //	private static final long A = 0b0010000000000000000000000000000000000000000000000000000000000000L;
 //	private static final long A = 0b0100000000000000000000000000000000000000000000000000000000000000L;
 
-	private static final String STOP_WORDS = "of,the,is,and,on,a,for,at";
+	public static final String STOP_WORDS = "of,the,is,and,on,a,for,at";
 	
 	private static long[] list = null;
-	private static int[] specialCharIndexLookupMap = new int[128];//Since we are not subtracting one and using ascii value directly
+	private static int[] indexLookupMap = new int[128];
 	private List<String> stopWords = new ArrayList<String>();
 	
 	static //Initialize 
@@ -111,40 +111,45 @@ public final class DefaultVocabulary implements Vocabulary
 				SPECIAL11,SPECIAL12,SPECIAL13,SPECIAL14,SPECIAL15
 				};
 		
-		Arrays.fill(specialCharIndexLookupMap, -1);
+		Arrays.fill(indexLookupMap, -1);
 		
 		int index = 0;
 		for (int i='a'; i <= 'z'; ++i)
 		{
-			specialCharIndexLookupMap[i] = index++;
+			indexLookupMap[i] = index++;
 		}
 		for (int i=48; i <= 57; ++i)
 		{
-			specialCharIndexLookupMap[i] = index++;
+			indexLookupMap[i] = index++;
 		}
-		specialCharIndexLookupMap[' '] = 36;
-		specialCharIndexLookupMap['#'] = 37;
-		specialCharIndexLookupMap['$'] = 38;
-		specialCharIndexLookupMap['&'] = 39;
-		specialCharIndexLookupMap['('] = 40;
-		specialCharIndexLookupMap[')'] = 41;
-		specialCharIndexLookupMap['*'] = 42;
-		specialCharIndexLookupMap['+'] = 43;
-		specialCharIndexLookupMap['-'] = 44;
-		specialCharIndexLookupMap['.'] = 45;
-		specialCharIndexLookupMap['/'] = 46;
-		specialCharIndexLookupMap['='] = 47;
-		specialCharIndexLookupMap['@'] = 48;
-		specialCharIndexLookupMap['^'] = 49;
-		specialCharIndexLookupMap['_'] = 50;
+		indexLookupMap[' '] = 36;
+		indexLookupMap['#'] = 37;
+		indexLookupMap['$'] = 38;
+		indexLookupMap['&'] = 39;
+		indexLookupMap['('] = 40;
+		indexLookupMap[')'] = 41;
+		indexLookupMap['*'] = 42;
+		indexLookupMap['+'] = 43;
+		indexLookupMap['-'] = 44;
+		indexLookupMap['.'] = 45;
+		indexLookupMap['/'] = 46;
+		indexLookupMap['='] = 47;
+		indexLookupMap['@'] = 48;
+		indexLookupMap['^'] = 49;
+		indexLookupMap['_'] = 50;
 		
 	}
 	
 	public DefaultVocabulary()
 	{
-		stopWords = Arrays.asList(STOP_WORDS.split(","));
+		this(Arrays.asList(STOP_WORDS.split(",")));
 	}
-	
+
+	public DefaultVocabulary(List<String> stopWords)
+	{
+		this.stopWords = stopWords;
+	}
+
 	@Override
 	public boolean exists(char ch)
 	{
@@ -154,7 +159,7 @@ public final class DefaultVocabulary implements Vocabulary
 	@Override
 	public int getIndex(char ch)
 	{
-		return specialCharIndexLookupMap[(int)ch];
+		return indexLookupMap[(int)ch];
 	}
 	
 	@Override
