@@ -35,7 +35,7 @@ public class BitmapTrieAngulationTest
 	{
 		TrieConfig trieConfig = new TrieConfig();
 		TrieAngulator trieAngulator = null;
-		int searchNo = 2;
+		int searchNo = 1;
 		File file = null;
 		
 		if (searchNo == 1)
@@ -63,7 +63,6 @@ public class BitmapTrieAngulationTest
 		String st;
 		long count = 0;
 		int skipCount = 0;
-		int derivedWords = 0;
 		while ((st = br.readLine()) != null)
 		{
 			st = st.trim();
@@ -102,15 +101,11 @@ public class BitmapTrieAngulationTest
 		}
 		br.close();
 		System.out.println(
-				"Total number of lines inscope: " + count + " Derived : " + derivedWords + " Skipped : " + skipCount + " Time Taken : " + (System.currentTimeMillis() - startTime) + " MiliSeconds.");
+				"Total number of lines inscope: " + count + " Skipped : " + skipCount + " Time Taken : " + (System.currentTimeMillis() - startTime) + " MiliSeconds.");
 
 		try
 		{
 			trieAngulator.start();
-			if (searchNo == 1)
-			System.out.println(trieAngulator.getStatistics("Attribute1"));
-			else
-				System.out.println(trieAngulator.getStatistics());	
 			startTime = System.currentTimeMillis();
 			long startTimeNano = System.nanoTime();
 
@@ -122,19 +117,13 @@ public class BitmapTrieAngulationTest
 				searchMovies(trieAngulator);
 
 			System.out.println("Look up Time Taken : " + (System.currentTimeMillis() - startTime) + " MiliSeconds.");
-			System.out.println("Look up Time Taken : " + (System.nanoTime() - startTimeNano) + " NanoSeconds.");
-			
-			if (searchNo == 1)
-			{
-				trieAngulator.getStatistics("Attribute1").memory();
-			}
-			else
-			{
-				trieAngulator.getStatistics().memory();
-			}
+			System.out.println("Look up Time Taken : " + (System.nanoTime() - startTimeNano) + " NanoSeconds.\n");
 		}
 		finally
 		{
+			System.out.println(trieAngulator.getStatistics());
+			memory();
+
 			trieAngulator.stop();
 		}
 	}
@@ -202,5 +191,30 @@ public class BitmapTrieAngulationTest
 		return encoder.canEncode(v);
 		// or "ISO-8859-1" for ISO Latin 1
 		// or StandardCharsets.US_ASCII with JDK1.7+
+	}
+	
+
+	public static void memory()
+	{
+		int mb = 1024*1024;
+		
+		//Getting the runtime reference from system
+		Runtime runtime = Runtime.getRuntime();
+		
+		System.out.println("##### Heap utilization statistics [MB] #####");
+		
+		//Print used memory
+		System.out.println("Used Memory:" 
+			+ (runtime.totalMemory() - runtime.freeMemory()) / mb);
+
+		//Print free memory
+		System.out.println("Free Memory:" 
+			+ runtime.freeMemory() / mb);
+		
+		//Print total available memory
+		System.out.println("Total Memory:" + runtime.totalMemory() / mb);
+
+		//Print Maximum available memory
+		System.out.println("Max Memory:" + runtime.maxMemory() / mb);		
 	}
 }
