@@ -235,8 +235,6 @@ public final class TrieAngulator
 	
 	private TrieAngulationResult createTrieAngulationResult(String queryString, long trieAngulateStartTime, Map<String, Exception> failedTries, List<TraverseResult> traversResultList)
 	{
-		System.out.println("Time Taken before TrieAngulationResult Creation : " + (System.nanoTime() - trieAngulateStartTime));
-
 		TrieAngulationResult trieAngulationResult = null;
 
 		//Eliminate results which are empty
@@ -255,7 +253,6 @@ public final class TrieAngulator
 			int suggestionsLeft = trieConfig.getSuggestionsLimit();
 			for (TraverseResult traverseResult : traversResultList)
 			{
-				//System.out.println("Combining :: " + traverseResult.getTrieName() + " : " + Arrays.toString(traverseResult.getSuggestions()));
 				if (suggestionsLeft <= 0)
 				{
 					break;
