@@ -39,7 +39,7 @@ public final class Trie
 	
 	private SuggestionEngine suggestionEngine = null;
 	
-	Trie(String name, TrieConfig trieConfig)
+	public Trie(String name, TrieConfig trieConfig)
 	{
 		this.name = name;
 		this.trieConfig = trieConfig;
@@ -56,17 +56,17 @@ public final class Trie
 		trieEntryList = new TrieEntryList(trieConfig.getInitialSize());
 	}
 	
-	String getName()
+	public String getName()
 	{
 		return name;
 	}
 
-	TrieStatistics getStatistics()
+	public TrieStatistics getStatistics()
 	{
 		return trieStatistics; 
 	}
 	
-	void insert(TrieEntry te)
+	public void insert(TrieEntry te)
 	{
 		if (indexed)
 		{
@@ -87,7 +87,7 @@ public final class Trie
 		}
 	}
 
-	synchronized boolean indexIt()
+	public synchronized boolean indexIt()
 	{
 		if (indexed)
 		{
@@ -151,13 +151,13 @@ public final class Trie
 		return indexed; 
 	}
 
-	boolean isEmpty()
+	public boolean isEmpty()
 	{
 		return root.isEmpty();
 	}
 
 
-	TraverseResult traverse(String queryString)
+	public TraverseResult traverse(String queryString)
 	{
 		long startTimeInNanoSeconds = System.nanoTime();
 		TraverseResult traverseResult = null;

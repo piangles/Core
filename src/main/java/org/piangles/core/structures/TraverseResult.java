@@ -19,7 +19,9 @@
  
 package org.piangles.core.structures;
 
-final class TraverseResult
+import java.util.Arrays;
+
+public final class TraverseResult
 {
 	private String queryString = null;
 	private int totalSuggestionsAvailable;
@@ -49,10 +51,45 @@ final class TraverseResult
 		this.prefix = prefix;
 		this.completeWord = completeWord;
 	}
+
+	public String getQueryString()
+	{
+		return queryString;
+	}
 	
-	void setTimeTakenInNanoSeconds(long timeTakenInNanoSeconds)
+	public void setTimeTakenInNanoSeconds(long timeTakenInNanoSeconds)
 	{
 		this.timeTakenInNanoSeconds = timeTakenInNanoSeconds;
+	}
+	
+	public MatchQuality getMatchQuality()
+	{
+		return matchQuality;	
+	}
+	
+	public boolean isPrefix()
+	{
+		return prefix;
+	}
+	
+	public boolean isCompleteWord()
+	{
+		return completeWord;
+	}
+
+	public int getTotalSuggestionsAvailable()
+	{
+		return totalSuggestionsAvailable;
+	}
+
+	public Suggestion[] getSuggestions()
+	{
+		return suggestions;
+	}
+	
+	public long getTimeTakenInNanoSeconds()
+	{
+		return timeTakenInNanoSeconds;
 	}
 	
 	void setSuggestions(Suggestion[] suggestions)
@@ -60,34 +97,9 @@ final class TraverseResult
 		this.suggestions = suggestions;
 	}
 	
-	String getQueryString()
-	{
-		return queryString;
-	}
-	
-	MatchQuality getMatchQuality()
-	{
-		return matchQuality;	
-	}
-	
-	int getTotalSuggestionsAvailable()
-	{
-		return totalSuggestionsAvailable;
-	}
-	
 	int[] getIndexesIntoTrieEntryList()
 	{
 		return indexesIntoTrieEntryList;
-	}
-	
-	boolean isPrefix()
-	{
-		return prefix;
-	}
-	
-	boolean isCompleteWord()
-	{
-		return completeWord;
 	}
 	
 	/**
@@ -99,14 +111,11 @@ final class TraverseResult
 	{
 		return indexesIntoTrieEntryList == null;
 	}
-	
-	public Suggestion[] getSuggestions()
+
+	@Override
+	public String toString()
 	{
-		return suggestions;
-	}
-	
-	public long getTimeTakenInNanoSeconds()
-	{
-		return timeTakenInNanoSeconds;
+		return "TraverseResult [timeTakenInNanoSeconds=" + timeTakenInNanoSeconds + ", matchQuality=" + matchQuality + ", prefix=" + prefix + ", completeWord=" + completeWord
+				+ ", totalSuggestionsAvailable=" + totalSuggestionsAvailable + ", suggestions=" + Arrays.toString(suggestions) + "]";
 	}
 }
