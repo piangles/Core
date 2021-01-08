@@ -19,14 +19,21 @@
  
 package org.piangles.core.structures;
 
-import org.piangles.core.structures.StringArray;
-
 public class TestArrayList
 {
 	public static void main(String[] args)
 	{
-		StringArray strings = new StringArray(10);
-		System.out.println(strings.add("Hello"));
-		System.out.println(strings.add("World"));
+//		SimpleArray strings = new SimpleArray(10);
+//		System.out.println(strings.add(new TrieEntry("Hello")));
+//		System.out.println(strings.add(new TrieEntry("World")));
+		
+		String str = "Hello I'm your String";
+		String[] splited = str.split("\\s+");
+		System.out.println(splited.length);
+		for (int i=0; i < splited.length -2; ++i)
+		{
+			str = str.substring(str.indexOf(' ')+1);
+			System.out.println(str);
+		}
 	}
 }

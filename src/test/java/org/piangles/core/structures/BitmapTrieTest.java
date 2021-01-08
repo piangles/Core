@@ -14,84 +14,131 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
- 
- 
+
 package org.piangles.core.structures;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import java.nio.charset.CharsetEncoder;;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.StandardCharsets;;
 
 public class BitmapTrieTest
 {
-	private static CharsetEncoder encoder =Charset.forName("US-ASCII").newEncoder();
+	private static CharsetEncoder encoder = Charset.forName("US-ASCII").newEncoder();
 
-	
 	public static void main(String[] args) throws Exception
 	{
 		TrieConfig trieConfig = new TrieConfig();
-		Trie trie = new Trie(trieConfig);
-		File file = new File("./resources/1mwords.txt");
+		Trie trie = new Trie("Default", trieConfig);
+		int searchNo = 1;
+		File file = null;
+		
+		if (searchNo == 1)
+		file = new File("./resources/1mwords.txt");
+		else if (searchNo == 2)
+		file = new File("./resources/6phrase.txt");
+		else
+		file = new File("C:\\Users\\sarad\\Downloads\\data.tsv");
+
+		FileInputStream fis = new FileInputStream(file);
+		InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8);
+		BufferedReader br = new BufferedReader(isr);
 
 		long startTime = System.currentTimeMillis();
-		BufferedReader br = new BufferedReader(new FileReader(file));
+		// BufferedReader br = new BufferedReader(new FileReader(file));
 		String st;
 		long count = 0;
 		int skipCount = 0;
+		int derivedWords = 0;
 		while ((st = br.readLine()) != null)
 		{
 			st = st.trim();
+		
+			if (searchNo == 3)
+			{
+				String[] values = st.split("\t");
+				if (!values[3].equals("US")) continue; else st = values[2];
+			}
+
+			//derivedWords = derivedWords + (int) st.chars().filter(c -> c == (int) ' ').count();
 			if (isPureAscii(st) && st.length() > 0)
 			{
 				count++;
-				trie.insert(st);
+				trie.insert(new TrieEntry("" + count, (int) count, st));
+				// trieAngulator.insert(new TrieEntry(st));
+				// trieAngulator.insert(st);
 			}
 			else
 			{
 				skipCount++;
-				System.out.println(st);
+				// System.out.println(st);
 			}
 		}
 		br.close();
-		
-		if (trieConfig.isPerformanceMonitoringEnabled()) Thread.sleep(5000);
-		System.out.println("Total number of words inscope: " + count + " Skipped : " + skipCount + " Time Taken : " + (System.currentTimeMillis() - startTime) + " MiliSeconds.");
-		
-		startTime = System.currentTimeMillis();
+		System.out.println(
+				"Total number of lines inscope: " + count + " Derived : " + derivedWords + " Skipped : " + skipCount + " Time Taken : " + (System.currentTimeMillis() - startTime) + " MiliSeconds.");
+
 		trie.indexIt();
-		System.out.println("Time Taken to Index : " + (System.currentTimeMillis() - startTime) + " MiliSeconds.");
-		
-		if (trieConfig.isPerformanceMonitoringEnabled()) Thread.sleep(5000);
-
-//		trie.insert("Programming");
-//		trie.insert("Programmer");
-//		trie.insert("is");
-//		trie.insert("a");
-//		trie.insert("way");
-//		trie.insert("of");
-//		trie.insert("life");
-
+		System.out.println(trie.getStatistics());
 		startTime = System.currentTimeMillis();
 		long startTimeNano = System.nanoTime();
-		trie.search("3");
-		trie.search("3r");
-		trie.search("vida");
 
-		trie.search("Programming");
-		trie.search("is");
-		trie.search("a");
-		trie.search("way");
-		trie.search("of");
-		trie.search("life");
-		trie.search("anal");
-		trie.search("anallise");
-		trie.search("{");
+		if (searchNo == 1)
+			search1MWords(trie);
+		else if(searchNo == 2)
+			search6PWords(trie);
+		else
+			searchMovies(trie);
+
 		System.out.println("Look up Time Taken : " + (System.currentTimeMillis() - startTime) + " MiliSeconds.");
 		System.out.println("Look up Time Taken : " + (System.nanoTime() - startTimeNano) + " NanoSeconds.");
 		trie.getStatistics().memory();
+	}
+
+	private static void searchMovies(Trie trie) throws Exception
+	{
+		print(trie.traverse("the"));
+		print(trie.traverse("the lord"));
+		print(trie.traverse("the lord of the"));
+		print(trie.traverse("of the"));
+		print(trie.traverse("of the rings"));
+		print(trie.traverse("rings"));
+	}
+	
+	private static void search6PWords(Trie trie) throws Exception
+	{
+		// print(trieAngulator.search("ambi"));
+		// print(trieAngulator.search("ambient"));
+		print(trie.traverse("mu"));
+		print(trie.traverse("music"));
+		// print(trieAngulator.search("up"));
+		print(trie.traverse("trunks"));
+		print(trie.traverse("#"));
+	}
+
+	private static void search1MWords(Trie trie) throws Exception
+	{
+		print(trie.traverse("3"));
+		print(trie.traverse("3r"));
+		print(trie.traverse("vida"));
+
+		print(trie.traverse("Programming"));
+		print(trie.traverse("is"));
+		print(trie.traverse("a"));
+		print(trie.traverse("way"));
+		print(trie.traverse("of"));
+		print(trie.traverse("life"));
+		print(trie.traverse("anal"));
+		print(trie.traverse("anallise"));
+		print(trie.traverse("{"));
+	}
+
+	private static void print(TraverseResult sr)
+	{
+		System.out.println("Search result for [" + sr.getQueryString() + "] : " + sr);
 	}
 
 	public static boolean isAlpha(String name)
@@ -108,7 +155,7 @@ public class BitmapTrieTest
 
 		return true;
 	}
-	
+
 	public static boolean isPureAscii(String v)
 	{
 		return encoder.canEncode(v);

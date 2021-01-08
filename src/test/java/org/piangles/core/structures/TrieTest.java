@@ -35,7 +35,7 @@ public class TrieTest
 	{
 		Trie trie = new Trie();
 
-		File file = new File("C:\\Users\\sarad\\git\\Export\\1mwords.txt");
+		File file = new File("./resources/1mwords.txt");
 
 		long startTime = System.currentTimeMillis();
 		BufferedReader br = new BufferedReader(new FileReader(file));
