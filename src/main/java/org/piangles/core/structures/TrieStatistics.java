@@ -42,10 +42,16 @@ public final class TrieStatistics implements Serializable, Cloneable
 	private int derivedDatasetSize;
 	private int skippedStopWordsSize;
 
+	private long timeTakenToGetReady;
+	private long timeTakenToSortDataset;
+	private long timeTakenToPopulateTrie;
+	private long timeTakenToIndex;
+	
 	private final AtomicLong noOfCalls = new AtomicLong();
 	private final AtomicLong noOfCallsWithoutResults = new AtomicLong();
 	
 	private final AtomicLong totalQueryWordLength = new AtomicLong();
+	
 	private final AtomicLong totalResponseTime = new AtomicLong();
 	
 	private final AtomicReference<String> minQueryString = new AtomicReference<>(); 
@@ -53,11 +59,6 @@ public final class TrieStatistics implements Serializable, Cloneable
 	
 	private final AtomicReference<String> maxQueryString = new AtomicReference<>();
 	private final LongAccumulator maxResponseTime = new LongAccumulator(Long::max, 0);
-	
-	private long timeTakenToGetReady;
-	private long timeTakenToSortDataset;
-	private long timeTakenToPopulateTrie;
-	private long timeTakenToIndex;
 	
 	TrieStatistics(String trieName)
 	{
@@ -172,7 +173,6 @@ public final class TrieStatistics implements Serializable, Cloneable
 
 	void record(String queryString, long responseTime)
 	{
-		//System.out.println(queryWordSize + " : " + responseTime);
 		totalQueryWordLength.addAndGet(queryString.length());
 		totalResponseTime.addAndGet(responseTime);
 		minResponseTime.accumulate(responseTime);
@@ -228,19 +228,20 @@ public final class TrieStatistics implements Serializable, Cloneable
 		
 		NumberFormat nf = NumberFormat.getNumberInstance();
 		sb.append("TrieStatistics for: " + trieName).append("\n");
-		sb.append("Complete Dataset Size: " + nf.format(datasetSize)).append(" words.\n");
-		sb.append("Derived Subset Size: " + nf.format(derivedDatasetSize)).append(" words.\n");
-		sb.append("Skipped StopWords Size: " + nf.format(skippedStopWordsSize)).append(" words.\n");
-		sb.append("Time Taken to sort: " + timeTakenToSortDataset + " in MiliSeconds.").append("\n");
-		sb.append("Time Taken to populate Trie(s): " + timeTakenToPopulateTrie + " in MiliSeconds.").append("\n");
-		sb.append("Time Taken to index Trie: " + timeTakenToIndex + " in MiliSeconds.").append("\n");
-		sb.append("Time Taken to for Trie to be Ready: " + timeTakenToGetReady + " in MiliSeconds.").append("\n");
-		sb.append("Total No. Of Calls: " + noOfCalls + ".").append("\n");
-		sb.append("No. Of Calls not yielding Results: " + noOfCallsWithoutResults + ".").append("\n");
-		sb.append("Minimum Response Time: " + nf.format(minResponseTime) + " NanoSeconds. Query String: ").append(minQueryString).append("\n");
-		sb.append("Maximum Response Time: " + nf.format(maxResponseTime) + " NanoSeconds. Query String: ").append(maxQueryString).append("\n");
-		sb.append("Average Response Time: " + nf.format(getAverageResponseTime()) + " NanoSeconds.").append("\n");
-		sb.append("Average Query Word Length: " + nf.format(getAverageQueryWordLength()) + " Characters.").append("\n");
+		sb.append("-------------------\n");
+		sb.append("Complete Dataset Size: ").append(nf.format(datasetSize)).append(" words.\n");
+		sb.append("Derived Subset Size: ").append(nf.format(derivedDatasetSize)).append(" words.\n");
+		sb.append("Skipped StopWords Size: ").append(nf.format(skippedStopWordsSize)).append(" words.\n");
+		sb.append("Time Taken to sort: ").append(timeTakenToSortDataset).append(" in MiliSeconds.").append("\n");
+		sb.append("Time Taken to populate Trie(s): ").append(timeTakenToPopulateTrie).append(" in MiliSeconds.").append("\n");
+		sb.append("Time Taken to index Trie: ").append(timeTakenToIndex).append(" in MiliSeconds.").append("\n");
+		sb.append("Time Taken to for Trie to be Ready: ").append(timeTakenToGetReady).append(" in MiliSeconds.").append("\n");
+		sb.append("Total No. Of Calls: ").append(noOfCalls).append(".\n");
+		sb.append("No. Of Calls not yielding Results: ").append(noOfCallsWithoutResults).append(".\n");
+		sb.append("Minimum Response Time: ").append(nf.format(minResponseTime)).append(" NanoSeconds. Query String: ").append(minQueryString).append("\n");
+		sb.append("Maximum Response Time: ").append(nf.format(maxResponseTime)).append(" NanoSeconds. Query String: ").append(maxQueryString).append("\n");
+		sb.append("Average Response Time: ").append(nf.format(getAverageResponseTime())).append(" NanoSeconds.").append("\n");
+		sb.append("Average Query Word Length: ").append(nf.format(getAverageQueryWordLength())).append(" Characters.").append("\n");
 
 		return sb.toString();
 	}

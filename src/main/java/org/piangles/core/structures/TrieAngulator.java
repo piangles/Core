@@ -103,37 +103,9 @@ public final class TrieAngulator
 		}
 	}
 
-	public TrieStatistics getStatistics()
-	{
-		TrieStatistics trieStatistics = null;
-
-		boolean firstTrie = true;
-		//trieangulatorStatistics
-		for (Trie trie : tries)
-		{
-			if(firstTrie)
-			{
-				firstTrie = false;
-				try
-				{
-					trieStatistics = (TrieStatistics)trie.getStatistics().clone();
-				}
-				catch (CloneNotSupportedException e)
-				{
-					throw new RuntimeException(e);
-				}
-			}
-			else
-			{
-				trieStatistics.merge(trie.getStatistics());
-			}
-		}
-		return trieStatistics;
-	}
-
 	public synchronized void start() throws Exception
 	{
-		long indexingStartTime = System.nanoTime();
+		long indexingStartTime = System.currentTimeMillis();
 		if (started)
 		{
 			throw new IllegalStateException("TrieAngulator has already been started.");
@@ -160,12 +132,13 @@ public final class TrieAngulator
 				throw new Exception("Indexing of Trie: " + trieName + " took longer than " + trieConfig.getIndexingTimeOutInSeconds() + " Seconds.");
 			}			
 		}
-		
+		trieAngulatorStatistics.setTimeTakenToIndex(System.currentTimeMillis() - indexingStartTime);
 		started = true;
 	}
 	
 	public TrieAngulationResult trieangulate(String queryString)
 	{
+		trieAngulatorStatistics.incrementCallCount();
 		long trieAngulateStartTime = System.nanoTime();
 		
 		TrieAngulationResult trieAngulationResult = null; 
@@ -182,13 +155,41 @@ public final class TrieAngulator
 		{
 			trieAngulationResult = trieangulateParallel(trieAngulateStartTime, queryString);
 		}
-		
+		trieAngulatorStatistics.record(queryString, System.nanoTime() - trieAngulateStartTime);
 		return trieAngulationResult;
 	}
 	
 	public void stop()
 	{
 		executor.shutdown();
+	}
+
+	public TrieAngulatorStatistics getStatistics()
+	{
+		TrieStatistics consolidatedTrieStatistics = null;
+
+		boolean firstTrie = true;
+		for (Trie trie : tries)
+		{
+			if(firstTrie)
+			{
+				firstTrie = false;
+				try
+				{
+					consolidatedTrieStatistics = (TrieStatistics)trie.getStatistics().clone();
+				}
+				catch (CloneNotSupportedException e)
+				{
+					throw new RuntimeException(e);
+				}
+			}
+			else
+			{
+				consolidatedTrieStatistics.merge(trie.getStatistics());
+			}
+		}
+		trieAngulatorStatistics.setTrieStatistics(consolidatedTrieStatistics);
+		return trieAngulatorStatistics;
 	}
 
 	private TrieAngulationResult trieangulateSerial(long trieAngulateStartTime, String queryString)
