@@ -19,21 +19,41 @@
  
 package org.piangles.core.structures;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public final class TrieAngulationResult
 {
 	private String queryString;
 	private Map<String, Exception> failedTries;
-	private Suggestion[] suggestions;
+	private List<Suggestion> suggestions;
 	private long timeTakenInNanoSeconds;
 	
-	public TrieAngulationResult(String queryString, Map<String, Exception> failedTries, Suggestion[] suggestions, long timeTakenInNanoSeconds)
+	public TrieAngulationResult(String queryString, Map<String, Exception> failedTries)
+	{
+		this.queryString = queryString;
+		this.failedTries = failedTries;
+		suggestions = new ArrayList<Suggestion>(); 
+	}
+	
+	public TrieAngulationResult(String queryString, Map<String, Exception> failedTries, List<Suggestion> suggestions, long timeTakenInNanoSeconds)
 	{
 		this.queryString = queryString;
 		this.failedTries = failedTries;
 		this.suggestions = suggestions;
+		this.timeTakenInNanoSeconds = timeTakenInNanoSeconds;
+	}
+	
+	void addSuggestions(Suggestion[] suggestions)
+	{
+		this.suggestions.addAll(Arrays.asList(suggestions));
+	}
+	
+	void setTimeTakenInNanoSeconds(long timeTakenInNanoSeconds)
+	{
 		this.timeTakenInNanoSeconds = timeTakenInNanoSeconds;
 	}
 	
@@ -42,7 +62,7 @@ public final class TrieAngulationResult
 		return queryString;
 	}
 	
-	public Suggestion[] getSuggestions()
+	public List<Suggestion> getSuggestions()
 	{
 		return suggestions;
 	}
@@ -55,6 +75,6 @@ public final class TrieAngulationResult
 	@Override
 	public String toString()
 	{
-		return "SearchResults [timeTakenInNanoSeconds=" + timeTakenInNanoSeconds + ", suggestions=" + Arrays.toString(suggestions) + "]";
+		return "SearchResults [timeTakenInNanoSeconds=" + timeTakenInNanoSeconds + ", suggestions=" + suggestions + "]";
 	}
 }

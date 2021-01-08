@@ -195,7 +195,7 @@ public final class Trie
 			 * There is nothing in our trieEntryList that
 			 * starts with this characters
 			 */
-			traverseResult = new TraverseResult(queryString);
+			traverseResult = new TraverseResult(name, queryString);
 		}
 		traverseResult.setTimeTakenInNanoSeconds(timeTakenInNanoSeconds);
 		
@@ -219,7 +219,7 @@ public final class Trie
 			 * not.
 			 */
 			MatchQuality matchQuality = currentNode.isCompleteWord()? MatchQuality.Exact : MatchQuality.Partial;
-			result = new TraverseResult(new String(word), matchQuality, currentNode.getTotalIndexesCount(), currentNode.getIndexesIntoTrieEntryList(), currentNode.haveAnyChildren(), currentNode.isCompleteWord());
+			result = new TraverseResult(name, new String(word), matchQuality, currentNode.getTotalIndexesCount(), currentNode.getIndexesIntoTrieEntryList(), currentNode.haveAnyChildren(), currentNode.isCompleteWord());
 		}
 		else// we continue traversal
 		{
@@ -237,7 +237,7 @@ public final class Trie
 				 * Scenario 2 : carton and cartoon. Post carT(currentNode) we do 
 				 * not have any word starting with Z.
 				 */
-				result = new TraverseResult(new String(word), MatchQuality.None, currentNode.getTotalIndexesCount(), currentNode.getIndexesIntoTrieEntryList(), false, false);
+				result = new TraverseResult(name, new String(word), MatchQuality.None, currentNode.getTotalIndexesCount(), currentNode.getIndexesIntoTrieEntryList(), false, false);
 			}
 		}
 
@@ -252,11 +252,11 @@ public final class Trie
 			TrieNode childNode = currentNode.get(ch);
 			if (childNode == null)
 			{
-				return new TraverseResult(new String(word), MatchQuality.None, currentNode.getTotalIndexesCount(), currentNode.getIndexesIntoTrieEntryList(), false, false);
+				return new TraverseResult(name, new String(word), MatchQuality.None, currentNode.getTotalIndexesCount(), currentNode.getIndexesIntoTrieEntryList(), false, false);
 			}
 			currentNode = childNode;
 		}
 		MatchQuality matchQuality = currentNode.isCompleteWord()? MatchQuality.Exact : MatchQuality.Partial;
-		return new TraverseResult(new String(word), matchQuality, currentNode.getTotalIndexesCount(), currentNode.getIndexesIntoTrieEntryList(), currentNode.haveAnyChildren(), currentNode.isCompleteWord());
+		return new TraverseResult(name, new String(word), matchQuality, currentNode.getTotalIndexesCount(), currentNode.getIndexesIntoTrieEntryList(), currentNode.haveAnyChildren(), currentNode.isCompleteWord());
 	}
 }
