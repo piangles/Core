@@ -19,14 +19,16 @@
  
 package org.piangles.core.structures;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class TrieAngulationResult
+public final class TrieAngulationResult implements Serializable
 {
+	private static final long serialVersionUID = 1L;
+
 	private String queryString;
 	private Map<String, Exception> failedTries;
 	private List<Suggestion> suggestions;
@@ -60,6 +62,11 @@ public final class TrieAngulationResult
 	public String getQueryString()
 	{
 		return queryString;
+	}
+	
+	public Map<String, Exception> getFailedTries()
+	{
+		return failedTries;
 	}
 	
 	public List<Suggestion> getSuggestions()

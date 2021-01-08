@@ -41,7 +41,8 @@ public final class TrieAngulator
 	
     private String datasetName = null;
     private TrieConfig trieConfig = null;
-	
+    private TrieAngulatorStatistics trieAngulatorStatistics = null;
+    
     private HashMap<String, Trie> trieNameAndTrieMap = null;
 	private Collection<Trie> tries = null;
 	
@@ -57,9 +58,10 @@ public final class TrieAngulator
 	//Make it a set
 	public TrieAngulator(String datasetName, Set<String> trieNames, TrieConfig trieConfig)
 	{
-		System.out.println(trieConfig);
 		this.datasetName = datasetName;
 		this.trieConfig = trieConfig;
+
+		trieAngulatorStatistics = new TrieAngulatorStatistics(datasetName);
 		
 		noOfTries = trieNames.size();
 		if (noOfTries == 1)
@@ -103,12 +105,30 @@ public final class TrieAngulator
 
 	public TrieStatistics getStatistics()
 	{
-		return getStatistics(DEFAULT_TRIE_NAME); 
-	}
+		TrieStatistics trieStatistics = null;
 
-	public TrieStatistics getStatistics(String trieName)
-	{
-		return trieNameAndTrieMap.get(trieName).getStatistics(); 
+		boolean firstTrie = true;
+		//trieangulatorStatistics
+		for (Trie trie : tries)
+		{
+			if(firstTrie)
+			{
+				firstTrie = false;
+				try
+				{
+					trieStatistics = (TrieStatistics)trie.getStatistics().clone();
+				}
+				catch (CloneNotSupportedException e)
+				{
+					throw new RuntimeException(e);
+				}
+			}
+			else
+			{
+				trieStatistics.merge(trie.getStatistics());
+			}
+		}
+		return trieStatistics;
 	}
 
 	public synchronized void start() throws Exception
