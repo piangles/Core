@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -34,8 +35,9 @@ public final class TrieAngulator
 	private static final String DEFAULT_ATTRIBUTE = "Default";
 	
     private String datasetName = null;
+    private TrieConfig trieConfig = null;
 	
-    private HashMap<String, Trie> attributeTrieMap = null;
+    private HashMap<String, Trie> attributeNameTrieMap = null;
 	private Collection<Trie> tries = null;
 	
 	private int noOfAttributes = 0;
@@ -49,7 +51,10 @@ public final class TrieAngulator
 
 	public TrieAngulator(String datasetName, List<String> attributes, TrieConfig trieConfig)
 	{
+		System.out.println(trieConfig);
 		this.datasetName = datasetName;
+		this.trieConfig = trieConfig;
+		
 		noOfAttributes = attributes.size();
 		if (noOfAttributes == 1)
 		{
@@ -59,12 +64,12 @@ public final class TrieAngulator
 		{
 			executor = Executors.newFixedThreadPool(noOfAttributes);
 		}
-		attributeTrieMap = new HashMap<>(noOfAttributes);
+		attributeNameTrieMap = new HashMap<>(noOfAttributes);
 		for (String attribute : attributes)
 		{
-			attributeTrieMap.put(attribute, new Trie(attribute, trieConfig));
+			attributeNameTrieMap.put(attribute, new Trie(attribute, trieConfig));
 		}
-		tries = attributeTrieMap.values();
+		tries = attributeNameTrieMap.values();
 	}
 	
 	public String getDatasetName()
@@ -74,12 +79,12 @@ public final class TrieAngulator
 
 	public void insert(TrieEntry te)
 	{
-		attributeTrieMap.get(DEFAULT_ATTRIBUTE).insert(te);
+		attributeNameTrieMap.get(DEFAULT_ATTRIBUTE).insert(te);
 	}
 
 	public void insert(String attribute, TrieEntry te)
 	{
-		Trie trie = attributeTrieMap.get(attribute);
+		Trie trie = attributeNameTrieMap.get(attribute);
 		if (trie != null)
 		{
 			trie.insert(te);	
@@ -97,63 +102,120 @@ public final class TrieAngulator
 
 	public TrieStatistics getStatistics(String attribute)
 	{
-		return attributeTrieMap.get(DEFAULT_ATTRIBUTE).getStatistics(); 
+		return attributeNameTrieMap.get(DEFAULT_ATTRIBUTE).getStatistics(); 
 	}
 
 	public synchronized void start() throws Exception
 	{
+		long indexingStartTime = System.nanoTime();
 		if (started)
 		{
 			throw new IllegalStateException("TrieAngulator has already been started.");
 		}
 
-		List<Future<Boolean>> indexResultFutures = new ArrayList<>(noOfAttributes);
+		Map<String, Future<Boolean>> trieIndexingResultFuturesMap = new HashMap<>(noOfAttributes);
 		for (Trie trie : tries)
 		{
-			indexResultFutures.add(executor.submit(() -> {
+			trieIndexingResultFuturesMap.put(trie.getName(), executor.submit(() -> {
 				return trie.indexIt();
 			}));
 		}
 		
-		for (Future<Boolean> indexResultFuture : indexResultFutures)
+		for (Map.Entry<String, Future<Boolean>> trieNameIndexResultFutureEntry : trieIndexingResultFuturesMap.entrySet())
 		{
-			//TODO which one failed??
-			indexResultFuture.get(60, TimeUnit.SECONDS);			
+			String trieName = trieNameIndexResultFutureEntry.getKey();
+			Future<Boolean> indexResultF = trieNameIndexResultFutureEntry.getValue();
+			try
+			{
+				indexResultF.get(trieConfig.getIndexingTimeOutInSeconds(), TimeUnit.SECONDS);
+			}
+			catch (Exception e)
+			{
+				throw new Exception("Indexing of Trie: " + trieName + " took longer than " + trieConfig.getIndexingTimeOutInSeconds() + " Seconds.");
+			}			
 		}
 		
 		started = true;
 	}
 	
-	public SearchResults search(String searchString) throws Exception
+	public TrieAngulationResult trieangulate(String queryString)
 	{
-		SearchResults searchResults = null;
+		long trieAngulateStartTime = System.nanoTime();
 		
-		List<Future<SearchResults>> searchResultFutures = new ArrayList<>(noOfAttributes);
-		for (Trie trie : tries)
+		TrieAngulationResult trieAngulationResult = null; 
+		if (!started)
 		{
-			searchResultFutures.add(executor.submit(() -> {
-				return trie.search(searchString);
-			}));
-		}
-
-		SearchResults searchResult = null;
-		List<SearchResults> searchResultsList = new ArrayList<>(noOfAttributes);
-		for (Future<SearchResults> searchResultFuture : searchResultFutures)
-		{
-			//TODO which one failed??
-			searchResult = searchResultFuture.get(100, TimeUnit.MILLISECONDS);
-			//if (searchResult.getMatchQuality() != MatchQuality.None)
-			{
-				searchResultsList.add(searchResult);
-			}
+			throw new RuntimeException("Triangulator needs to be started before <trieangulate> can be called.");
 		}
 		
-		//Stitch/Triangulate SuggestionResult results here.
-		return searchResultsList.get(0);
+		if (noOfAttributes == 1)
+		{
+			trieAngulationResult = trieangulateSerial(trieAngulateStartTime, queryString);
+		}
+		else
+		{
+			trieAngulationResult = trieangulateParallel(trieAngulateStartTime, queryString);
+		}
+		
+		return trieAngulationResult;
 	}
 	
 	public void stop()
 	{
 		executor.shutdown();
+	}
+
+	private TrieAngulationResult trieangulateSerial(long trieAngulateStartTime, String queryString)
+	{
+		List<TraverseResult> traversResultList = new ArrayList<>(noOfAttributes);
+		for (Trie trie : tries)
+		{
+			traversResultList.add(trie.traverse(queryString));
+		}
+		return createTrieAngulationResult(queryString, trieAngulateStartTime, null, traversResultList);
+	}
+
+	private TrieAngulationResult trieangulateParallel(long trieAngulateStartTime, String queryString)
+	{
+		Map<String, Future<TraverseResult>> traverseResultFuturesMap = new HashMap<>(noOfAttributes);
+		for (Trie trie : tries)
+		{
+			traverseResultFuturesMap.put(trie.getName(), executor.submit(() -> {
+				return trie.traverse(queryString);
+			}));
+		}
+
+		Map<String, Exception> failedTries = new HashMap<>();
+		TraverseResult traverseResult = null;
+		List<TraverseResult> traversResultList = new ArrayList<>(noOfAttributes);
+		for (Map.Entry<String, Future<TraverseResult>> trieTraverseResultFutureEntry : traverseResultFuturesMap.entrySet())
+		{
+			String trieName = trieTraverseResultFutureEntry.getKey();
+			Future<TraverseResult> traverseResultF = trieTraverseResultFutureEntry.getValue();
+			try
+			{
+				traverseResult = traverseResultF.get(trieConfig.getTraverseTimeOutInMilliSeconds(), TimeUnit.MILLISECONDS);
+				traversResultList.add(traverseResult);
+			}
+			catch(Exception e)
+			{
+				failedTries.put(trieName, e);
+			}
+		}
+		
+		return createTrieAngulationResult(queryString, trieAngulateStartTime, failedTries, traversResultList);
+	}
+	
+	private TrieAngulationResult createTrieAngulationResult(String queryString, long trieAngulateStartTime, Map<String, Exception> failedTries, List<TraverseResult> traversResultList)
+	{
+		TrieAngulationResult trieAngulationResult = null;
+		
+		if (traversResultList.size() == 1)
+		{
+			long endTime = System.nanoTime() - trieAngulateStartTime;
+			trieAngulationResult = new TrieAngulationResult(queryString, failedTries, traversResultList.get(0).getSuggestions(), endTime); 
+		}
+
+		return trieAngulationResult;
 	}
 }

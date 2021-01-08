@@ -21,6 +21,7 @@ package org.piangles.core.structures;
 
 final class TraverseResult
 {
+	private String queryString = null;
 	private int totalSuggestionsAvailable;
 	private MatchQuality matchQuality = null;
 	/**
@@ -31,14 +32,17 @@ final class TraverseResult
 	private boolean prefix;
 	private boolean completeWord;
 	private int[] indexesIntoTrieEntryList = null;
+	private Suggestion[] suggestions;
+	private long timeTakenInNanoSeconds;
 
-	TraverseResult()
+	TraverseResult(String queryString)
 	{
-		this(MatchQuality.None, 0, null, false, false);
+		this(queryString, MatchQuality.None, 0, null, false, false);
 	}
 	
-	TraverseResult(MatchQuality matchQuality, int totalSuggestionsAvailable, int[] indexesIntoTrieEntryList, boolean prefix, boolean completeWord)
+	TraverseResult(String queryString, MatchQuality matchQuality, int totalSuggestionsAvailable, int[] indexesIntoTrieEntryList, boolean prefix, boolean completeWord)
 	{
+		this.queryString = queryString;
 		this.matchQuality = matchQuality;
 		this.totalSuggestionsAvailable = totalSuggestionsAvailable;
 		this.indexesIntoTrieEntryList = indexesIntoTrieEntryList;
@@ -46,12 +50,27 @@ final class TraverseResult
 		this.completeWord = completeWord;
 	}
 	
-	public MatchQuality getMatchQuality()
+	void setTimeTakenInNanoSeconds(long timeTakenInNanoSeconds)
+	{
+		this.timeTakenInNanoSeconds = timeTakenInNanoSeconds;
+	}
+	
+	void setSuggestions(Suggestion[] suggestions)
+	{
+		this.suggestions = suggestions;
+	}
+	
+	String getQueryString()
+	{
+		return queryString;
+	}
+	
+	MatchQuality getMatchQuality()
 	{
 		return matchQuality;	
 	}
 	
-	public int getTotalSuggestionsAvailable()
+	int getTotalSuggestionsAvailable()
 	{
 		return totalSuggestionsAvailable;
 	}
@@ -79,5 +98,15 @@ final class TraverseResult
 	boolean noneFoundInTrieEntryList()
 	{
 		return indexesIntoTrieEntryList == null;
+	}
+	
+	public Suggestion[] getSuggestions()
+	{
+		return suggestions;
+	}
+	
+	public long getTimeTakenInNanoSeconds()
+	{
+		return timeTakenInNanoSeconds;
 	}
 }

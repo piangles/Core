@@ -24,33 +24,86 @@ public final class TrieConfig
 	public static final int DEFAULT_INITIAL_SIZE = 1000000;
 	public static final int DEFAULT_MAX_WORD_LENGTH = 20;
 	public static final int DEFAULT_SUGGESTIONS_LIMIT = 10;
-	public static final boolean DEFAULT_USE_RECURSIVE_ALGORITHM = true;
-	public static final boolean DEFAULT_PERF_MONITORING = true;
+	public static final int DEFAULT_INDEXING_TIMEOUT_IN_SECONDS = 10;
+	public static final int DEFAULT_TRAVERSING_TIMEOUT_IN_MILLISECONDS = 5;
+	public static final boolean DEFAULT_USE_RECURSIVE_TRAVERSE_ALGORITHM = true;
 
 	private int initialSize;
 	private int maximumWordLength;
 	private int suggestionsLimit;
 	
-	private boolean recursiveAlgorithm;
-	private boolean performanceMonitoringEnabled;
+	private int indexingTimeOutInSeconds;
+	private long traverseTimeOutInMilliSeconds;
+	
+	private boolean recursiveTraverseAlgorithm;
 	
 	private Vocabulary vocabulary;
 
 	public TrieConfig()
 	{
-		this(DEFAULT_INITIAL_SIZE, DEFAULT_MAX_WORD_LENGTH, DEFAULT_SUGGESTIONS_LIMIT, DEFAULT_USE_RECURSIVE_ALGORITHM, DEFAULT_PERF_MONITORING, new DefaultVocabulary());
+		this(	DEFAULT_INITIAL_SIZE, 
+				DEFAULT_MAX_WORD_LENGTH, 
+				DEFAULT_SUGGESTIONS_LIMIT, 
+				DEFAULT_INDEXING_TIMEOUT_IN_SECONDS,
+				DEFAULT_TRAVERSING_TIMEOUT_IN_MILLISECONDS,
+				DEFAULT_USE_RECURSIVE_TRAVERSE_ALGORITHM, 
+				new DefaultVocabulary());
 	}
 	
-	public TrieConfig(int initialSize, int maximumWordLength, int suggestionsLimit, boolean recursiveAlgorithm, boolean performanceMonitoringEnabled, Vocabulary vocabulary)
+	public TrieConfig(	int initialSize, int maximumWordLength, int suggestionsLimit, int indexingTimeOutInSeconds, 
+						long traverseTimeOutInMilliSeconds, boolean recursiveAlgorithm, Vocabulary vocabulary)
 	{
 		this.initialSize = initialSize;
 		this.maximumWordLength = maximumWordLength;
 		this.suggestionsLimit = suggestionsLimit;
-		this.recursiveAlgorithm = recursiveAlgorithm;
-		this.performanceMonitoringEnabled = performanceMonitoringEnabled;
+		this.indexingTimeOutInSeconds = indexingTimeOutInSeconds;
+		this.traverseTimeOutInMilliSeconds = traverseTimeOutInMilliSeconds;
+		this.recursiveTraverseAlgorithm = recursiveAlgorithm;
 		this.vocabulary = vocabulary;
 	}
 	
+	public TrieConfig setInitialSize(int initialSize)
+	{
+		this.initialSize = initialSize;
+		return this;
+	}
+
+	public TrieConfig setMaximumWordLength(int maximumWordLength)
+	{
+		this.maximumWordLength = maximumWordLength;
+		return this;
+	}
+
+	public TrieConfig setSuggestionsLimit(int suggestionsLimit)
+	{
+		this.suggestionsLimit = suggestionsLimit;
+		return this;
+	}
+
+	public TrieConfig setIndexingTimeOutInSeconds(int indexingTimeOutInSeconds)
+	{
+		this.indexingTimeOutInSeconds = indexingTimeOutInSeconds;
+		return this;
+	}
+
+	public TrieConfig setTraverseTimeOutInMilliSeconds(int traverseTimeOutInMilliSeconds)
+	{
+		this.traverseTimeOutInMilliSeconds = traverseTimeOutInMilliSeconds;
+		return this;
+	}
+
+	public TrieConfig setRecursiveAlgorithm(boolean recursiveAlgorithm)
+	{
+		this.recursiveTraverseAlgorithm = recursiveAlgorithm;
+		return this;
+	}
+
+	public TrieConfig setVocabulary(Vocabulary vocabulary)
+	{
+		this.vocabulary = vocabulary;
+		return this;
+	}
+
 	public int getInitialSize()
 	{
 		return initialSize;
@@ -65,19 +118,34 @@ public final class TrieConfig
 	{
 		return suggestionsLimit;
 	}
-	
-	public boolean useRecursiveAlgorithm()
+
+	public int getIndexingTimeOutInSeconds()
 	{
-		return recursiveAlgorithm;
+		return indexingTimeOutInSeconds;
 	}
 	
-	public boolean isPerformanceMonitoringEnabled()
+	public long getTraverseTimeOutInMilliSeconds()
 	{
-		return performanceMonitoringEnabled;
+		return traverseTimeOutInMilliSeconds;
+	}
+
+	public boolean useRecursiveTraverseAlgorithm()
+	{
+		return recursiveTraverseAlgorithm;
 	}
 	
 	public Vocabulary getVocabulary()
 	{
 		return vocabulary;
 	}
+
+	@Override
+	public String toString()
+	{
+		return "TrieConfig [initialSize=" + initialSize + ", maximumWordLength=" + maximumWordLength + ", suggestionsLimit=" + suggestionsLimit + ", indexingTimeOutInSeconds="
+				+ indexingTimeOutInSeconds + ", traverseTimeOutInMilliSeconds=" + traverseTimeOutInMilliSeconds + ", recursiveTraverseAlgorithm=" + recursiveTraverseAlgorithm + ", vocabulary="
+				+ vocabulary.getClass().getSimpleName() + "]";
+	}
+	
+	
 }

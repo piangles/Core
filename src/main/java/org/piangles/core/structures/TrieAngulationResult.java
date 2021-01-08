@@ -19,35 +19,42 @@
  
 package org.piangles.core.structures;
 
-final class SuggestionEngine
+import java.util.Arrays;
+import java.util.Map;
+
+public final class TrieAngulationResult
 {
-	private String attribute = null;
-	private TrieEntryList trieEntryList = null;
+	private String queryString;
+	private Map<String, Exception> failedTries;
+	private Suggestion[] suggestions;
+	private long timeTakenInNanoSeconds;
 	
-	SuggestionEngine(String attribute, TrieEntryList trieEntryList)
+	public TrieAngulationResult(String queryString, Map<String, Exception> failedTries, Suggestion[] suggestions, long timeTakenInNanoSeconds)
 	{
-		this.attribute = attribute;
-		this.trieEntryList = trieEntryList;
+		this.queryString = queryString;
+		this.failedTries = failedTries;
+		this.suggestions = suggestions;
+		this.timeTakenInNanoSeconds = timeTakenInNanoSeconds;
 	}
 	
-	public Suggestion[] suggestTopTen()
+	public String getQueryString()
 	{
-		return null;
+		return queryString;
 	}
 	
-	public Suggestion[] suggest(int[] indexesIntoTrieEntryList)
+	public Suggestion[] getSuggestions()
 	{
-		TrieEntry te = null;
-		Suggestion[] suggestions = new Suggestion[indexesIntoTrieEntryList.length];
-		for (int i=0; i < indexesIntoTrieEntryList.length; ++i)
-		{
-			te = trieEntryList.get(indexesIntoTrieEntryList[i]);
-			if (te.isDerived())
-			{
-				te = trieEntryList.get(te.getParent().getIndex());
-			}
-			suggestions[i] = new Suggestion(te.getId(), attribute, te.getValue());
-		}
 		return suggestions;
+	}
+
+	public long getTimeTakenInNanoSeconds()
+	{
+		return timeTakenInNanoSeconds;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "SearchResults [timeTakenInNanoSeconds=" + timeTakenInNanoSeconds + ", suggestions=" + Arrays.toString(suggestions) + "]";
 	}
 }

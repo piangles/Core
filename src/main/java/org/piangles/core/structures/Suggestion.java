@@ -20,25 +20,25 @@ package org.piangles.core.structures;
 
 public final class Suggestion
 {
-	private String context;
 	private String id;
+	private String attribute;
 	private String value;
 
-	public Suggestion(String context, String id, String value)
+	public Suggestion(String id, String attribute, String value)
 	{
-		this.context = context;
 		this.id = id;
+		this.attribute = attribute;
 		this.value = value;
 	}
 
-	public String getContext()
-	{
-		return context;
-	}
-	
 	public String getId()
 	{
 		return id;
+	}
+
+	public String getAttribute()
+	{
+		return attribute;
 	}
 	
 	public String getValue()

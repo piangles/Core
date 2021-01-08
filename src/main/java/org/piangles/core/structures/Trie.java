@@ -23,12 +23,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-final class Trie
+public final class Trie
 {
-	private static final TraverseResult NONE_FOUND = new TraverseResult();
 	private static final String WARM_UP = "az";
 	
-	private String attribute;
+	private String name;
 	private TrieConfig trieConfig = null;
 	private TrieStatistics trieStatistics = null;
 	
@@ -40,12 +39,12 @@ final class Trie
 	
 	private SuggestionEngine suggestionEngine = null;
 	
-	Trie(String attribute, TrieConfig trieConfig)
+	Trie(String name, TrieConfig trieConfig)
 	{
-		this.attribute = attribute;
+		this.name = name;
 		this.trieConfig = trieConfig;
 		
-		trieStatistics = new TrieStatistics(attribute);
+		trieStatistics = new TrieStatistics(name);
 		
 		stopWordsMap = new HashMap<>();
 		for (String stopWord : trieConfig.getVocabulary().getStopWords())
@@ -57,9 +56,9 @@ final class Trie
 		trieEntryList = new TrieEntryList(trieConfig.getInitialSize());
 	}
 	
-	String getAttribute()
+	String getName()
 	{
-		return attribute;
+		return name;
 	}
 
 	TrieStatistics getStatistics()
@@ -100,7 +99,7 @@ final class Trie
 		trieEntryList.sort();
 		trieStatistics.end(TrieMetrics.SortDataset);
 		
-		suggestionEngine = new SuggestionEngine(attribute, trieEntryList);
+		suggestionEngine = new SuggestionEngine(name, trieEntryList);
 		
 		trieStatistics.start(TrieMetrics.PopulateTrie);
 		Arrays.stream(trieEntryList.elementData).
@@ -146,7 +145,7 @@ final class Trie
 		trieStatistics.start(TrieMetrics.IndexTrie);
 		root.indexIt();
 		trieStatistics.end(TrieMetrics.IndexTrie);
-		search(WARM_UP);
+		traverse(WARM_UP);
 		trieStatistics.end(TrieMetrics.Readiness);
 		indexed = true;
 		return indexed; 
@@ -158,17 +157,16 @@ final class Trie
 	}
 
 
-	SearchResults search(String searchString)
+	TraverseResult traverse(String queryString)
 	{
-		long startTime = System.nanoTime();
-		SearchResults searchResults = null;
-
-		searchString = searchString.toLowerCase();
-
-		char[] searchStringAsArray = searchString.toCharArray();
-
+		long startTimeInNanoSeconds = System.nanoTime();
 		TraverseResult traverseResult = null;
-		if (trieConfig.useRecursiveAlgorithm())
+
+		queryString = queryString.toLowerCase();
+
+		char[] searchStringAsArray = queryString.toCharArray();
+
+		if (trieConfig.useRecursiveTraverseAlgorithm())
 		{
 			TrieNode firstNode = null;
 			
@@ -180,32 +178,28 @@ final class Trie
 			{
 				traverseResult = traverse(firstNode, searchStringAsArray, 0);
 			}
-			else
-			{
-				/**
-				 * There is nothing in our trieEntryList that
-				 * starts with this characters
-				 */
-				traverseResult = NONE_FOUND;
-			}
 		}
 		else
 		{
 			traverseResult = traverseLoop(root, searchStringAsArray, 0);
 		}
 		
-		long timeTaken = System.nanoTime() - startTime;
-		if (traverseResult.noneFoundInTrieEntryList())
+		long timeTakenInNanoSeconds = System.nanoTime() -  startTimeInNanoSeconds;
+		if (traverseResult != null)
 		{
-			searchResults = new SearchResults(searchString, timeTaken, MatchQuality.None, false, false, 0, suggestionEngine.suggestTopTen());
+			traverseResult.setSuggestions(suggestionEngine.suggest(traverseResult.getIndexesIntoTrieEntryList()));
 		}
 		else
 		{
-			searchResults = new SearchResults(searchString, timeTaken, traverseResult.getMatchQuality(), traverseResult.isPrefix(), traverseResult.isCompleteWord(),
-					traverseResult.getTotalSuggestionsAvailable(), suggestionEngine.suggest(traverseResult.getIndexesIntoTrieEntryList()));
+			/**
+			 * There is nothing in our trieEntryList that
+			 * starts with this characters
+			 */
+			traverseResult = new TraverseResult(queryString);
 		}
+		traverseResult.setTimeTakenInNanoSeconds(timeTakenInNanoSeconds);
 		
-		return searchResults;
+		return traverseResult;
 	}
 
 	private TraverseResult traverse(TrieNode currentNode, char[] word, int index)
@@ -225,7 +219,7 @@ final class Trie
 			 * not.
 			 */
 			MatchQuality matchQuality = currentNode.isCompleteWord()? MatchQuality.Exact : MatchQuality.Partial;
-			result = new TraverseResult(matchQuality, currentNode.getTotalIndexesCount(), currentNode.getIndexesIntoTrieEntryList(), currentNode.haveAnyChildren(), currentNode.isCompleteWord());
+			result = new TraverseResult(new String(word), matchQuality, currentNode.getTotalIndexesCount(), currentNode.getIndexesIntoTrieEntryList(), currentNode.haveAnyChildren(), currentNode.isCompleteWord());
 		}
 		else// we continue traversal
 		{
@@ -243,7 +237,7 @@ final class Trie
 				 * Scenario 2 : carton and cartoon. Post carT(currentNode) we do 
 				 * not have any word starting with Z.
 				 */
-				result = new TraverseResult(MatchQuality.None, currentNode.getTotalIndexesCount(), currentNode.getIndexesIntoTrieEntryList(), false, false);
+				result = new TraverseResult(new String(word), MatchQuality.None, currentNode.getTotalIndexesCount(), currentNode.getIndexesIntoTrieEntryList(), false, false);
 			}
 		}
 
@@ -258,11 +252,11 @@ final class Trie
 			TrieNode childNode = currentNode.get(ch);
 			if (childNode == null)
 			{
-				return new TraverseResult(MatchQuality.None, currentNode.getTotalIndexesCount(), currentNode.getIndexesIntoTrieEntryList(), false, false);
+				return new TraverseResult(new String(word), MatchQuality.None, currentNode.getTotalIndexesCount(), currentNode.getIndexesIntoTrieEntryList(), false, false);
 			}
 			currentNode = childNode;
 		}
 		MatchQuality matchQuality = currentNode.isCompleteWord()? MatchQuality.Exact : MatchQuality.Partial;
-		return new TraverseResult(matchQuality, currentNode.getTotalIndexesCount(), currentNode.getIndexesIntoTrieEntryList(), currentNode.haveAnyChildren(), currentNode.isCompleteWord());
+		return new TraverseResult(new String(word), matchQuality, currentNode.getTotalIndexesCount(), currentNode.getIndexesIntoTrieEntryList(), currentNode.haveAnyChildren(), currentNode.isCompleteWord());
 	}
 }
