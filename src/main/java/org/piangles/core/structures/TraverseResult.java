@@ -108,11 +108,11 @@ public final class TraverseResult implements Comparable<TraverseResult>
 			{
 				result = compareDeep(other);
 			}
-			else if (this.completeWord && !other.completeWord)
+			else if (this.completeWord)
 			{
 				result = 1;
 			}
-			else if (!this.completeWord && other.completeWord)
+			else if (other.completeWord)
 			{
 				result = -1;
 			}
@@ -131,11 +131,11 @@ public final class TraverseResult implements Comparable<TraverseResult>
 			{
 				result = compareDeep(other);
 			}
-			else if (this.prefix && !other.prefix)
+			else if (this.prefix)
 			{
 				result = 1;
 			}
-			else if (!this.prefix && other.prefix)
+			else if (other.prefix)
 			{
 				result = -1;
 			}

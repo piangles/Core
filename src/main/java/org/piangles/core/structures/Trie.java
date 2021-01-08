@@ -81,7 +81,12 @@ public final class Trie
 			{
 				if (!stopWordsMap.containsKey(splits[i]))
 				{
-					trieEntryList.add(new TrieEntry(te.getId(), te, te.getRank(), splits[i]));	
+					trieEntryList.add(new TrieEntry(te.getId(), te, te.getRank(), splits[i]));
+					trieStatistics.incrementDerviedDatasetSize();
+				}
+				else
+				{
+					trieStatistics.incrementSkippedStopWords();
 				}
 			}
 		}
@@ -130,7 +135,7 @@ public final class Trie
 			{
 				if (trieConfig.getVocabulary().exists(ch))
 				{
-					if (ch == ' ')
+					if (ch == Vocabulary.TOKEN_DELIMITER)
 					{
 						current.markAsCompleteWord();			
 					}
@@ -145,9 +150,11 @@ public final class Trie
 		trieStatistics.start(TrieMetrics.IndexTrie);
 		root.indexIt();
 		trieStatistics.end(TrieMetrics.IndexTrie);
-		traverse(WARM_UP);
 		trieStatistics.end(TrieMetrics.Readiness);
 		indexed = true;
+		trieStatistics.setDatasetSize(trieEntryList.size());
+		traverse(WARM_UP);
+		trieStatistics.clear();
 		return indexed; 
 	}
 
@@ -159,6 +166,7 @@ public final class Trie
 
 	public TraverseResult traverse(String queryString)
 	{
+		trieStatistics.incrementCallCount();
 		long startTimeInNanoSeconds = System.nanoTime();
 		TraverseResult traverseResult = null;
 
@@ -196,8 +204,10 @@ public final class Trie
 			 * starts with this characters
 			 */
 			traverseResult = new TraverseResult(name, queryString);
+			trieStatistics.incrementEmptyResultCallCount();
 		}
 		traverseResult.setTimeTakenInNanoSeconds(timeTakenInNanoSeconds);
+		trieStatistics.record(queryString, timeTakenInNanoSeconds);
 		
 		return traverseResult;
 	}

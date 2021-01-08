@@ -19,6 +19,11 @@
  
 package org.piangles.core.structures;
 
+import java.text.NumberFormat;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.LongAccumulator;
+
 /**
  * For Internal Use Only.
  * 
@@ -29,38 +34,109 @@ package org.piangles.core.structures;
  */
 public final class TrieStatistics
 {
-	private String context;
+	private String trieName;
 	private int datasetSize;
-	
-	private long noOfCalls;
-	private long noOfCallsWithoutResults;
-	private long averageResponseTime;
-	private long averageSearchWordSize;
+	private int derivedDatasetSize;
+	private int skippedStopWordsSize;
 
-	//Metrics
+	private final AtomicLong noOfCalls = new AtomicLong();
+	private final AtomicLong noOfCallsWithoutResults = new AtomicLong();
+	
+	private final LongAccumulator totalQueryWordLength = new LongAccumulator(Long::sum, 0);
+	private final LongAccumulator totalResponseTime = new LongAccumulator(Long::sum, 0);
+	
+	private final AtomicReference<String> minQueryString = new AtomicReference<>(); 
+	private final LongAccumulator minResponseTime = new LongAccumulator(Long::min, Long.MAX_VALUE);
+	
+	private final AtomicReference<String> maxQueryString = new AtomicReference<>();
+	private final LongAccumulator maxResponseTime = new LongAccumulator(Long::max, 0);
+	
 	private long timeTakenToGetReady;
 	private long timeTakenToSortDataset;
 	private long timeTakenToPopulateTrie;
 	private long timeTakenToIndex;
 	
-	private int maxMemoryInMB;
-	private int totalMemoryInMB;
-	private int freeMemoryInMB;
-	private int usedMemoryInMB;
-	
-	TrieStatistics(String context)
+	TrieStatistics(String trieName)
 	{
-		this.context = context;
+		this.trieName = trieName;
 	}
 	
-	public String getContext()
+	void clear()
 	{
-		return context;
+		noOfCalls.set(0);
+		noOfCallsWithoutResults.set(0);
+		
+		totalQueryWordLength.reset();
+		totalResponseTime.reset();
+		minResponseTime.reset();
+		maxResponseTime.reset();
 	}
 	
-	public void incrementDatasetSize()
+	public String getName()
 	{
-		datasetSize++;
+		return trieName;
+	}
+	
+	public long getCallCount()
+	{
+		return noOfCalls.get();
+	}
+	
+	public int getDatasetSize()
+	{
+		return datasetSize;
+	}
+	
+	public long getAverageResponseTime()
+	{
+		return (totalResponseTime.get() / noOfCalls.get());
+	}
+
+	public long getAverageQueryWordLength()
+	{
+		return (totalQueryWordLength.get() / noOfCalls.get());
+	}
+	
+	void setDatasetSize(int datasetSize)
+	{
+		this.datasetSize = datasetSize;	
+	}
+
+	void incrementDerviedDatasetSize()
+	{
+		derivedDatasetSize++;
+	}
+
+	void incrementSkippedStopWords()
+	{
+		skippedStopWordsSize++;
+	}
+
+	void incrementCallCount()
+	{
+		noOfCalls.incrementAndGet();
+	}
+
+	void incrementEmptyResultCallCount()
+	{
+		noOfCallsWithoutResults.incrementAndGet();
+	}
+
+	void record(String queryString, long responseTime)
+	{
+		//System.out.println(queryWordSize + " : " + responseTime);
+		totalQueryWordLength.accumulate(queryString.length());
+		totalResponseTime.accumulate(responseTime);
+		minResponseTime.accumulate(responseTime);
+		if (minResponseTime.get() == responseTime)
+		{
+			minQueryString.set(queryString);
+		}
+		maxResponseTime.accumulate(responseTime);
+		if (maxResponseTime.get() == responseTime)
+		{
+			maxQueryString.set(queryString);
+		}
 	}
 	
 	void start(TrieMetrics tm)
@@ -91,35 +167,22 @@ public final class TrieStatistics
 	public String toString()
 	{
 		StringBuffer sb = new StringBuffer();
+		
+		NumberFormat nf = NumberFormat.getNumberInstance();
+		sb.append("Complete Dataset Size: " + nf.format(datasetSize)).append(" words.\n");
+		sb.append("Derived Subset Size: " + nf.format(derivedDatasetSize)).append(" words.\n");
+		sb.append("Skipped StopWords Size: " + nf.format(skippedStopWordsSize)).append(" words.\n");
 		sb.append("Time Taken to sort: " + timeTakenToSortDataset + " in MiliSeconds.").append("\n");
 		sb.append("Time Taken to populate Trie: " + timeTakenToPopulateTrie + " in MiliSeconds.").append("\n");
 		sb.append("Time Taken to index Trie: " + timeTakenToIndex + " in MiliSeconds.").append("\n");
 		sb.append("Time Taken to for Trie to be Ready: " + timeTakenToGetReady + " in MiliSeconds.").append("\n");
+		sb.append("No Of Calls: " + noOfCalls + ".").append("\n");
+		sb.append("No Of Calls not yielding Results: " + noOfCallsWithoutResults + ".").append("\n");
+		sb.append("Minimum Response Time: " + nf.format(minResponseTime) + " NanoSeconds. Query String: ").append(minQueryString).append("\n");
+		sb.append("Maximum Response Time: " + nf.format(maxResponseTime) + " NanoSeconds. Query String: ").append(maxQueryString).append("\n");
+		sb.append("Average Response Time: " + nf.format(getAverageResponseTime()) + " NanoSeconds.").append("\n");
+		sb.append("Average Query Word Length: " + nf.format(getAverageQueryWordLength()) + " Characters.").append("\n");
 
 		return sb.toString();
-	}
-	
-	public void memory()
-	{
-		int mb = 1024*1024;
-		
-		//Getting the runtime reference from system
-		Runtime runtime = Runtime.getRuntime();
-		
-		System.out.println("##### Heap utilization statistics [MB] #####");
-		
-		//Print used memory
-		System.out.println("Used Memory:" 
-			+ (runtime.totalMemory() - runtime.freeMemory()) / mb);
-
-		//Print free memory
-		System.out.println("Free Memory:" 
-			+ runtime.freeMemory() / mb);
-		
-		//Print total available memory
-		System.out.println("Total Memory:" + runtime.totalMemory() / mb);
-
-		//Print Maximum available memory
-		System.out.println("Max Memory:" + runtime.maxMemory() / mb);		
 	}
 }

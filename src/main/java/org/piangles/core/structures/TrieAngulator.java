@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
 public final class TrieAngulator
 {
 	private static final String DEFAULT_TRIE_NAME = "Default";
+	private static final int NO_OF_CORE = Runtime.getRuntime().availableProcessors();
 	
     private String datasetName = null;
     private TrieConfig trieConfig = null;
@@ -153,7 +154,7 @@ public final class TrieAngulator
 			throw new RuntimeException("Triangulator needs to be started before <trieangulate> can be called.");
 		}
 		
-		if (noOfTries < 3)
+		if (noOfTries < NO_OF_CORE)
 		{
 			trieAngulationResult = trieangulateSerial(trieAngulateStartTime, queryString);
 		}
@@ -213,6 +214,8 @@ public final class TrieAngulator
 	
 	private TrieAngulationResult createTrieAngulationResult(String queryString, long trieAngulateStartTime, Map<String, Exception> failedTries, List<TraverseResult> traversResultList)
 	{
+		System.out.println("Time Taken before TrieAngulationResult Creation : " + (System.nanoTime() - trieAngulateStartTime));
+
 		TrieAngulationResult trieAngulationResult = null;
 
 		//Eliminate results which are empty
