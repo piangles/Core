@@ -30,6 +30,7 @@ import java.util.Arrays;;
  */
 final class TrieNode
 {
+	private TrieStatistics trieStatics = null;
 	private TrieConfig trieConfig = null;
 	private char ch = 0;
 	private int totalIndexesCount;
@@ -41,13 +42,17 @@ final class TrieNode
 	
 	private boolean completeWord = false;
 
-	TrieNode(TrieConfig trieConfig)
+	TrieNode(TrieStatistics trieStatics, TrieConfig trieConfig)
 	{
+		this.trieStatics = trieStatics;
 		this.trieConfig = trieConfig;
 	}
 
-	private TrieNode(TrieConfig trieConfig, char ch)
+	private TrieNode(TrieStatistics trieStatics, TrieConfig trieConfig, char ch)
 	{
+		this.trieStatics = trieStatics;
+		this.trieStatics.incrementNodeCount();
+		
 		this.trieConfig = trieConfig;
 		this.ch = ch;
 		indexesIntoTrieEntryList = new int[trieConfig.getSuggestionsLimit()];
@@ -109,7 +114,7 @@ final class TrieNode
 		TrieNode child = get(ch);
 		if (child == null)
 		{
-			child = new TrieNode(trieConfig, ch); 
+			child = new TrieNode(trieStatics, trieConfig, ch); 
 
 			if (children == null)
 			{

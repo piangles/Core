@@ -62,7 +62,12 @@ public final class TrieAngulatorStatistics
 	
 	public long getAverageResponseTime()
 	{
-		return (totalResponseTime.get() / noOfCalls.get());
+		long averageResponseTime = 0;
+		if (noOfCalls.get() != 0)
+		{
+			averageResponseTime = totalResponseTime.get() / noOfCalls.get();
+		}
+		return averageResponseTime;
 	}
 
 	void incrementCallCount()

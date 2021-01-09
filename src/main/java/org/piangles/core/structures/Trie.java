@@ -52,7 +52,7 @@ public final class Trie
 			stopWordsMap.put(stopWord, stopWord);
 		}
 		
-		root = new TrieNode(trieConfig);
+		root = new TrieNode(trieStatistics, trieConfig);
 		trieEntryList = new TrieEntryList(trieConfig.getInitialSize());
 	}
 	

@@ -47,10 +47,11 @@ public final class TrieStatistics implements Serializable, Cloneable
 	private long timeTakenToPopulateTrie;
 	private long timeTakenToIndex;
 	
+	private final AtomicLong noOfNodes = new AtomicLong(1);
 	private final AtomicLong noOfCalls = new AtomicLong();
 	private final AtomicLong noOfCallsWithoutResults = new AtomicLong();
 	
-	private final AtomicLong totalQueryWordLength = new AtomicLong();
+	private final AtomicLong runningSumOfQueryStringLength = new AtomicLong();
 	
 	private final AtomicLong totalResponseTime = new AtomicLong();
 	
@@ -77,8 +78,8 @@ public final class TrieStatistics implements Serializable, Cloneable
 		this.noOfCallsWithoutResults.addAndGet(other.noOfCallsWithoutResults.get());
 		this.noOfCallsWithoutResults.set(this.noOfCallsWithoutResults.get()/2);
 		
-		this.totalQueryWordLength.addAndGet(other.totalQueryWordLength.get());
-		this.totalQueryWordLength.set(this.totalQueryWordLength.get()/2);
+		this.runningSumOfQueryStringLength.addAndGet(other.runningSumOfQueryStringLength.get());
+		this.runningSumOfQueryStringLength.set(this.runningSumOfQueryStringLength.get()/2);
 		
 		this.totalResponseTime.addAndGet(other.totalResponseTime.get());
 		this.totalResponseTime.set(this.totalResponseTime.get()/2);
@@ -114,7 +115,7 @@ public final class TrieStatistics implements Serializable, Cloneable
 		noOfCalls.set(0);
 		noOfCallsWithoutResults.set(0);
 		
-		totalQueryWordLength.set(0);;
+		runningSumOfQueryStringLength.set(0);;
 		totalResponseTime.set(0);
 		
 		minResponseTime.reset();
@@ -125,8 +126,13 @@ public final class TrieStatistics implements Serializable, Cloneable
 	{
 		return trieName;
 	}
-	
-	public long getCallCount()
+
+	public long getNoOfNodes()
+	{
+		return noOfNodes.get();
+	}
+
+	public long getNoOfCalls()
 	{
 		return noOfCalls.get();
 	}
@@ -138,12 +144,22 @@ public final class TrieStatistics implements Serializable, Cloneable
 	
 	public long getAverageResponseTime()
 	{
-		return (totalResponseTime.get() / noOfCalls.get());
+		long averageResponseTime = 0;
+		if (noOfCalls.get() != 0)
+		{
+			averageResponseTime = totalResponseTime.get() / noOfCalls.get();
+		}
+		return averageResponseTime;
 	}
 
-	public long getAverageQueryWordLength()
+	public long getAverageQueryStringLength()
 	{
-		return (totalQueryWordLength.get() / noOfCalls.get());
+		long averageQueryStringLength = 0;
+		if (noOfCalls.get() != 0)
+		{
+			averageQueryStringLength = runningSumOfQueryStringLength.get() / noOfCalls.get();			
+		}
+		return averageQueryStringLength;
 	}
 	
 	void setDatasetSize(int datasetSize)
@@ -161,6 +177,11 @@ public final class TrieStatistics implements Serializable, Cloneable
 		skippedStopWordsSize++;
 	}
 
+	void incrementNodeCount()
+	{
+		noOfNodes.incrementAndGet();
+	}
+
 	void incrementCallCount()
 	{
 		noOfCalls.incrementAndGet();
@@ -173,7 +194,7 @@ public final class TrieStatistics implements Serializable, Cloneable
 
 	void record(String queryString, long responseTime)
 	{
-		totalQueryWordLength.addAndGet(queryString.length());
+		runningSumOfQueryStringLength.addAndGet(queryString.length());
 		totalResponseTime.addAndGet(responseTime);
 		minResponseTime.accumulate(responseTime);
 		if (minResponseTime.get() == responseTime)
@@ -236,12 +257,13 @@ public final class TrieStatistics implements Serializable, Cloneable
 		sb.append("Time Taken to populate Trie(s): ").append(timeTakenToPopulateTrie).append(" in MiliSeconds.").append("\n");
 		sb.append("Time Taken to index Trie: ").append(timeTakenToIndex).append(" in MiliSeconds.").append("\n");
 		sb.append("Time Taken to for Trie to be Ready: ").append(timeTakenToGetReady).append(" in MiliSeconds.").append("\n");
-		sb.append("Total No. Of Calls: ").append(noOfCalls).append(".\n");
-		sb.append("No. Of Calls not yielding Results: ").append(noOfCallsWithoutResults).append(".\n");
+		sb.append("Total No. Of Nodes: ").append(nf.format(noOfNodes)).append(".\n");
+		sb.append("Total No. Of Calls: ").append(nf.format(noOfCalls)).append(".\n");
+		sb.append("No. Of Calls not yielding Results: ").append(nf.format(noOfCallsWithoutResults)).append(".\n");
 		sb.append("Minimum Response Time: ").append(nf.format(minResponseTime)).append(" NanoSeconds. Query String: ").append(minQueryString).append("\n");
 		sb.append("Maximum Response Time: ").append(nf.format(maxResponseTime)).append(" NanoSeconds. Query String: ").append(maxQueryString).append("\n");
 		sb.append("Average Response Time: ").append(nf.format(getAverageResponseTime())).append(" NanoSeconds.").append("\n");
-		sb.append("Average Query Word Length: ").append(nf.format(getAverageQueryWordLength())).append(" Characters.").append("\n");
+		sb.append("Average Length of QueryString: ").append(nf.format(getAverageQueryStringLength())).append(" Characters.").append("\n");
 
 		return sb.toString();
 	}
