@@ -18,6 +18,10 @@
  
 package org.piangles.core.structures;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -34,7 +38,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-public final class TrieAngulator
+public final class TrieAngulator implements Externalizable
 {
 	private static final String DEFAULT_TRIE_NAME = "Default";
 	private static final int NO_OF_CORE = Runtime.getRuntime().availableProcessors();
@@ -277,5 +281,17 @@ public final class TrieAngulator
 		}
 
 		return trieAngulationResult;
+	}
+
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException
+	{
+		//TODO
+	}
+
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
+	{
+		//TODO
 	}
 }

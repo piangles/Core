@@ -19,8 +19,12 @@
  
 package org.piangles.core.structures;
 
-public final class TrieConfig
+import java.io.Serializable;
+
+public final class TrieConfig implements Serializable
 {
+	private static final long serialVersionUID = 1L;
+	
 	public static final int DEFAULT_INITIAL_SIZE = 1000000;
 	public static final int DEFAULT_MAX_WORD_LENGTH = 20;
 	public static final int DEFAULT_SUGGESTIONS_LIMIT = 10;

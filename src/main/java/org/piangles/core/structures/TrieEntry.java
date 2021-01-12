@@ -18,8 +18,12 @@
 
 package org.piangles.core.structures;
 
-public final class TrieEntry
+import java.io.Serializable;
+
+public final class TrieEntry implements Serializable
 {
+	private static final long serialVersionUID = 1L;
+	
 	private String id;
 	private int index;
 	private TrieEntry parent;

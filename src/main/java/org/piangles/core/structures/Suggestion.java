@@ -18,8 +18,12 @@
  
 package org.piangles.core.structures;
 
-public final class Suggestion
+import java.io.Serializable;
+
+public final class Suggestion implements Serializable
 {
+	private static final long serialVersionUID = 1L;
+	
 	private String id;
 	private String attribute;
 	private String value;

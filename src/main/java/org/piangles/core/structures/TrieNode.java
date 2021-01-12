@@ -19,6 +19,7 @@
  
 package org.piangles.core.structures;
 
+import java.io.Serializable;
 import java.util.Arrays;;
 
 /**
@@ -28,8 +29,10 @@ import java.util.Arrays;;
  * 	https://stackoverflow.com/questions/4674006/set-specific-bit-in-byte
  * 	https://en.wikiversity.org/wiki/Advanced_Java/Bitwise_Operators 
  */
-final class TrieNode
+final class TrieNode implements Serializable
 {
+	private static final long serialVersionUID = 1L;
+	
 	private TrieStatistics trieStatics = null;
 	private TrieConfig trieConfig = null;
 	private char ch = 0;

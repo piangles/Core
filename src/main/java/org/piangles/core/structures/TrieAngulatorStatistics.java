@@ -18,13 +18,16 @@
  
 package org.piangles.core.structures;
 
+import java.io.Serializable;
 import java.text.NumberFormat;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.LongAccumulator;
 
-public final class TrieAngulatorStatistics
+public final class TrieAngulatorStatistics implements Serializable
 {
+	private static final long serialVersionUID = 1L;
+	
 	private String datasetName = null;
 	private long timeTakenToIndex;
 	

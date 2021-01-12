@@ -19,9 +19,10 @@
  
 package org.piangles.core.structures;
 
+import java.io.Serializable;
 import java.util.List;
 
-public interface Vocabulary
+public interface Vocabulary extends Serializable
 {
 	public static final char TOKEN_DELIMITER = ' ';
 	public static final long NULL = 0b0000000000000000000000000000000000000000000000000000000000000000L;

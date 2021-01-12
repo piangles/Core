@@ -19,12 +19,15 @@
  
 package org.piangles.core.structures;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class Trie
+public final class Trie implements Serializable
 {
+	private static final long serialVersionUID = 1L;
+	
 	private static final String WARM_UP = "az";
 	
 	private String name;
@@ -53,7 +56,7 @@ public final class Trie
 		}
 		
 		root = new TrieNode(trieStatistics, trieConfig);
-		trieEntryList = new TrieEntryList(trieConfig.getInitialSize());
+		trieEntryList = new TrieEntryInMemoryList(trieConfig.getInitialSize());
 	}
 	
 	public String getName()
@@ -107,7 +110,7 @@ public final class Trie
 		suggestionEngine = new SuggestionEngine(name, trieEntryList);
 		
 		trieStatistics.start(TrieMetrics.PopulateTrie);
-		Arrays.stream(trieEntryList.elementData).
+		Arrays.stream(trieEntryList.getElementData()).
 		parallel().
 		forEach(te -> {
 			String word = te.getValue().toLowerCase();

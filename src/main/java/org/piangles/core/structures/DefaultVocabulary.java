@@ -25,6 +25,8 @@ import java.util.List;
 
 public final class DefaultVocabulary implements Vocabulary
 {
+	private static final long serialVersionUID = 1L;
+	
 	//64 Bits
 	private static final long A = 0b0000000000000000000000000000000000000000000000000000000000000001L;
 	private static final long B = 0b0000000000000000000000000000000000000000000000000000000000000010L;
