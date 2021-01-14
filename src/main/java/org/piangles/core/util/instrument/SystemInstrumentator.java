@@ -22,15 +22,16 @@ import java.lang.management.OperatingSystemMXBean;
 
 public final class SystemInstrumentator extends AbstractInstrumentator
 {
+	private static final String NAME = "SystemDetails";
 	private Measures systemDetails = null;
 	
 	public SystemInstrumentator(String serviceName)
 	{
-		super(serviceName);
+		super(NAME);
 		
 		OperatingSystemMXBean operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
 
-		systemDetails = new Measures("SystemDetails", serviceName);
+		systemDetails = new Measures(NAME, serviceName);
 		systemDetails.addMeasure("OSName", operatingSystemMXBean.getName());
 		systemDetails.addMeasure("OSVersion", operatingSystemMXBean.getVersion());
 		systemDetails.addMeasure("Architecture", operatingSystemMXBean.getArch());

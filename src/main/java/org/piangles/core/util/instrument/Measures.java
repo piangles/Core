@@ -20,7 +20,7 @@ package org.piangles.core.util.instrument;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -37,7 +37,7 @@ public final class Measures implements Serializable
 	{
 		this.name = name;
 		this.serviceName = serviceName;
-		this.measureMap  = new HashMap<>(); 
+		this.measureMap  = new LinkedHashMap<>(); 
 	}
 	
 	public String getName()

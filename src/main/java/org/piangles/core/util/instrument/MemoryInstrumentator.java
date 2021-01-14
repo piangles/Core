@@ -23,6 +23,7 @@ import java.lang.management.MemoryUsage;
 
 public final class MemoryInstrumentator  extends AbstractInstrumentator
 {
+	private static final String NAME = "MemoryDetails";
 	private static final int MEGA_BYTE = 1024 * 1024;
 
 	private MemoryMXBean memBean = null;
@@ -34,7 +35,7 @@ public final class MemoryInstrumentator  extends AbstractInstrumentator
 	
 	public MemoryInstrumentator(String serviceName)
 	{
-		super(serviceName);
+		super(NAME);
 		
 		memBean = ManagementFactory.getMemoryMXBean() ;
 
@@ -42,7 +43,7 @@ public final class MemoryInstrumentator  extends AbstractInstrumentator
 	    nonHeap = memBean.getNonHeapMemoryUsage();
 	    runtime = Runtime.getRuntime();
 	    
-	    memoryDetails = new Measures(serviceName, "MemoryDetails"); 
+	    memoryDetails = new Measures(NAME, serviceName); 
 	}
 
 	@Override

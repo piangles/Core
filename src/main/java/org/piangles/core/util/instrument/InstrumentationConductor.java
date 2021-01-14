@@ -40,7 +40,6 @@ public final class InstrumentationConductor
 		this.name = name;
 		this.instrumentatorMap = new HashMap<>();
 		this.callbacksMap = new HashMap<>();
-		new InstrumentationThread(name).start();
 	}
 	
 	public synchronized static void createInstance(String name)
@@ -52,10 +51,11 @@ public final class InstrumentationConductor
 			self.registerInstrumentator(new SystemInstrumentator(name));
 			self.registerInstrumentator(new PerformanceInstrumentator(name));
 			self.registerInstrumentator(new MemoryInstrumentator(name));
+			self.new InstrumentationThread(name).start();
 		}
 	}
 	
-	public static InstrumentationConductor getInstance(String name)
+	public static InstrumentationConductor getInstance()
 	{
 		return self;
 	}
@@ -91,7 +91,7 @@ public final class InstrumentationConductor
 		if (defaultCallbackEnabled)
 		{
 			//Default Callback will just print on screen
-			System.out.println(measures);
+			System.out.println(measures + "\n");
 		}
 		
 		List<InstrumentationCallback> callbackList = callbacksMap.get(measures.getName());
@@ -116,6 +116,7 @@ public final class InstrumentationConductor
 			super(name);
 		}
 		
+		@Override
 		public void run()
 		{
 			List<Measures> measuresList = new ArrayList<>();

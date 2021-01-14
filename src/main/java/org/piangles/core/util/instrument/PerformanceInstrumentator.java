@@ -24,17 +24,18 @@ import java.lang.management.RuntimeMXBean;
 @SuppressWarnings("restriction")
 public final class PerformanceInstrumentator extends AbstractInstrumentator
 {
+	private static final String NAME = "PerformanceDetails";
 	private OperatingSystemMXBean osMXBean = null;
 
 	private Measures performanceDetails = null;
 
 	public PerformanceInstrumentator(String serviceName)
 	{
-		super(serviceName);
+		super(NAME);
 
 		osMXBean = (com.sun.management.OperatingSystemMXBean)ManagementFactory.getOperatingSystemMXBean();
 
-		performanceDetails = new Measures(serviceName, "PerformanceDetails");
+		performanceDetails = new Measures(NAME, serviceName);
 	}
 
 	@Override
