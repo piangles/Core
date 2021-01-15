@@ -84,7 +84,7 @@ public final class Trie implements Serializable
 			{
 				if (!stopWordsMap.containsKey(splits[i]))
 				{
-					trieEntryList.add(new TrieEntry(te.getId(), te, te.getRank(), splits[i]));
+					trieEntryList.add(new TrieEntry(te.getId(), te, te.getRank(), splits[i], splits[i]));
 					trieStatistics.incrementDerviedDatasetSize();
 				}
 				else

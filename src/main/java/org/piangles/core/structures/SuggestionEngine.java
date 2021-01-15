@@ -46,7 +46,7 @@ final class SuggestionEngine
 			{
 				te = trieEntryList.get(te.getParent().getIndex());
 			}
-			suggestions[i] = new Suggestion(te.getId(), attribute, te.getValue());
+			suggestions[i] = new Suggestion(te.getId(), attribute, te.getActualValue());
 		}
 		return suggestions;
 	}

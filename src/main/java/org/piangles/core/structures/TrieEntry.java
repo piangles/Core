@@ -29,23 +29,25 @@ public final class TrieEntry implements Serializable
 	private TrieEntry parent;
 	private int rank;
 	private String value;
+	private String actualValue;
 
-	public TrieEntry(String value)
+	public TrieEntry(String value, String actualValue)
 	{
-		this(null, null, -1, value);
+		this(null, null, -1, value, actualValue);
 	}
 
-	public TrieEntry(String id, int rank, String value)
+	public TrieEntry(String id, int rank, String value, String actualValue)
 	{
-		this(null, null, rank, value);
+		this(null, null, rank, value, actualValue);
 	}
 
-	public TrieEntry(String id, TrieEntry parent, int rank, String value)
+	public TrieEntry(String id, TrieEntry parent, int rank, String value, String actualValue)
 	{
 		this.id = id;
 		this.parent = parent;
 		this.rank = rank;
 		this.value = value;
+		this.actualValue = actualValue;
 	}
 	
 	public String getId()
@@ -62,7 +64,12 @@ public final class TrieEntry implements Serializable
 	{
 		return value;
 	}
-	
+
+	public String getActualValue()
+	{
+		return actualValue;
+	}
+
 	public boolean isDerived()
 	{
 		return parent != null;
