@@ -20,22 +20,29 @@
 package org.piangles.core.services;
 
 import java.io.Serializable;
+import java.util.Date;
 
 public final class Response implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 	
+	private long requestTransitTime = 0L;
+	private Date issuedTime = null;
+	
 	private String serviceName;
 	private String endPoint;
 	private Object returnValue;
 
-	public Response(String serviceName, String endPoint)
-	{
-		this(serviceName, endPoint, null);
-	}
-	
 	public Response(String serviceName, String endPoint, Object returnValue)
 	{
+		this(serviceName, endPoint, 0L, returnValue);
+	}
+	
+	public Response(String serviceName, String endPoint, long requestTransitTime, Object returnValue)
+	{
+		this.issuedTime = new Date();
+		this.requestTransitTime = requestTransitTime;
+		
 		this.serviceName = serviceName;
 		this.endPoint = endPoint;
 		this.returnValue = returnValue;
@@ -51,6 +58,16 @@ public final class Response implements Serializable
 		return endPoint;
 	}
 
+	public long getRequestTransitTime()
+	{
+		return requestTransitTime;
+	}
+	
+	public Date getIssuedTime()
+	{
+		return issuedTime;
+	}
+	
 	public Object getReturnValue()
 	{
 		return returnValue;
@@ -61,6 +78,8 @@ public final class Response implements Serializable
 	{
 		StringBuffer sb = new StringBuffer();
 		
+		sb.append("requestTransitTime=").append(requestTransitTime).append("\n");
+		sb.append("issuedTime=").append(issuedTime).append("\n");
 		sb.append("serviceName=").append(serviceName).append("\n");
 		sb.append("endPoint=").append(endPoint).append("\n");
 		sb.append("returnValue=").append("ReturnValue will not be disclosed.").append("\n");

@@ -72,16 +72,28 @@ public final class RequestProcessingThread extends AbstractContextAwareThread
 		try
 		{
 			request = decoder.decode(requestAsBytes, Request.class);
-			sessionDetails = new SessionDetails(request.getUserId(), request.getSessionId());
-			super.init(sessionDetails, request.getTraceId());
-			response = processRequest(request);
+			
+			if (request != null)
+			{
+				request.markTransitTime();
+				
+				sessionDetails = new SessionDetails(request.getUserId(), request.getSessionId());
+				super.init(sessionDetails, request.getTraceId());
+				
+				response = processRequest(request);
+			}
+			else
+			{
+				RuntimeException e = new RuntimeException("Request received was null.");
+				response = new Response("Unknown Service", "Unknown Endpoint", e); 
+			}
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace(System.err);
 			if (request != null)
 			{
-				response = new Response(request.getServiceName(), request.getEndPoint(), e);
+				response = new Response(request.getServiceName(), request.getEndPoint(), request.getTransitTime(), e);
 			}
 			else
 			{
@@ -102,8 +114,6 @@ public final class RequestProcessingThread extends AbstractContextAwareThread
 			{
 				System.err.println("Exception trying to send response because of: " + e.getMessage());
 				e.printStackTrace(System.err);
-				
-				response = new Response(request.getServiceName(), e.getMessage(), e);
 			}
 		}
 	}
@@ -118,58 +128,51 @@ public final class RequestProcessingThread extends AbstractContextAwareThread
 		return preApprovedSessionId;
 	}
 	
-	protected final Response processRequest(Request request) throws Exception
+	private Response processRequest(Request request) throws Exception
 	{
 		long startTime = System.nanoTime();
 		Response response = null;
-		
-		if (request != null)
+
+		if (sessionValidator.isSessionValid(request))
 		{
-			if (sessionValidator.isSessionValid(request))
+			if (service.getServiceMetadata().isEndpointStreamBased(request.getEndPoint()))
 			{
-				if (service.getServiceMetadata().isEndpointStreamBased(request.getEndPoint()))
-				{
-					String queueName = request.getTraceId().toString();
-					StreamDetails details = new StreamDetails(queueName);
+				String queueName = request.getTraceId().toString();
+				StreamDetails details = new StreamDetails(queueName);
 
-					//Step 1 create StreamProcessingThread
-					Stream<?> stream = responseSender.createStream(details);
-					StreamRequestProcessingThread spt = new StreamRequestProcessingThread(service, request, stream);
-					spt.start();
+				//Step 1 create StreamProcessingThread
+				Stream<?> stream = responseSender.createStream(details);
+				StreamRequestProcessingThread spt = new StreamRequestProcessingThread(service, request, stream);
+				spt.start();
 
-					//Step 2 return response with StreamDetails so client can start processing the stream
-					response = new Response(request.getServiceName(), request.getEndPoint(), details);
-				}
-				else
-				{
-					/**
-					 * Make the actual call to the service
-					 */
-					response = service.process(request);
-				}
-				
-				long delayNS = System.nanoTime() - startTime;
-				long delayMiS = TimeUnit.NANOSECONDS.toMicros(delayNS);
-				long delayMS = TimeUnit.NANOSECONDS.toMillis(delayNS);
-				String endpoint = request.getServiceName() + "::" + request.getEndPoint();
-				String traceId = null;
-				if (request != null && request.getTraceId() != null)
-				{
-					traceId = request.getTraceId().toString();
-				}
-				System.out.println(String.format("ServerSide-TimeTaken for traceId %s by %s is %d MilliSeconds and %d MicroSeconds.", traceId, endpoint, delayMS, delayMiS));
+				//Step 2 return response with StreamDetails so client can start processing the stream
+				response = new Response(request.getServiceName(), request.getEndPoint(), request.getTransitTime(), details);
 			}
 			else
 			{
-				RuntimeException e = new RuntimeException(request.getServiceName() + " : UnAuthorized Request. Session could not be validated.");
-				response = new Response(request.getServiceName(), e.getMessage(), e);
+				/**
+				 * Make the actual call to the service
+				 */
+				response = service.process(request);
 			}
+			
+			long delayNS = System.nanoTime() - startTime;
+			long delayMiS = TimeUnit.NANOSECONDS.toMicros(delayNS);
+			long delayMS = TimeUnit.NANOSECONDS.toMillis(delayNS);
+			String endpoint = request.getServiceName() + "::" + request.getEndPoint();
+			String traceId = null;
+			if (request != null && request.getTraceId() != null)
+			{
+				traceId = request.getTraceId().toString();
+			}
+			System.out.println(String.format("ServerSide-TimeTaken for traceId %s by %s is %d MilliSeconds and %d MicroSeconds.", traceId, endpoint, delayMS, delayMiS));
 		}
 		else
 		{
-			RuntimeException e = new RuntimeException("Request received was null");
-			response = new Response("Unknown Service", "Unknown Endpoint", e); 
+			RuntimeException e = new RuntimeException(request.getServiceName() + " : UnAuthorized Request. Session could not be validated.");
+			response = new Response(request.getServiceName(), e.getMessage(), request.getTransitTime(), e);
 		}
+		
 		return response; 
 	}
 }

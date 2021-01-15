@@ -20,12 +20,16 @@
 package org.piangles.core.services;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.UUID;
 
 public final class Request implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 
+	private Date issuedTime = null;
+	private long transitTime = 0L;
+	
 	private String userId = null;
 	private String sessionId = null;	
 	private UUID traceId = null;
@@ -35,7 +39,7 @@ public final class Request implements Serializable
 	private String serviceName;
 	private String endPoint;
 	private Object[] parameters;
-
+	
 	public Request(String userId, String sessionId, UUID traceId, Header header, String serviceName, String endPoint)
 	{
 		this(userId, sessionId, traceId, header, serviceName, endPoint, null);
@@ -48,6 +52,8 @@ public final class Request implements Serializable
 
 	public Request(String userId, String sessionId, UUID traceId, Header header, SourceInfo sourceInfo, String serviceName, String endPoint, Object[] parameters)
 	{
+		this.issuedTime = new Date(); 
+				
 		this.userId = userId;
 		this.sessionId = sessionId;
 		this.traceId = traceId;
@@ -58,6 +64,21 @@ public final class Request implements Serializable
 		this.serviceName = serviceName;
 		this.endPoint = endPoint;
 		this.parameters = parameters;
+	}
+	
+	public Date getIssuedTime()
+	{
+		return issuedTime;
+	}
+	
+	public void markTransitTime()
+	{
+		transitTime = System.currentTimeMillis() - issuedTime.getTime(); 
+	}
+	
+	public long getTransitTime()
+	{
+		return transitTime;
 	}
 
 	public String getUserId()
@@ -105,6 +126,7 @@ public final class Request implements Serializable
 	{
 		StringBuffer sb = new StringBuffer();
 		
+		sb.append("issuedTime=").append(issuedTime).append("\n");
 		sb.append("userId=").append(userId).append("\n");
 		sb.append("sessionId=").append(sessionId).append("\n");
 		sb.append("traceId=").append(traceId).append("\n");
