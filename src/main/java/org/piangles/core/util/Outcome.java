@@ -22,7 +22,7 @@ package org.piangles.core.util;
 public enum Outcome
 {
 	Success(true),
-	Fail(false);
+	Failure(false);
 	
 	private boolean result = false;
 	
