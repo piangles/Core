@@ -19,32 +19,103 @@
 package org.piangles.core.services.remoting;
 
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.LongAccumulator;
 
 public final class ServicePerformanceDetails
 {
 	public static final String NAME = "ServicePerformanceDetails";
 	
-	private final AtomicLong noOfCalls = new AtomicLong(0);
-	private final AtomicLong noOfSuccessfulCalls = new AtomicLong(0);
-	private final AtomicLong noOfFailedCalls = new AtomicLong(0);
+	private final AtomicLong noOfRequests = new AtomicLong(0);
+	private final AtomicLong noOfSuccessfulResponses = new AtomicLong(0);
+	private final AtomicLong noOfFailedResponses = new AtomicLong(0);
 	
+	private final AtomicReference<String> minResponseTraceId = new AtomicReference<>(); 
+	private final LongAccumulator minResponseTime = new LongAccumulator(Long::min, Long.MAX_VALUE);
+	
+	private final AtomicReference<String> maxResponseTraceId = new AtomicReference<>();
+	private final LongAccumulator maxResponseTime = new LongAccumulator(Long::max, 0);
+
+	private final AtomicLong totalResponseTime = new AtomicLong();
+
 	public ServicePerformanceDetails()
 	{
 		
 	}
 	
-	public void incrementNoOfCalls()
+	public void incrementNoOfRequests()
 	{
-		noOfCalls.incrementAndGet();
+		noOfRequests.incrementAndGet();
 	}
 
-	public void incrementNoOfSuccessfulCalls()
+	public void incrementNoOfSuccessfulResponses()
 	{
-		noOfSuccessfulCalls.incrementAndGet();
+		noOfSuccessfulResponses.incrementAndGet();
 	}
 
-	public void incrementNoOfFailedCalls()
+	public void incrementNoOfFailedResponses()
 	{
-		noOfFailedCalls.incrementAndGet();
+		noOfFailedResponses.incrementAndGet();
+	}
+	
+	public long getNoOfRequests()
+	{
+		return noOfRequests.get();
+	}
+
+	public long getNoOfSuccessfulResponses()
+	{
+		return noOfSuccessfulResponses.get();
+	}
+
+	public long getNoOfFailedResponses()
+	{
+		return noOfFailedResponses.get();
+	}
+	
+	public long getAverageResponseTime()
+	{
+		long averageResponseTime = 0;
+		if (noOfRequests.get() != 0)
+		{
+			averageResponseTime = totalResponseTime.get() / noOfRequests.get();
+		}
+		return averageResponseTime;
+	}
+
+	public long getMinResponseTime()
+	{
+		return minResponseTime.get();
+	}
+
+	public String getMinResponseTraceId()
+	{
+		return minResponseTraceId.get();
+	}
+
+	public long getMaxResponseTime()
+	{
+		return maxResponseTime.get();
+	}
+
+	public String getMaxResponseTraceId()
+	{
+		return maxResponseTraceId.get();
+	}
+
+	public void record(String traceId, long responseTime)
+	{
+		totalResponseTime.addAndGet(responseTime);
+
+		minResponseTime.accumulate(responseTime);
+		if (minResponseTime.get() == responseTime)
+		{
+			minResponseTraceId.set(traceId);
+		}
+		maxResponseTime.accumulate(responseTime);
+		if (maxResponseTime.get() == responseTime)
+		{
+			maxResponseTraceId.set(traceId);
+		}
 	}
 }

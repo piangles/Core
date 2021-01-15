@@ -42,14 +42,19 @@ public final class ServiceInstrumentator extends AbstractInstrumentator
 	public Measures doInstrumentation()
 	{
 		spdMeasures.clear();
-		//How many requests
-		//How many sucessful responses
-		//How many failed responses
-		//What was the average response time
-		//Maximum transitTime
-		//Minimum transitTime
-		//Maximum traceId
-		//Minimum traceId
+		
+		spdMeasures.addMeasure("NoOfRequests", spDetails.getNoOfRequests());
+		spdMeasures.addMeasure("NoOfSuccessfulResponses", spDetails.getNoOfSuccessfulResponses());
+		spdMeasures.addMeasure("NoOfFailedResponses", spDetails.getNoOfFailedResponses());
+
+		spdMeasures.addMeasure("AverageResponseTime", spDetails.getAverageResponseTime());
+		
+		spdMeasures.addMeasure("MinResponseTime", spDetails.getMinResponseTime());
+		spdMeasures.addMeasure("MinResponseTraceId", spDetails.getMinResponseTraceId());
+
+		spdMeasures.addMeasure("MaxResponseTime", spDetails.getMaxResponseTime());
+		spdMeasures.addMeasure("MaxResponseTraceId", spDetails.getMaxResponseTraceId());
+
 		return spdMeasures;
 	}
 }

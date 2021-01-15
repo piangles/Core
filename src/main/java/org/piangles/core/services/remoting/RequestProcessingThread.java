@@ -73,6 +73,10 @@ public final class RequestProcessingThread extends AbstractContextAwareThread
 	
 	public void run()
 	{
+		long startTime = System.nanoTime();
+
+		spDetails.incrementNoOfRequests();
+		
 		Response response = null;
 		try
 		{
@@ -106,14 +110,26 @@ public final class RequestProcessingThread extends AbstractContextAwareThread
 			}
 		}
 		
-		if (response != null && responseSender != null)
+		if (response != null)
 		{
 			try
 			{
-				byte[] encodedBytes = null;
-				encodedBytes = encoder.encode(response);
-				
-				responseSender.send(encodedBytes);
+				if (response.isSuccessful())
+				{
+					spDetails.incrementNoOfSuccessfulResponses();
+				}
+				else
+				{
+					spDetails.incrementNoOfFailedResponses();
+				}
+
+				if (responseSender != null) //else it is FireAndForgetService
+				{
+					byte[] encodedBytes = null;
+					encodedBytes = encoder.encode(response);
+					
+					responseSender.send(encodedBytes);
+				}
 			}
 			catch (Exception e)
 			{
@@ -121,6 +137,22 @@ public final class RequestProcessingThread extends AbstractContextAwareThread
 				e.printStackTrace(System.err);
 			}
 		}
+		else
+		{
+			spDetails.incrementNoOfFailedResponses();
+		}
+		
+		long delayNS = System.nanoTime() - startTime;
+		long delayMiS = TimeUnit.NANOSECONDS.toMicros(delayNS);
+		long delayMS = TimeUnit.NANOSECONDS.toMillis(delayNS);
+		String endpoint = request.getServiceName() + "::" + request.getEndPoint();
+		String traceId = null;
+		if (request != null && request.getTraceId() != null)
+		{
+			traceId = request.getTraceId().toString();
+		}
+		spDetails.record(traceId, delayNS);
+		System.out.println(String.format("ServerSide-TimeTaken for traceId %s by %s is %d MilliSeconds and %d MicroSeconds.", traceId, endpoint, delayMS, delayMiS));
 	}
 	
 	public String getServiceName()
@@ -135,7 +167,6 @@ public final class RequestProcessingThread extends AbstractContextAwareThread
 	
 	private Response processRequest(Request request) throws Exception
 	{
-		long startTime = System.nanoTime();
 		Response response = null;
 
 		if (sessionValidator.isSessionValid(request))
@@ -160,17 +191,6 @@ public final class RequestProcessingThread extends AbstractContextAwareThread
 				 */
 				response = service.process(request);
 			}
-			
-			long delayNS = System.nanoTime() - startTime;
-			long delayMiS = TimeUnit.NANOSECONDS.toMicros(delayNS);
-			long delayMS = TimeUnit.NANOSECONDS.toMillis(delayNS);
-			String endpoint = request.getServiceName() + "::" + request.getEndPoint();
-			String traceId = null;
-			if (request != null && request.getTraceId() != null)
-			{
-				traceId = request.getTraceId().toString();
-			}
-			System.out.println(String.format("ServerSide-TimeTaken for traceId %s by %s is %d MilliSeconds and %d MicroSeconds.", traceId, endpoint, delayMS, delayMiS));
 		}
 		else
 		{
