@@ -17,96 +17,73 @@
 
 package org.piangles.core.structures;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.HashSet;;
+import java.util.HashSet;
+
+import org.piangles.core.util.LineProcessor;
+import org.piangles.core.util.UTF8FileReader;;
 
 public class BitmapTrieAngulationTest
 {
-	private static CharsetEncoder encoder = Charset.forName("US-ASCII").newEncoder();
-
 	public static void main(String[] args) throws Exception
 	{
 		TrieConfig trieConfig = new TrieConfig();
+		trieConfig.setIndexingTimeOutInSeconds(240);
+		
 		TrieAngulator trieAngulator = null;
-		int searchNo = 1;
+		int searchNo = 3;
 		File file = null;
 		
 		if (searchNo == 1)
 		{
-			trieAngulator = new TrieAngulator("TestDataset", new HashSet<String>(Arrays.asList("Attribute1", "Attribute2")), trieConfig);
+			trieAngulator = new TrieAngulator("1MM Words", new HashSet<String>(Arrays.asList("Attribute1", "Attribute2")), trieConfig);
 			file = new File("./resources/1mwords.txt");
 		}
 		else if (searchNo == 2)
 		{
-			trieAngulator = new TrieAngulator("TestDataset", trieConfig);
+			trieAngulator = new TrieAngulator("6 Phrase", trieConfig);
 			file = new File("./resources/6phrase.txt");
 		}
 		else
 		{
-			trieAngulator = new TrieAngulator("TestDataset", trieConfig);
+			trieAngulator = new TrieAngulator("Movies", trieConfig);
 			file = new File("C:\\Users\\sarad\\Downloads\\data.tsv");
 		}
 
-		FileInputStream fis = new FileInputStream(file);
-		InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8);
-		BufferedReader br = new BufferedReader(isr);
-
-		long startTime = System.currentTimeMillis();
-		// BufferedReader br = new BufferedReader(new FileReader(file));
-		String st;
-		long count = 0;
-		int skipCount = 0;
-		while ((st = br.readLine()) != null)
+		final TrieAngulator newTrieAngulator = trieAngulator; 
+		LineProcessor lp = (line, deaccentedLine, currentLineNo, percentageProcessed)->
 		{
-			st = st.trim();
-		
 			if (searchNo == 3)
 			{
-				String[] values = st.split("\t");
-				if (!values[3].equals("US")) continue; else st = values[2];
+				String[] values = line.split("\t");
+				if (!values[3].equals("US")) return; else line = values[2];
 			}
 
 			//derivedWords = derivedWords + (int) st.chars().filter(c -> c == (int) ' ').count();
-			if (isPureAscii(st) && st.length() > 0)
+			if (searchNo == 1)
 			{
-				count++;
-				if (searchNo == 1)
+				if (currentLineNo % 2 == 0)
 				{
-					if (count % 2 == 0)
-					{
-						trieAngulator.insert("Attribute1", new TrieEntry("" + count, (int) count, st));	
-					}
-					else
-					{
-						trieAngulator.insert("Attribute2", new TrieEntry("" + count, (int) count, st));
-					}
+					newTrieAngulator.insert("Attribute1", new TrieEntry("" + currentLineNo, (int) currentLineNo, line, deaccentedLine));	
 				}
 				else
 				{
-					trieAngulator.insert("Default", new TrieEntry("" + count, (int) count, st));
+					newTrieAngulator.insert("Attribute2", new TrieEntry("" + currentLineNo, (int) currentLineNo, line, deaccentedLine));
 				}
 			}
 			else
 			{
-				skipCount++;
-				// System.out.println(st);
+				newTrieAngulator.insert("Default", new TrieEntry("" + currentLineNo, (int) currentLineNo, line, deaccentedLine));
 			}
-		}
-		br.close();
-		System.out.println(
-				"Total number of lines inscope: " + count + " Skipped : " + skipCount + " Time Taken : " + (System.currentTimeMillis() - startTime) + " MiliSeconds.");
+		};
+		UTF8FileReader utf = new UTF8FileReader(file, true, lp);
+		utf.processFile();
 
 		try
 		{
 			trieAngulator.start();
-			startTime = System.currentTimeMillis();
+			long startTime = System.currentTimeMillis();
 			long startTimeNano = System.nanoTime();
 
 			if (searchNo == 1)
@@ -136,6 +113,7 @@ public class BitmapTrieAngulationTest
 		print(trieAngulator.trieangulate("of the"));
 		print(trieAngulator.trieangulate("of the rings"));
 		print(trieAngulator.trieangulate("rings"));
+		print(trieAngulator.trieangulate("Expose, My Lovely"));
 	}
 	
 	private static void search6PWords(TrieAngulator trieAngulator) throws Exception
@@ -170,29 +148,6 @@ public class BitmapTrieAngulationTest
 	{
 		System.out.println("Search result for [" + sr.getQueryString() + "] : " + sr);
 	}
-
-	public static boolean isAlpha(String name)
-	{
-		char[] chars = name.toCharArray();
-
-		for (char c : chars)
-		{
-			if (!Character.isLetter(c))
-			{
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	public static boolean isPureAscii(String v)
-	{
-		return encoder.canEncode(v);
-		// or "ISO-8859-1" for ISO Latin 1
-		// or StandardCharsets.US_ASCII with JDK1.7+
-	}
-	
 
 	public static void memory()
 	{
