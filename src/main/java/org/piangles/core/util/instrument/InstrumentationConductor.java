@@ -51,7 +51,6 @@ public final class InstrumentationConductor
 			self.registerInstrumentator(new SystemInstrumentator(name));
 			self.registerInstrumentator(new PerformanceInstrumentator(name));
 			self.registerInstrumentator(new MemoryInstrumentator(name));
-			self.new InstrumentationThread(name).start();
 		}
 	}
 	
@@ -65,9 +64,19 @@ public final class InstrumentationConductor
 		return name;
 	}
 	
+	public void start()
+	{
+		new InstrumentationThread(name).start();
+	}
+	
 	public void registerInstrumentator(Instrumentator instrumentator)
 	{
 		instrumentatorMap.put(instrumentator.getName(), instrumentator);
+	}
+	
+	public Instrumentator getInstrumentator(String instrumentatorName)
+	{
+		return instrumentatorMap.get(instrumentatorName);
 	}
 	
 	public void disableDefaultCallback()
