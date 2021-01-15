@@ -73,6 +73,11 @@ public final class Response implements Serializable
 		return returnValue;
 	}
 	
+	public boolean isSuccessful()
+	{
+		return !(returnValue instanceof Throwable);
+	}
+	
 	@Override
 	public String toString()
 	{
