@@ -25,7 +25,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
-public final class RedisCache
+public final class RedisCache implements Resource
 {
 	private static final String HOST = "Host";
 	private static final String PORT = "Port";
@@ -58,6 +58,12 @@ public final class RedisCache
 		pool = new JedisPool(poolConfig, host, port, socketTimeout, password);
 	}
 	
+	@Override
+	public void close() throws Exception
+	{
+		pool.close();
+	}
+
 	public Jedis getCache()
 	{
 		return pool.getResource();

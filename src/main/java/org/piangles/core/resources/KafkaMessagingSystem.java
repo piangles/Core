@@ -28,7 +28,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.common.TopicPartition;
 
-public final class KafkaMessagingSystem
+public final class KafkaMessagingSystem implements Resource
 {
 	private Properties msgProps = null;
 	
@@ -37,6 +37,11 @@ public final class KafkaMessagingSystem
 		this.msgProps = msgProps;
 	}
 	
+	@Override
+	public void close() throws Exception
+	{
+	}
+
 	public KafkaProducer<String, String> createProducer()
 	{
 		return new KafkaProducer<>(msgProps);

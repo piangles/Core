@@ -30,7 +30,7 @@ import org.piangles.core.util.abstractions.Decrypter;
  * As the name suggests it is a wrapper for creating connection pool.
  *
  */
-public final class RDBMSDataStore
+public final class RDBMSDataStore implements Resource
 {
 	private static final String DRIVER_CLASSNAME = "DriverClassName";
 	private static final String LOGIN_ID = "LoginId";
@@ -70,6 +70,12 @@ public final class RDBMSDataStore
 		ds.setMaxOpenPreparedStatements(180);
 	}
 
+	@Override
+	public void close() throws Exception
+	{
+		ds.close();
+	}
+	
 	public Connection getConnection() throws SQLException
 	{
 		return this.ds.getConnection();

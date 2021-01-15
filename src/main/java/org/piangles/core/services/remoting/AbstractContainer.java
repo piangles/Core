@@ -24,6 +24,7 @@ import java.util.TimeZone;
 import java.util.concurrent.ThreadFactory;
 
 import org.piangles.core.services.Service;
+import org.piangles.core.resources.ResourceManager;
 import org.piangles.core.services.AppType;
 import org.piangles.core.services.remoting.controllers.Controller;
 import org.piangles.core.services.remoting.controllers.ControllerException;
@@ -186,6 +187,7 @@ public abstract class AbstractContainer
 	protected void onShutdown()
 	{
 		System.out.println(serviceName + " is terminating.");
+		ResourceManager.getInstance().close();
 	}
 	
 

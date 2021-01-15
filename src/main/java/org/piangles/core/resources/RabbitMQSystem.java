@@ -27,7 +27,7 @@ import org.piangles.core.util.abstractions.Decrypter;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
-public final class RabbitMQSystem
+public final class RabbitMQSystem implements Resource
 {
 	private static final String DECRYPTER_CLASS_NAME = "DecrypterClassName";
 	private static final String DECRYPTER_AUTHZ_ID = "DecrypterAuthorizationId";
@@ -48,6 +48,12 @@ public final class RabbitMQSystem
 		factory.setPassword(rmqProperties.getPassword());
 		
 		connection = factory.newConnection();
+	}
+
+	@Override
+	public void close() throws Exception
+	{
+		connection.close();
 	}
 
 	public Connection getConnection()

@@ -36,7 +36,7 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 
-public final class MongoDataStore
+public final class MongoDataStore implements Resource
 {
 	private static final String PREFIX = "mongodb";
 	private static final String DATABASE = "Database";
@@ -48,7 +48,8 @@ public final class MongoDataStore
 	private static final String DECRYPTER_CLASS_NAME = "DecrypterClassName";
 	private static final String DECRYPTER_AUTHZ_ID = "DecrypterAuthorizationId";
 	
-	private MongoDatabase mongoDb;
+	private MongoClient mongoClient = null;
+	private MongoDatabase mongoDb = null;
 
 	MongoDataStore(String serviceName, Properties dataStoreProps) throws Exception
 	{
@@ -98,9 +99,16 @@ public final class MongoDataStore
 		 * https://stackoverflow.com/questions/44785556/how-to-use-mongodb-connecton-pooling-in-java
 		 * https://stackoverflow.com/questions/8968125/mongodb-connection-pooling
 		 */
-		MongoClient mongoClient = MongoClients.create(clientSettings);
+		mongoClient = MongoClients.create(clientSettings);
 		mongoDb = mongoClient.getDatabase(database);
 	}
+	
+	@Override
+	public void close() throws Exception
+	{
+		mongoClient.close();
+	}
+
 	
 	public MongoDatabase getDatabase()
 	{
