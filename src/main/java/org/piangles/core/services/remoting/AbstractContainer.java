@@ -28,6 +28,7 @@ import org.piangles.core.services.AppType;
 import org.piangles.core.services.remoting.controllers.Controller;
 import org.piangles.core.services.remoting.controllers.ControllerException;
 import org.piangles.core.util.central.CentralClient;
+import org.piangles.core.util.instrument.InstrumentationConductor;
 
 public abstract class AbstractContainer
 {
@@ -73,7 +74,7 @@ public abstract class AbstractContainer
 		this.serviceName = serviceName;
 		this.appType = appType;
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-			System.out.println(serviceName + " is terminating.");
+			onShutdown();
 		}));
 	}
 
@@ -87,6 +88,10 @@ public abstract class AbstractContainer
 	{
 		try
 		{
+			InstrumentationConductor.createInstance(serviceName);
+			InstrumentationConductor.getInstance().registerInstrumentator(new ServiceInstrumentator(serviceName));
+			
+			InstrumentationConductor.getInstance().start();
 			/**
 			 * TODO create a formal command line parsing logic
 			 */
@@ -177,6 +182,12 @@ public abstract class AbstractContainer
 	protected void createProcessImpl() throws ContainerException
 	{
 	};
+	
+	protected void onShutdown()
+	{
+		System.out.println(serviceName + " is terminating.");
+	}
+	
 
 	private void initializeAndRunService()
 	{

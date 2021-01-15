@@ -28,6 +28,7 @@ import org.piangles.core.stream.Stream;
 import org.piangles.core.stream.StreamDetails;
 import org.piangles.core.util.coding.Decoder;
 import org.piangles.core.util.coding.Encoder;
+import org.piangles.core.util.instrument.InstrumentationConductor;
 
 /**
  * On the server side each request needs to be processed on a separate thread.
@@ -48,6 +49,7 @@ public final class RequestProcessingThread extends AbstractContextAwareThread
 
 	private byte[] requestAsBytes = null;
 	private ResponseSender responseSender = null; 
+	private ServicePerformanceDetails spDetails = null;
 	
 	
 	public RequestProcessingThread(	String serviceName, Service service, 
@@ -64,6 +66,9 @@ public final class RequestProcessingThread extends AbstractContextAwareThread
 		this.decoder = decoder;
 		this.requestAsBytes = requestAsBytes;
 		this.responseSender = responseSender;
+		
+		ServiceInstrumentator si = (ServiceInstrumentator) InstrumentationConductor.getInstance().getInstrumentator(ServicePerformanceDetails.NAME);
+		this.spDetails = si.getServicePerformanceDetails();
 	}
 	
 	public void run()

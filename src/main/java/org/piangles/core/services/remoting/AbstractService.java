@@ -89,7 +89,7 @@ public abstract class AbstractService implements Service
 			returnValue = new RuntimeException("Endpoint : " +  request.getEndPoint() + " for Service : " + request.getServiceName() + " not found.");
 		}
 		
-		return new Response(request.getServiceName(), request.getEndPoint(), returnValue);
+		return new Response(request.getServiceName(), request.getEndPoint(), request.getTransitTime(), returnValue);
 	}
 	
 	@Override
