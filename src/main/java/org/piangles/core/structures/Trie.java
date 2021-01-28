@@ -56,7 +56,7 @@ public final class Trie implements Serializable
 		}
 		
 		root = new TrieNode(trieStatistics, trieConfig);
-		trieEntryList = new TrieEntryInMemoryList(trieConfig.getInitialSize());
+		trieEntryList = trieConfig.getTrieEntryList();
 	}
 	
 	public String getName()

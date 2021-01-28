@@ -32,7 +32,6 @@ public final class TrieConfig implements Serializable
 	public static final int DEFAULT_TRAVERSING_TIMEOUT_IN_MILLISECONDS = 5;
 	public static final boolean DEFAULT_USE_RECURSIVE_TRAVERSE_ALGORITHM = true;
 
-	private int initialSize;
 	private int maximumWordLength;
 	private int suggestionsLimit;
 	
@@ -41,23 +40,25 @@ public final class TrieConfig implements Serializable
 	
 	private boolean recursiveTraverseAlgorithm;
 	
+	private TrieEntryList trieEntryList; 
+	
 	private Vocabulary vocabulary;
 
 	public TrieConfig()
 	{
-		this(	DEFAULT_INITIAL_SIZE, 
-				DEFAULT_MAX_WORD_LENGTH, 
+		this(	DEFAULT_MAX_WORD_LENGTH, 
 				DEFAULT_SUGGESTIONS_LIMIT, 
 				DEFAULT_INDEXING_TIMEOUT_IN_SECONDS,
 				DEFAULT_TRAVERSING_TIMEOUT_IN_MILLISECONDS,
-				DEFAULT_USE_RECURSIVE_TRAVERSE_ALGORITHM, 
+				DEFAULT_USE_RECURSIVE_TRAVERSE_ALGORITHM,
+				new InMemoryTrieEntryList(DEFAULT_INITIAL_SIZE),
 				new DefaultVocabulary());
 	}
 	
-	public TrieConfig(	int initialSize, int maximumWordLength, int suggestionsLimit, int indexingTimeOutInSeconds, 
-						long traverseTimeOutInMilliSeconds, boolean recursiveAlgorithm, Vocabulary vocabulary)
+	public TrieConfig(	int maximumWordLength, int suggestionsLimit, int indexingTimeOutInSeconds, 
+						long traverseTimeOutInMilliSeconds, boolean recursiveAlgorithm, 
+						TrieEntryList trieEntryList, Vocabulary vocabulary)
 	{
-		this.initialSize = initialSize;
 		this.maximumWordLength = maximumWordLength;
 		this.suggestionsLimit = suggestionsLimit;
 		this.indexingTimeOutInSeconds = indexingTimeOutInSeconds;
@@ -66,12 +67,6 @@ public final class TrieConfig implements Serializable
 		this.vocabulary = vocabulary;
 	}
 	
-	public TrieConfig setInitialSize(int initialSize)
-	{
-		this.initialSize = initialSize;
-		return this;
-	}
-
 	public TrieConfig setMaximumWordLength(int maximumWordLength)
 	{
 		this.maximumWordLength = maximumWordLength;
@@ -101,16 +96,17 @@ public final class TrieConfig implements Serializable
 		this.recursiveTraverseAlgorithm = recursiveAlgorithm;
 		return this;
 	}
+	
+	public TrieConfig setTrieEntryList(TrieEntryList trieEntryList)
+	{
+		this.trieEntryList = trieEntryList;
+		return this;
+	}
 
 	public TrieConfig setVocabulary(Vocabulary vocabulary)
 	{
 		this.vocabulary = vocabulary;
 		return this;
-	}
-
-	public int getInitialSize()
-	{
-		return initialSize;
 	}
 
 	public int getMaximumWordLength()
@@ -138,6 +134,11 @@ public final class TrieConfig implements Serializable
 		return recursiveTraverseAlgorithm;
 	}
 	
+	public TrieEntryList getTrieEntryList()
+	{
+		return trieEntryList;
+	}
+	
 	public Vocabulary getVocabulary()
 	{
 		return vocabulary;
@@ -146,10 +147,9 @@ public final class TrieConfig implements Serializable
 	@Override
 	public String toString()
 	{
-		return "TrieConfig [initialSize=" + initialSize + ", maximumWordLength=" + maximumWordLength + ", suggestionsLimit=" + suggestionsLimit + ", indexingTimeOutInSeconds="
-				+ indexingTimeOutInSeconds + ", traverseTimeOutInMilliSeconds=" + traverseTimeOutInMilliSeconds + ", recursiveTraverseAlgorithm=" + recursiveTraverseAlgorithm + ", vocabulary="
+		return "TrieConfig [maximumWordLength=" + maximumWordLength + ", suggestionsLimit=" + suggestionsLimit + ", indexingTimeOutInSeconds="
+				+ indexingTimeOutInSeconds + ", traverseTimeOutInMilliSeconds=" + traverseTimeOutInMilliSeconds + ", recursiveTraverseAlgorithm=" 
+				+ recursiveTraverseAlgorithm + ", trieEntryList=" + trieEntryList.getClass().getSimpleName() + ", vocabulary=" 
 				+ vocabulary.getClass().getSimpleName() + "]";
 	}
-	
-	
 }

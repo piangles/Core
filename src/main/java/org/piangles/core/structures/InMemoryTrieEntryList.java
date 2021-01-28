@@ -22,7 +22,7 @@ package org.piangles.core.structures;
 import java.util.Arrays;
 import java.util.Collection;
 
-final class TrieEntryInMemoryList implements TrieEntryList
+public final class InMemoryTrieEntryList implements TrieEntryList
 {
 	private static final long serialVersionUID = 1L;
 
@@ -73,7 +73,7 @@ final class TrieEntryInMemoryList implements TrieEntryList
 	 * @throws IllegalArgumentException
 	 *             if the specified initial capacity is negative
 	 */
-	public TrieEntryInMemoryList(int initialCapacity)
+	public InMemoryTrieEntryList(int initialCapacity)
 	{
 		if (initialCapacity > 0)
 		{
@@ -195,7 +195,7 @@ final class TrieEntryInMemoryList implements TrieEntryList
 	{
 		try
 		{
-			TrieEntryInMemoryList v = (TrieEntryInMemoryList) super.clone();
+			InMemoryTrieEntryList v = (InMemoryTrieEntryList) super.clone();
 			v.elementData = Arrays.copyOf(elementData, size);
 			return v;
 		}
