@@ -37,6 +37,7 @@ public final class UTF8FileReader
 	
 	private File file = null;
 	private int noOfLines = 0;
+	private int noOfLinesSkipped = 0;	
 	private int longestLine = 0;
 	private int noOfLinesWithSpecialCharacters = 0;
 	
@@ -51,6 +52,7 @@ public final class UTF8FileReader
 	public UTF8FileReader(File file, boolean deaccent, LineProcessor lp) throws IOException
 	{
 		this.file = file;
+		this.deaccent = deaccent;
 		this.lp = lp;
 		gatherFileStats();
 	}
@@ -58,6 +60,11 @@ public final class UTF8FileReader
 	public int getNoOfLines()
 	{
 		return noOfLines;
+	}
+	
+	public int getNoOfLinesSkipped()
+	{
+		return noOfLinesSkipped;
 	}
 
 	public void processFile() throws IOException
@@ -98,7 +105,7 @@ public final class UTF8FileReader
 			}
 		}
 		stream.close();
-		System.out.println("No Of lines : " + nf.format(noOfLines) + " TimeTaken: " + nf.format(System.currentTimeMillis() - startTime));
+		System.out.println("No Of lines : " + nf.format(noOfLines) + " SkippedCount" + nf.format(noOfLinesSkipped) + " TimeTaken: " + nf.format(System.currentTimeMillis() - startTime) + " MilliSeconds.");
 	}
 
 	private void processFileTraditional() throws IOException
@@ -114,12 +121,15 @@ public final class UTF8FileReader
 		{
 			currentLineNo++;
 			actualLine = actualLine.trim();
-
 			if (deaccent)
 			{
 				deaccentedLine = deaccent(actualLine);
 			}
-			lp.process(actualLine, deaccentedLine, currentLineNo, (int)((100 * currentLineNo) / noOfLines));
+			boolean result = lp.process(actualLine, deaccentedLine, currentLineNo, (int)((100 * currentLineNo) / noOfLines));
+			if (!result)
+			{
+				noOfLinesSkipped++;
+			}
 		}
 		br.close();
 	}
@@ -155,7 +165,11 @@ public final class UTF8FileReader
 					{
 						deaccentedLine = deaccent(actualLine);
 					}
-					lp.process(actualLine, deaccentedLine, currentLineNo, (int)((100 * currentLineNo) / noOfLines));
+					boolean result = lp.process(actualLine, deaccentedLine, currentLineNo, (int)((100 * currentLineNo) / noOfLines));
+					if (!result)
+					{
+						noOfLinesSkipped++;
+					}
 					
 					//Reset
 					bufferIndex = i+1;

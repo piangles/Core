@@ -77,9 +77,9 @@ public final class Trie implements Serializable
 		}
 		trieEntryList.add(te);
 		
-		if (te.getValue().indexOf(Vocabulary.TOKEN_DELIMITER) != -1)
+		if (te.getTransformedValue().indexOf(Vocabulary.TOKEN_DELIMITER) != -1)
 		{
-			String[] splits = te.getValue().split("\\s+");
+			String[] splits = te.getTransformedValue().split("\\s+");
 			for (int i=1; i < splits.length; ++i)
 			{
 				if (!stopWordsMap.containsKey(splits[i]))
@@ -113,9 +113,10 @@ public final class Trie implements Serializable
 		Arrays.stream(trieEntryList.getElementData()).
 		parallel().
 		forEach(te -> {
-			String word = te.getValue().toLowerCase();
+			String word = te.getTransformedValue().toLowerCase();
 			char[] charArray = Arrays.copyOfRange(word.toCharArray(), 0, trieConfig.getMaximumWordLength());
-			
+
+//Is it worth it to use Streaming concept here?			
 //			Stream<Character> cStream = IntStream.range(0, charArray.length).mapToObj(i -> charArray[i]);
 //			final int teIndex = te.getIndex();
 //			TrieNode[] newCurrent = new TrieNode[1];

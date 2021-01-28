@@ -28,26 +28,26 @@ public final class TrieEntry implements Serializable
 	private int index;
 	private TrieEntry parent;
 	private int rank;
-	private String value;
 	private String actualValue;
+	private String transformedValue;
 
-	public TrieEntry(String value, String actualValue)
+	public TrieEntry(String actualValue, String transformedValue)
 	{
-		this(null, null, -1, value, actualValue);
+		this(null, null, -1, actualValue, transformedValue);
 	}
 
-	public TrieEntry(String id, int rank, String value, String actualValue)
+	public TrieEntry(String id, int rank, String actualValue, String transformedValue)
 	{
-		this(null, null, rank, value, actualValue);
+		this(null, null, rank, actualValue, transformedValue);
 	}
 
-	public TrieEntry(String id, TrieEntry parent, int rank, String value, String actualValue)
+	public TrieEntry(String id, TrieEntry parent, int rank, String actualValue, String transformedValue)
 	{
 		this.id = id;
 		this.parent = parent;
 		this.rank = rank;
-		this.value = value;
 		this.actualValue = actualValue;
+		this.transformedValue = transformedValue;
 	}
 	
 	public String getId()
@@ -60,14 +60,14 @@ public final class TrieEntry implements Serializable
 		return rank;
 	}
 	
-	public String getValue()
-	{
-		return value;
-	}
-
 	public String getActualValue()
 	{
 		return actualValue;
+	}
+
+	public String getTransformedValue()
+	{
+		return transformedValue;
 	}
 
 	public boolean isDerived()
@@ -95,7 +95,7 @@ public final class TrieEntry implements Serializable
     		}
     		else
     		{
-        		compareResult = this.value.compareToIgnoreCase(other.value); 
+        		compareResult = this.transformedValue.compareToIgnoreCase(other.transformedValue); 
     		}
     	}
     	else if (this.isDerived() && other.isDerived())
@@ -131,6 +131,6 @@ public final class TrieEntry implements Serializable
 	@Override
 	public String toString()
 	{
-		return value;
+		return actualValue;
 	}
 }

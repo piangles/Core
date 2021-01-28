@@ -22,6 +22,5 @@ import java.io.IOException;
 
 public interface LineProcessor
 {
-	//Make Stats Composite
-	public void process(String actualLine, String deaccentedLine, int currentLineNo, int percentageProcessed) throws IOException;
+	public boolean process(String actualLine, String deaccentedLine, int currentLineNo, int percentageProcessed) throws IOException;
 }
