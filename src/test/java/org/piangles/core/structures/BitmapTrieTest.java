@@ -44,7 +44,7 @@ public class BitmapTrieTest
 				String[] values = line.split("\t");
 				if (!values[3].equals("US"))
 				{
-					return;
+					return false;
 				}
 				else
 				{
@@ -53,7 +53,7 @@ public class BitmapTrieTest
 				}
 			}
 			trie.insert(new TrieEntry("" + currentLineNo, currentLineNo, line, deaccentedLine));
-
+			return true;
 		};
 		UTF8FileReader utf = new UTF8FileReader(file, true, lp);
 		utf.processFile();

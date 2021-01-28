@@ -29,7 +29,7 @@ public class BitmapTrieAngulationTest
 	public static void main(String[] args) throws Exception
 	{
 		TrieConfig trieConfig = new TrieConfig();
-		trieConfig.setIndexingTimeOutInSeconds(240);
+		trieConfig.setIndexingTimeOutInSeconds(300);
 		
 		TrieAngulator trieAngulator = null;
 		int searchNo = 3;
@@ -52,12 +52,22 @@ public class BitmapTrieAngulationTest
 		}
 
 		final TrieAngulator newTrieAngulator = trieAngulator; 
-		LineProcessor lp = (line, deaccentedLine, currentLineNo, percentageProcessed)->
+		LineProcessor lp = (actualLine, deaccentedLine, currentLineNo, percentageProcessed)->
 		{
 			if (searchNo == 3)
 			{
-				String[] values = line.split("\t");
-				if (!values[3].equals("US")) return; else line = values[2];
+				String[] actualValues = actualLine.split("\t");
+				if (!actualValues[3].equals("US"))
+				{
+					return false;
+				}
+				else
+				{
+					String[] deaccentedValues = deaccentedLine.split("\t");
+
+					actualLine = actualValues[2];
+					deaccentedLine = deaccentedValues[2];
+				}
 			}
 
 			//derivedWords = derivedWords + (int) st.chars().filter(c -> c == (int) ' ').count();
@@ -65,17 +75,19 @@ public class BitmapTrieAngulationTest
 			{
 				if (currentLineNo % 2 == 0)
 				{
-					newTrieAngulator.insert("Attribute1", new TrieEntry("" + currentLineNo, (int) currentLineNo, line, deaccentedLine));	
+					newTrieAngulator.insert("Attribute1", new TrieEntry("" + currentLineNo, (int) currentLineNo, actualLine, deaccentedLine));	
 				}
 				else
 				{
-					newTrieAngulator.insert("Attribute2", new TrieEntry("" + currentLineNo, (int) currentLineNo, line, deaccentedLine));
+					newTrieAngulator.insert("Attribute2", new TrieEntry("" + currentLineNo, (int) currentLineNo, actualLine, deaccentedLine));
 				}
 			}
 			else
 			{
-				newTrieAngulator.insert("Default", new TrieEntry("" + currentLineNo, (int) currentLineNo, line, deaccentedLine));
+				newTrieAngulator.insert("Default", new TrieEntry("" + currentLineNo, (int) currentLineNo, actualLine, deaccentedLine));
 			}
+			
+			return true;
 		};
 		UTF8FileReader utf = new UTF8FileReader(file, true, lp);
 		utf.processFile();
@@ -113,7 +125,7 @@ public class BitmapTrieAngulationTest
 		print(trieAngulator.trieangulate("of the"));
 		print(trieAngulator.trieangulate("of the rings"));
 		print(trieAngulator.trieangulate("rings"));
-		print(trieAngulator.trieangulate("Expose, My Lovely"));
+		print(trieAngulator.trieangulate("Miami Expose"));
 	}
 	
 	private static void search6PWords(TrieAngulator trieAngulator) throws Exception
