@@ -32,7 +32,7 @@ public class BitmapTrieAngulationTest
 		trieConfig.setIndexingTimeOutInSeconds(300);
 		
 		TrieAngulator trieAngulator = null;
-		int searchNo = 3;
+		int searchNo = 1;
 		File file = null;
 		
 		if (searchNo == 1)
