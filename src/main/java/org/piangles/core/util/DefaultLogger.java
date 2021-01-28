@@ -18,7 +18,7 @@
  
 package org.piangles.core.util;
 
-public class DefaultLogger implements Logger
+public class DefaultLogger extends Logger
 {
 	public void debug(Object message)
 	{

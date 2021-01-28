@@ -18,39 +18,35 @@
  
 package org.piangles.core.util;
 
-import java.util.HashMap;
-import java.util.Map;
-
-public interface Logger
+public abstract class Logger
 {
 	public static final String LOGGER_CLASS = "logger.class";
 	public static final String INSTANCE = "instance";
 	
-	public static final Map<String, Logger> loggerMap = new HashMap<>();
+	public static Logger logger = null;
 	
-	public void debug(Object message);
+	public abstract void debug(Object message);
 
-	public void debug(Object message, Throwable t);
+	public abstract void debug(Object message, Throwable t);
 	
-	public void info(Object message);
+	public abstract void info(Object message);
 
-	public void info(Object message, Throwable t);
+	public abstract void info(Object message, Throwable t);
 	
-	public void warn(Object message);
+	public abstract void warn(Object message);
 
-	public void warn(Object message, Throwable t);
+	public abstract void warn(Object message, Throwable t);
 	
-	public void error(Object message);
+	public abstract void error(Object message);
 
-	public void error(Object message, Throwable t);
+	public abstract void error(Object message, Throwable t);
 
-	public void fatal(Object message);
+	public abstract void fatal(Object message);
 
-	public void fatal(Object message, Throwable t);
+	public abstract void fatal(Object message, Throwable t);
 
 	public static Logger getInstance()
 	{
-		Logger logger = loggerMap.get(INSTANCE);
 		if (logger == null)
 		{
 			String loggerClassName = System.getenv(LOGGER_CLASS);
@@ -66,7 +62,6 @@ public interface Logger
 			try
 			{
 				logger = (Logger)Class.forName(loggerClassName).newInstance();
-				loggerMap.put(INSTANCE, logger);
 			}
 			catch (InstantiationException | IllegalAccessException | ClassNotFoundException e)
 			{
