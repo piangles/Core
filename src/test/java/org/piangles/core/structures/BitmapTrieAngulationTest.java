@@ -48,7 +48,7 @@ public class BitmapTrieAngulationTest
 		else
 		{
 			trieAngulator = new TrieAngulator("Movies", trieConfig);
-			file = new File("C:\\Users\\sarad\\Downloads\\data.tsv");
+			file = new File("./resources/data.tsv");
 		}
 
 		final TrieAngulator newTrieAngulator = trieAngulator; 

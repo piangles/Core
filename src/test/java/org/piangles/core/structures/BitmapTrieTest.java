@@ -36,7 +36,7 @@ public class BitmapTrieTest
 		else if (searchNo == 2)
 		file = new File("./resources/6phrase.txt");
 		else
-		file = new File("C:\\Users\\sarad\\Downloads\\data.tsv");
+		file = new File("./resources/data.tsv");
 
 		LineProcessor lp = (line, deaccentedLine, currentLineNo, percentageProcessed)->{
 			if (searchNo == 3)
