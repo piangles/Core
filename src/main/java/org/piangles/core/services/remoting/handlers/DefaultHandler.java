@@ -23,6 +23,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.piangles.core.services.Request;
+import org.piangles.core.services.Response;
 import org.piangles.core.stream.Stream;
 import org.piangles.core.stream.StreamDetails;
 
@@ -65,7 +66,7 @@ public final class DefaultHandler extends AbstractHandler
 	}
 
 	@Override
-	protected Object processRequest(Request request) throws Throwable
+	protected Response processRequest(Request request) throws Throwable
 	{
 		return null;
 	}

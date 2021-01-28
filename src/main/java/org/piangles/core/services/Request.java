@@ -126,7 +126,7 @@ public final class Request implements Serializable
 	{
 		StringBuffer sb = new StringBuffer();
 		
-		sb.append("issuedTime=").append(issuedTime).append("\n");
+		sb.append("RequestIssuedTime=").append(issuedTime).append("\n");
 		sb.append("userId=").append(userId).append("\n");
 		sb.append("sessionId=").append(sessionId).append("\n");
 		sb.append("traceId=").append(traceId).append("\n");

@@ -26,8 +26,9 @@ public final class Response implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 	
-	private long requestTransitTime = 0L;
 	private Date issuedTime = null;
+	private long requestTransitTime = 0L;
+	private long transitTime = 0L;
 	
 	private String serviceName;
 	private String endPoint;
@@ -58,16 +59,26 @@ public final class Response implements Serializable
 		return endPoint;
 	}
 
-	public long getRequestTransitTime()
-	{
-		return requestTransitTime;
-	}
-	
 	public Date getIssuedTime()
 	{
 		return issuedTime;
 	}
+
+	public long getRequestTransitTime()
+	{
+		return requestTransitTime;
+	}
+
+	public void markTransitTime()
+	{
+		transitTime = System.currentTimeMillis() - issuedTime.getTime(); 
+	}
 	
+	public long getTransitTime()
+	{
+		return transitTime;
+	}
+
 	public Object getReturnValue()
 	{
 		return returnValue;
@@ -83,8 +94,8 @@ public final class Response implements Serializable
 	{
 		StringBuffer sb = new StringBuffer();
 		
+		sb.append("ResponseIssuedTime=").append(issuedTime).append("\n");
 		sb.append("requestTransitTime=").append(requestTransitTime).append("\n");
-		sb.append("issuedTime=").append(issuedTime).append("\n");
 		sb.append("serviceName=").append(serviceName).append("\n");
 		sb.append("endPoint=").append(endPoint).append("\n");
 		sb.append("returnValue=").append("ReturnValue will not be disclosed.").append("\n");

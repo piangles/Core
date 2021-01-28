@@ -56,10 +56,8 @@ public final class ReqRespHandler extends AbstractHandler
 	}
 
 	@Override
-	protected Object processRequest(Request request) throws Throwable
+	protected Response processRequest(Request request) throws Throwable
 	{
-		Object returnValue = null;
-
 		String corrId = UUID.randomUUID().toString();
 		Channel channel = rmqSystem.getConnection().createChannel();
 		
@@ -92,10 +90,9 @@ public final class ReqRespHandler extends AbstractHandler
 		if (responseAsBytes != null)
 		{
 			response = JAVA.getDecoder().decode(responseAsBytes, Response.class);
-			returnValue = response.getReturnValue();
 		}
 
-		return returnValue;
+		return response;
 	}
 	
 	@Override

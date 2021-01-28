@@ -54,6 +54,7 @@ public abstract class AbstractController extends AbstractRemoter implements Cont
 		init();
 	}
 	
+	
 	@Override
 	public final void start(Service service) throws ControllerException
 	{

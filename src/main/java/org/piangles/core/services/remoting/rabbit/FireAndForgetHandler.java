@@ -22,6 +22,7 @@ package org.piangles.core.services.remoting.rabbit;
 import org.piangles.core.resources.RabbitMQSystem;
 import org.piangles.core.resources.ResourceManager;
 import org.piangles.core.services.Request;
+import org.piangles.core.services.Response;
 import org.piangles.core.services.remoting.handlers.AbstractHandler;
 import org.piangles.core.services.remoting.handlers.HandlerException;
 import org.piangles.core.stream.Stream;
@@ -52,7 +53,7 @@ public final class FireAndForgetHandler extends AbstractHandler
 	}
 
 	@Override
-	public Object processRequest(Request request) throws Throwable
+	public Response processRequest(Request request) throws Throwable
 	{
 		//TODO: Make this into a Future or a Separate Thread
 		channel.basicPublish(RabbitProps.getTopic(getProperties()), "", null, getEncoder().encode(request));

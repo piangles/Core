@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.piangles.core.services.Header;
 import org.piangles.core.services.Request;
+import org.piangles.core.services.Response;
 import org.piangles.core.services.remoting.AbstractRemoter;
 import org.piangles.core.services.remoting.SessionAwareable;
 import org.piangles.core.services.remoting.Traceable;
@@ -100,13 +101,19 @@ public abstract class AbstractHandler extends AbstractRemoter implements Handler
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
 	{
 		long startTime = System.nanoTime();
+		Request request = null;
+		Response response = null;
 		Object result = null;
-		Request request = null; 
 		try
 		{
 			request = createRequest(method, args);
 
-			result = processRequest(request);
+			response = processRequest(request);
+			if (response != null)
+			{
+				response.markTransitTime();
+				result = response.getReturnValue();
+			}
 			
 			if (result instanceof StreamDetails)
 			{
@@ -132,7 +139,15 @@ public abstract class AbstractHandler extends AbstractRemoter implements Handler
 			{
 				traceId = request.getTraceId().toString();
 			}
-			Logger.getInstance().info(String.format("CallerSide-TimeTaken for traceId %s by %s is %d MilliSeconds and %d MicroSeconds.", traceId, endpoint(request), delayMS, delayMiS));
+			
+			long totalTransitTime = 0;
+			if (response != null)
+			{
+				totalTransitTime = response.getRequestTransitTime() + response.getTransitTime();  
+			}
+			String message = String.format("CallerSide: TraceId %s for Endpoint %s Total ReqResp TransitTime is %d  MilliSeconds and TimeTaken is %d MilliSeconds and %d MicroSeconds.", 
+					traceId, endpoint(request), totalTransitTime, delayMS, delayMiS);
+			Logger.getInstance().info(message);
 		}
 		
 		/**
@@ -270,7 +285,7 @@ public abstract class AbstractHandler extends AbstractRemoter implements Handler
 	}
 
 	protected abstract void init() throws HandlerException;
-	protected abstract Object processRequest(Request request) throws Throwable;
+	protected abstract Response processRequest(Request request) throws Throwable;
 	protected abstract Stream<?> createStream(StreamDetails details) throws Exception;
 }
 

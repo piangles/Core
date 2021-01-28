@@ -153,7 +153,9 @@ public final class RequestProcessingThread extends AbstractContextAwareThread
 			traceId = request.getTraceId().toString();
 		}
 		spDetails.record(traceId, delayNS);
-		Logger.getInstance().info(String.format("ServerSide-TimeTaken for traceId %s by %s is %d MilliSeconds and %d MicroSeconds.", traceId, endpoint, delayMS, delayMiS));
+		String message = String.format("ServerSide: TraceId %s for Endpoint %s TransitTime is %d  MilliSeconds and TimeTaken is %d MilliSeconds and %d MicroSeconds.", 
+										traceId, endpoint, request.getTransitTime(), delayMS, delayMiS);
+		Logger.getInstance().info(message);
 	}
 	
 	public String getServiceName()
