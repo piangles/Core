@@ -33,6 +33,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
+import org.piangles.core.util.Logger;
 
 public final class DefaultCentralClient extends CentralClient
 {
@@ -72,12 +73,12 @@ public final class DefaultCentralClient extends CentralClient
 			}
 			
 			centralSocketAddress = centralHost + ":" + centralPort;
-			System.out.println("Central SocketAddress is : " + centralSocketAddress);
+			Logger.getInstance().info("Central SocketAddress is : " + centralSocketAddress);
 		}
 		else
 		{
 			String message = CENTRAL_HOST + " or " + CENTRAL_PORT + " environment variable(s) are missing.";
-			System.err.println(message);
+			Logger.getInstance().fatal(message);
 			throw new Exception(message);
 		}
 	}
@@ -89,7 +90,7 @@ public final class DefaultCentralClient extends CentralClient
 		{
 			discoverURL = "http://" + centralSocketAddress + CENTRAL_SERVICE + "discover?ServiceName=";
 		}
-		System.out.println("CentralClient:Discovering properties for Service : " + serviceName);
+		Logger.getInstance().info("CentralClient:Discovering properties for Service : " + serviceName);
 		return getProperties("Discovery", discoverURL, serviceName);
 	}
 
@@ -100,7 +101,7 @@ public final class DefaultCentralClient extends CentralClient
 		{
 			tier1ConfigURL = "http://" + centralSocketAddress + CENTRAL_SERVICE + "tier1config?ServiceName=";
 		}
-		System.out.println("CentralClient:Retriving tier1Config for Service : " + serviceName);
+		Logger.getInstance().info("CentralClient:Retriving tier1Config for Service : " + serviceName);
 		return getProperties("Tier1Config", tier1ConfigURL, serviceName);
 	}
 
@@ -113,7 +114,7 @@ public final class DefaultCentralClient extends CentralClient
 
 		try
 		{
-			System.out.println("CentralClient:Decrypting for Service : " + serviceName);
+			Logger.getInstance().info("CentralClient:Decrypting for Service : " + serviceName);
 			if (cipherURL == null)
 			{
 				cipherURL = "http://" + centralSocketAddress + CENTRAL_SERVICE + "decrypt?" 

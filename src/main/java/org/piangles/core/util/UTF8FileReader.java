@@ -72,7 +72,7 @@ public final class UTF8FileReader
 		long startTime = System.currentTimeMillis();
 		processFileTraditional();
 		//processFileProprietary();
-		System.out.println("ProcessFile NoOfLines: " + nf.format(noOfLines) +
+		Logger.getInstance().info("ProcessFile NoOfLines: " + nf.format(noOfLines) +
 							"\nNoOfLinesWithSpecialCharacters: " + nf.format(noOfLinesWithSpecialCharacters) +
 							"\nTimeTaken: " + nf.format(System.currentTimeMillis() - startTime) + " MilliSeconds.");
 	}
@@ -105,7 +105,7 @@ public final class UTF8FileReader
 			}
 		}
 		stream.close();
-		System.out.println("No Of lines : " + nf.format(noOfLines) + " SkippedCount" + nf.format(noOfLinesSkipped) + " TimeTaken: " + nf.format(System.currentTimeMillis() - startTime) + " MilliSeconds.");
+		Logger.getInstance().info("No Of lines : " + nf.format(noOfLines) + " SkippedCount" + nf.format(noOfLinesSkipped) + " TimeTaken: " + nf.format(System.currentTimeMillis() - startTime) + " MilliSeconds.");
 	}
 
 	private void processFileTraditional() throws IOException
@@ -216,7 +216,7 @@ public final class UTF8FileReader
 //		
 //		for (String line : lines)
 //		{
-//			System.out.println("Actual:" + line + " ===== DeAccented:" + deaccent(line));
+//			Logger.getInstance().info("Actual:" + line + " ===== DeAccented:" + deaccent(line));
 //		}
 //	}
 }

@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.piangles.core.util.Logger;
+
 public final class InstrumentationConductor
 {
 	public static final int WAIT_TIME_BETWEEN_QUERY = 60 * 1000;
@@ -100,7 +102,7 @@ public final class InstrumentationConductor
 		if (defaultCallbackEnabled)
 		{
 			//Default Callback will just print on screen
-			System.out.println(measures + "\n");
+			Logger.getInstance().info(measures + "\n");
 		}
 		
 		List<InstrumentationCallback> callbackList = callbacksMap.get(measures.getName());

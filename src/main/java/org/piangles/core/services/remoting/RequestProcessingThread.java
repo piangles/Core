@@ -26,6 +26,7 @@ import org.piangles.core.services.Response;
 import org.piangles.core.services.Service;
 import org.piangles.core.stream.Stream;
 import org.piangles.core.stream.StreamDetails;
+import org.piangles.core.util.Logger;
 import org.piangles.core.util.coding.Decoder;
 import org.piangles.core.util.coding.Encoder;
 import org.piangles.core.util.instrument.InstrumentationConductor;
@@ -152,7 +153,7 @@ public final class RequestProcessingThread extends AbstractContextAwareThread
 			traceId = request.getTraceId().toString();
 		}
 		spDetails.record(traceId, delayNS);
-		System.out.println(String.format("ServerSide-TimeTaken for traceId %s by %s is %d MilliSeconds and %d MicroSeconds.", traceId, endpoint, delayMS, delayMiS));
+		Logger.getInstance().info(String.format("ServerSide-TimeTaken for traceId %s by %s is %d MilliSeconds and %d MicroSeconds.", traceId, endpoint, delayMS, delayMiS));
 	}
 	
 	public String getServiceName()

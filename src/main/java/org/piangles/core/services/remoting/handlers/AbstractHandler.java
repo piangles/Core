@@ -34,6 +34,7 @@ import org.piangles.core.services.remoting.SessionAwareable;
 import org.piangles.core.services.remoting.Traceable;
 import org.piangles.core.stream.Stream;
 import org.piangles.core.stream.StreamDetails;
+import org.piangles.core.util.Logger;
 import org.piangles.core.util.SystemHelper;
 
 public abstract class AbstractHandler extends AbstractRemoter implements Handler
@@ -131,7 +132,7 @@ public abstract class AbstractHandler extends AbstractRemoter implements Handler
 			{
 				traceId = request.getTraceId().toString();
 			}
-			System.out.println(String.format("CallerSide-TimeTaken for traceId %s by %s is %d MilliSeconds and %d MicroSeconds.", traceId, endpoint(request), delayMS, delayMiS));
+			Logger.getInstance().info(String.format("CallerSide-TimeTaken for traceId %s by %s is %d MilliSeconds and %d MicroSeconds.", traceId, endpoint(request), delayMS, delayMiS));
 		}
 		
 		/**

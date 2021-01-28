@@ -21,6 +21,8 @@ package org.piangles.core.util.central;
 
 import java.util.Properties;
 
+import org.piangles.core.util.Logger;
+
 public abstract class CentralClient
 {
 	public static final String CENTRAL_CLIENT_CLASS = "central.client.class";
@@ -40,11 +42,11 @@ public abstract class CentralClient
 						if (centralClientClassName == null)
 						{
 							centralClientClassName = DefaultCentralClient.class.getCanonicalName();
-							System.err.println(CENTRAL_CLIENT_CLASS + " property is NOT set, defaulting to : " + centralClientClassName);
+							Logger.getInstance().warn(CENTRAL_CLIENT_CLASS + " property is NOT set, defaulting to : " + centralClientClassName);
 						}
 						else
 						{
-							System.out.println(CENTRAL_CLIENT_CLASS + " property is set, trying to create : " + centralClientClassName);
+							Logger.getInstance().info(CENTRAL_CLIENT_CLASS + " property is set, trying to create : " + centralClientClassName);
 						}
 						centralClient = (CentralClient)Class.forName(centralClientClassName).newInstance();
 					}

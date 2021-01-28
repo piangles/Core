@@ -28,6 +28,7 @@ import org.piangles.core.resources.ResourceManager;
 import org.piangles.core.services.AppType;
 import org.piangles.core.services.remoting.controllers.Controller;
 import org.piangles.core.services.remoting.controllers.ControllerException;
+import org.piangles.core.util.Logger;
 import org.piangles.core.util.central.CentralClient;
 import org.piangles.core.util.instrument.InstrumentationConductor;
 
@@ -100,7 +101,7 @@ public abstract class AbstractContainer
 			{
 				if ("wait".equals(args[0]))
 				{
-					System.out.println("Waiting for " + args[1] + " seconds to start: " + serviceName);
+					Logger.getInstance().info("Waiting for " + args[1] + " seconds to start: " + serviceName);
 					Thread.sleep(Integer.parseInt(args[1]) * 1000);
 				}
 			}
@@ -118,19 +119,19 @@ public abstract class AbstractContainer
 
 			if (appType == AppType.Process)
 			{
-				System.out.println(serviceName + " is a Process and will handle it's own lifecycle events.");
+				Logger.getInstance().info(serviceName + " is a Process and will handle it's own lifecycle events.");
 
 				initializeAndRunProcess();
 			}
 			else if (appType == AppType.Service)
 			{
-				System.out.println(serviceName + " is a Service and starting it's lifecycle events.");
+				Logger.getInstance().info(serviceName + " is a Service and starting it's lifecycle events.");
 				
 				initializeAndRunService();
 			}
 			else //It is a combination of both Process and Service
 			{
-				System.out.println(serviceName + " is both a Process and Service is managed accordingly.");
+				Logger.getInstance().info(serviceName + " is both a Process and Service is managed accordingly.");
 				
 				initializeAndRunProcess();
 				initializeAndRunService();
@@ -186,7 +187,7 @@ public abstract class AbstractContainer
 	
 	protected void onShutdown()
 	{
-		System.out.println(serviceName + " is terminating.");
+		Logger.getInstance().info(serviceName + " is terminating.");
 		ResourceManager.getInstance().close();
 	}
 	
@@ -196,20 +197,20 @@ public abstract class AbstractContainer
 		Thread initializerThread = threadFactory.newThread(() -> {
 			try
 			{
-				System.out.println("Creating " + serviceName + " ServiceImpl.");
+				Logger.getInstance().info("Creating " + serviceName + " ServiceImpl.");
 				serviceImpl = createServiceImpl();
 				
 				if (serviceImpl == null) return;
 
-				System.out.println("Creating " + serviceName + " ControllerServiceDelegate.");
+				Logger.getInstance().info("Creating " + serviceName + " ControllerServiceDelegate.");
 				controllerServiceDelegate = createControllerServiceDelegate();
 
-				System.out.println("Creating " + serviceName + " Controller.");
+				Logger.getInstance().info("Creating " + serviceName + " Controller.");
 				controller = createController();
 
 				try
 				{
-					System.out.println("Controller for " + serviceImpl.getClass().getSimpleName() + " being started...");
+					Logger.getInstance().info("Controller for " + serviceImpl.getClass().getSimpleName() + " being started...");
 					controller.start(controllerServiceDelegate);
 				}
 				catch (ControllerException e)
