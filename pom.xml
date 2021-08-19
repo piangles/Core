@@ -118,11 +118,11 @@
 	<distributionManagement>
 		<snapshotRepository>
 			<id>piangle-s3-artifact</id>
-			<url>s3://piangle-s3-artifact/snapshot</url>
+			<url>s3://piangle-s3-artifacts/snapshot</url>
 		</snapshotRepository>
 		<repository>
 			<id>piangle-s3-artifact</id>
-			<url>s3://piangle-s3-artifact/release</url>
+			<url>s3://piangle-s3-artifacts/release</url>
 		</repository>
 	</distributionManagement>
 
