@@ -145,6 +145,6 @@
 				</configuration>
 			</plugin>
 		</plugins>
-		<finalName>Core</finalName>
+		<finalName>Core-${version}</finalName>
 	</build>
 </project>
