@@ -126,6 +126,19 @@
 		</repository>
 	</distributionManagement>
 
+    <servers>
+        <server>
+            <id>maven-s3-release-repo</id>
+            <username>${env.CODEARTIFACT_USERNAME}</username>
+            <password>${env.CODEARTIFACT_PASSWORD}</password>			
+        </server>
+        <server>
+            <id>maven-s3-snapshot-repo</id>
+            <username>${env.CODEARTIFACT_USERNAME}</username>
+            <password>${env.CODEARTIFACT_PASSWORD}</password>			
+        </server>
+    </servers>
+	
 	<build>
 		<extensions>
 			<extension>
