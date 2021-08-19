@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- READ ME >>>>> Copy this file to .m2 directory it will be used for loading jars into s3 repository -->
+
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 
+      http://maven.apache.org/xsd/settings-1.0.0.xsd">
+    <servers>
+        <server>
+            <id>maven-s3-release-repo</id>
+            <username>${env.CODEARTIFACT_USERNAME}</username>
+            <password>${env.CODEARTIFACT_PASSWORD}</password>			
+        </server>
+        <server>
+            <id>maven-s3-snapshot-repo</id>
+            <username>${env.CODEARTIFACT_USERNAME}</username>
+            <password>${env.CODEARTIFACT_PASSWORD}</password>			
+        </server>
+    </servers>
+</settings>
