@@ -4,13 +4,15 @@ phases:
   install:
     runtime-versions:
       java: corretto11
+    commands : 
+      - cp ./settings.xml /root/.m2/settings.xml
   pre_build:
     commands:
       - echo Nothing to do in the pre_build phase...
   build:
     commands:
       - echo Build started on `date`
-      - mvn -s ./settings-security.xml clean compile install package deploy
+      - mvn clean compile install package deploy
   post_build:
     commands:
       - echo Build completed on `date`
