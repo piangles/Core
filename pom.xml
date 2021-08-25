@@ -199,7 +199,7 @@
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<configuration>
 					<doclint>none</doclint>
-					<encoding>UTF-8</encoding>
+					<encoding>ISO-8859-1</encoding>
 				</configuration>
 				<executions>
 					<execution>
