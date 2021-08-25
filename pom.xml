@@ -224,7 +224,7 @@
 						<configuration>
 							<gpgArguments>
 								<arg>--passphrase</arg>
-								<arg>${env.GpgPassphrase}</arg>
+								<arg>PiAngles123</arg>
 							</gpgArguments>
 						</configuration>
 					</execution>
