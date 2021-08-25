@@ -7,7 +7,7 @@
 	<servers>
 		<server>
 			<id>gpg.passphrase</id>
-			<passphrase>${env.GpgPassphrase}</passphrase>
+			<passphrase>PiAngles123</passphrase>
 		</server>
 		<server>
 			<id>ossrh</id>
