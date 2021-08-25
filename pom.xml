@@ -222,6 +222,9 @@
 						</goals>
 					</execution>
 				</executions>
+				<configuration>
+					<serverId>gpg.passphrase</serverId>
+				</configuration>				
 			</plugin>
 			<plugin>
 				<groupId>org.sonatype.plugins</groupId>
