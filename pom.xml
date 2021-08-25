@@ -222,7 +222,7 @@
 							<goal>sign</goal>
 						</goals>
 						<configuration>
-							<passphrase>${env.GPG.PASS_PHRASE}</passphrase> 
+							<passphrase>${GPG.PASS_PHRASE}</passphrase> 
 						</configuration>
 					</execution>
 				</executions>
