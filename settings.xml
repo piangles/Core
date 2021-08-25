@@ -6,7 +6,7 @@
       http://maven.apache.org/xsd/settings-1.0.0.xsd">
 	<servers>
 		<server>
-			<id>gpg.passphrase</id>
+			<id>your.keyname</id>
 			<passphrase>PiAngles123</passphrase>
 		</server>
 		<server>
@@ -15,4 +15,17 @@
 			<password>${env.SonatypePassword}</password>
 		</server>
 	</servers>
+
+	<profiles>
+		<profile>
+			<id>my_profile_id</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<gpg.keyname>your.keyname</gpg.keyname>
+			</properties>
+		</profile>
+	</profiles>
+
 </settings>

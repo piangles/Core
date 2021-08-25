@@ -220,11 +220,12 @@
 						<goals>
 							<goal>sign</goal>
 						</goals>
+						<configuration>
+							<keyname>${gpg.keyname}</keyname>
+							<passphraseServerId>${gpg.keyname}</passphraseServerId>
+						</configuration>				
 					</execution>
 				</executions>
-				<configuration>
-					<serverId>gpg.passphrase</serverId>
-				</configuration>				
 			</plugin>
 			<plugin>
 				<groupId>org.sonatype.plugins</groupId>
