@@ -1,17 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- READ ME >>>>> Copy this file to .m2 directory it will be used for loading 
-	jars into s3 repository -->
-
 <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 
       http://maven.apache.org/xsd/settings-1.0.0.xsd">
+  <profiles>
+    <profile>
+      <id>ossrh</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <gpg.executable>gpg</gpg.executable>
+        <gpg.passphrase>${env.GpgPassphrase}</gpg.passphrase>
+      </properties>
+    </profile>
+  </profiles>
 	<servers>
 		<server>
 			<id>ossrh</id>
-			<username>${env.USER}</username>
-			<password>${env.PASSWORD}</password>
+			<username>${env.SonatypeUser}</username>
+			<password>${env.SonatypePassword}</password>
 		</server>
 	</servers>
 </settings>
