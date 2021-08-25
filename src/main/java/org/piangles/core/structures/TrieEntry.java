@@ -76,6 +76,7 @@ public final class TrieEntry implements Serializable
 	}
 	
     /**
+     * @param other The one that this TriEntry is being compared to.
      * @return  a negative integer, zero, or a positive integer as the
      *          specified String is greater than, equal to, or less
      *          than this String, ignoring case considerations.

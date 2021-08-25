@@ -53,10 +53,12 @@ public abstract class AbstractDAO
 	 * a List / Map as need be and convert RecordSet to Java objects of the
 	 * deisgned class.
 	 * 
-	 * @param storedProcName
-	 * @param irp
-	 * @throws DAOException
+	 * @param storedProcName Name of stored procedure to be called.
+	 * @param rsp An instance of ResultSetProcessor lambda that will be called to process the resultset.
+	 * @throws DAOException if a database access error occurs or this method is called on a closed connection.
+	 * @return List of POJOs created by ResultSetProcessor.  
 	 */
+	
 	protected final <T> List<T> executeSPQueryList(String storedProcName, ResultSetProcessor<T> rsp) throws DAOException
 	{
 		return executeSPQueryList(storedProcName, 0, null, rsp);
@@ -70,11 +72,11 @@ public abstract class AbstractDAO
 	 * StatementPreparer Implementation is called to set the parameters with the
 	 * proper type.
 	 * 
-	 * @param storedProcName
-	 * @param paramCount
-	 * @param sp
-	 * @param irp
-	 * @throws DAOException
+	 * @param storedProcName Name of stored procedure to be called.
+	 * @param paramCount Number of paramters that the stored procedure accepts.
+	 * @param sp Instance of StatementPreparer that sets the params.
+	 * @param rsp An instance of ResultSetProcessor lambda that will be called to process the resultset.
+	 * @throws DAOException if a database access error occurs or this method is called on a closed connection.
 	 */
 	protected final <T> List<T> executeSPQueryList(String storedProcName, int paramCount, StatementPreparer sp, ResultSetProcessor<T> rsp) throws DAOException
 	{
@@ -97,11 +99,11 @@ public abstract class AbstractDAO
 	 * needs to access the complete ResultSet in creating it's final object this
 	 * would be the interface.
 	 * 
-	 * @param storedProcName
-	 * @param paramCount
-	 * @param sp
-	 * @param trp
-	 * @throws DAOException
+	 * @param storedProcName Name of stored procedure to be called.
+	 * @param paramCount Number of paramters that the stored procedure accepts.
+	 * @param sp Instance of StatementPreparer that sets the params.
+	 * @param rsp An instance of ResultSetProcessor lambda that will be called to process the resultset.
+	 * @throws DAOException if a database access error occurs or this method is called on a closed connection.
 	 */
 	protected final <T> T executeSPQuery(String storedProcName, int paramCount, StatementPreparer sp, ResultSetProcessor<T> rsp) throws DAOException
 	{
@@ -126,10 +128,11 @@ public abstract class AbstractDAO
 	 * Transaction scope. Default scope is within this method. And outside scope
 	 * if given in.
 	 * 
-	 * @param storedProcName
-	 * @param paramCount
-	 * @param sp
-	 * @throws DAOException
+	 * @param storedProcName Name of stored procedure to be called.
+	 * @param paramCount Number of paramters that the stored procedure accepts.
+	 * @param sp Instance of StatementPreparer that sets the params.
+	 * @throws DAOException if a database access error occurs or this method is called on a closed connection.
+	 * 
 	 */
 	protected final void executeSP(String storedProcName, int paramCount, StatementPreparer sp) throws DAOException
 	{

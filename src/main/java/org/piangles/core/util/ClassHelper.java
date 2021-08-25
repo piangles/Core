@@ -23,7 +23,7 @@ package org.piangles.core.util;
  * Java 8.0
  * Index 0 = java.lang.Thread.getStackTrace(Thread.java:1552)
  * Index 1 = org.piangles.backbone.util.ClassHelper.init(ClassHelper.java:46)
- * Index 2 = org.piangles.backbone.util.ClassHelper.<init>(ClassHelper.java: 20 or 25) depends on constructor
+ * Index 2 = org.piangles.backbone.util.ClassHelper.Constructor(ClassHelper.java: 20 or 25) depends on constructor
  * We can skip these 3.
  * Anything more we need to just add
  */

@@ -6,6 +6,45 @@
 	<packaging>jar</packaging>
 	<version>0.1</version>
 
+	<name>PiAngles Core Framework</name>
+	<description>
+	Core framework contains common reusable code that is leveraged by all services both Backbone and Application.
+	</description>
+	<url>https://www.piangles.org/</url>
+	<licenses>
+		<license>
+			<name>Apache License</name>
+			<url>https://raw.githubusercontent.com/piangles/Core/master/LICENSE</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<id>saradhivs</id>
+			<name>Saradhi Vemuri</name>
+			<email>saradhi.vemuri@piangles.org</email>
+			<organization>PiAngles</organization>
+			<organizationUrl>https://www.piangles.org/</organizationUrl>
+			<roles>
+				<role>architect</role>
+				<role>developer</role>
+			</roles>
+			<timezone>America/New_York</timezone>
+
+			<properties>
+				<picUrl>https://avatars.githubusercontent.com/saradhivs</picUrl>
+			</properties>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:git:https://github.com/piangles/Core.git</connection>
+		<developerConnection>scm:git:https://github.com/piangles/Core.git</developerConnection>
+		<url>https://github.com/piangles/Core</url>
+		<tag>HEAD</tag>
+	</scm>
+
 	<dependencies>
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -142,6 +181,47 @@
 					<source>${java-source-version}</source>
 					<target>${java-target-version}</target>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<configuration>
+					<doclint>none</doclint>
+				</configuration>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<version>1.5</version>
+				<executions>
+					<execution>
+						<id>sign-artifacts</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.sonatype.plugins</groupId>
