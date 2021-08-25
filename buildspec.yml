@@ -6,7 +6,6 @@ phases:
       java: corretto11
     commands : 
       - cp ./settings.xml /root/.m2/settings.xml
-      - ls /root/.m2/settings.xml
   pre_build:
     commands:
       - echo Nothing to do in the pre_build phase...
