@@ -217,9 +217,9 @@
 				<executions>
 					<execution>
 						<id>sign-artifacts</id>
-						<phase>verify</phase>
+						<phase>deploy</phase>
 						<goals>
-							<goal>sign</goal>
+							<goal>deploy</goal>
 						</goals>
 						<configuration>
 							<gpgArguments>
