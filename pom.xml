@@ -222,7 +222,10 @@
 							<goal>sign</goal>
 						</goals>
 						<configuration>
-							<passphrase>PiAngles123</passphrase> 
+							<gpgArguments>
+								<arg>--passphrase</arg>
+								<arg>${env.GpgPassphrase}</arg>
+							</gpgArguments>
 						</configuration>
 					</execution>
 				</executions>
