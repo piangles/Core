@@ -222,8 +222,7 @@
 							<goal>sign</goal>
 						</goals>
 						<configuration>
-							<passphraseServerId>ossrh</passphraseServerId>
-							<passphrase>${GPG.PASS_PHRASE}</passphrase> 
+							<passphrase>PiAngles123</passphrase> 
 						</configuration>
 					</execution>
 				</executions>
