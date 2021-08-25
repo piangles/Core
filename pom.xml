@@ -151,6 +151,7 @@
 
 		<javax.websocket-api-version>1.0</javax.websocket-api-version>
 		<jetty-version>9.2.7.v20150116</jetty-version>
+		<gpg.passphrase>PiAngles123</gpg.passphrase>
 	</properties>
 
 	<distributionManagement>
