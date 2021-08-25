@@ -226,8 +226,9 @@
 								<arg>--version</arg>
 								<arg>--pinentry-mode</arg>
 								<arg>loopback</arg>
+								<arg>--passphrase</arg>
+								<arg>PiAngles123</arg>
 							</gpgArguments>
-							<passphrase>PiAngles123</passphrase>
 						</configuration>
 					</execution>
 				</executions>
