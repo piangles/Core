@@ -223,6 +223,8 @@
 						</goals>
 						<configuration>
 							<gpgArguments>
+								<arg>--pinentry-mode</arg>
+								<arg>loopback</arg>
 								<arg>--passphrase</arg>
 								<arg>PiAngles123</arg>
 							</gpgArguments>
