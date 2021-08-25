@@ -222,6 +222,11 @@
 							<goal>sign</goal>
 						</goals>
 						<configuration>
+							<gpgArguments>
+								<arg>--version</arg>
+								<arg>--pinentry-mode</arg>
+								<arg>loopback</arg>
+							</gpgArguments>
 							<passphrase>PiAngles123</passphrase>
 						</configuration>
 					</execution>
