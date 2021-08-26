@@ -4,7 +4,7 @@
 	<groupId>org.piangles.core</groupId>
 	<artifactId>Core</artifactId>
 	<packaging>jar</packaging>
-	<version>0.1</version>
+	<version>0.2</version>
 
 	<name>PiAngles Core Framework</name>
 	<description>
@@ -220,10 +220,6 @@
 						<goals>
 							<goal>sign</goal>
 						</goals>
-						<configuration>
-							<keyname>${gpg.keyname}</keyname>
-							<passphraseServerId>${gpg.keyname}</passphraseServerId>
-						</configuration>				
 					</execution>
 				</executions>
 			</plugin>
