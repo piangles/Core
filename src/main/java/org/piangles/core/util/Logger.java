@@ -18,6 +18,23 @@
  
 package org.piangles.core.util;
 
+/**
+ * 
+ * Logger is used by Core classes and any can be used by any other class or service 
+ * that is not having access to LoggingService during compile time. This way we can
+ * avoid System.out.println in code. 
+ * 
+ * At runtime this class picks up environment variable logger.class to instantiate the 
+ * actual Logger. If the environment variable is not defined. It will pick up 
+ * 1. DefaultLogger : Which logs to Console.
+ * 2. org.piangles.backbone.services.logging.LoggingServiceLogger : If configured will 
+ * 		log to LoggingService.
+ * 
+ * The Accountant
+ * Neurologist: Your son is different
+ * Young Chris's Father: Sooner or later, different scares people.
+ * 
+ */
 public abstract class Logger
 {
 	public static final String LOGGER_CLASS = "logger.class";
