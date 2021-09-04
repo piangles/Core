@@ -24,11 +24,13 @@ import java.util.Properties;
 
 import org.piangles.core.util.abstractions.Decrypter;
 
+import com.mysql.jdbc.StringUtils;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
 public final class RabbitMQSystem implements Resource
 {
+	private static final String AMQPS = "amqps://";
 	private static final String DECRYPTER_CLASS_NAME = "DecrypterClassName";
 	private static final String DECRYPTER_AUTHZ_ID = "DecrypterAuthorizationId";
 
@@ -42,7 +44,14 @@ public final class RabbitMQSystem implements Resource
 		RMQProperties rmqProperties = createRMQProperties(properties);
 		
 		ConnectionFactory factory = new ConnectionFactory();
-		factory.setHost(rmqProperties.getHost());
+		if (StringUtils.startsWithIgnoreCase(rmqProperties.getHost(), AMQPS))
+		{
+			factory.setUri(rmqProperties.getHost());
+		}
+		else
+		{
+			factory.setHost(rmqProperties.getHost());
+		}
 		factory.setPort(rmqProperties.getPort());
 		factory.setUsername(rmqProperties.getLogin());
 		factory.setPassword(rmqProperties.getPassword());

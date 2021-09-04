@@ -4,7 +4,7 @@
 	<groupId>org.piangles.core</groupId>
 	<artifactId>Core</artifactId>
 	<packaging>jar</packaging>
-	<version>0.2</version>
+	<version>0.3</version>
 
 	<name>PiAngles Core Framework</name>
 	<description>
@@ -45,52 +45,63 @@
 		<tag>HEAD</tag>
 	</scm>
 
+	<!-- Versions of all internal and external RELEASE JARS -->
+	<properties>
+		<org.springframework.build.aws-maven-version>5.0.0.RELEASE</org.springframework.build.aws-maven-version>
+		
+		<maven-compiler-plugin-version>3.3</maven-compiler-plugin-version>
+		<maven-dependency-plugin>2.10</maven-dependency-plugin>
+
+		<java-source-version>1.8</java-source-version>
+		<java-target-version>1.8</java-target-version>
+	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
-			<version>${commons-io-version}</version>
+			<version>2.6</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-dbcp2</artifactId>
-			<version>${commons-dbcp2-version}</version>
+			<version>2.1.1</version>
 		</dependency>
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
-			<version>${mysql-connector-java-version}</version>
+			<version>5.1.36</version>
 		</dependency>
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>${postgres-connector-java-version}</version>
+			<version>42.2.18</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
-			<version>${gson-version}</version>
+			<version>2.4</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-client</artifactId>
-			<version>${jersey-client-version}</version>
+			<version>1.9.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-json</artifactId>
-			<version>${jersey-json-version}</version>
+			<version>1.9.1</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.rabbitmq</groupId>
 			<artifactId>amqp-client</artifactId>
-			<version>${amqp-client-version}</version>
+			<version>5.9.0</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.jms</groupId>
 			<artifactId>javax.jms-api</artifactId>
-			<version>${javax.jms-api-version}</version>
+			<version>2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.kafka</groupId>
@@ -112,46 +123,11 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>${junit-version}</version>
+			<version>3.8.1</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
-	<!-- Versions of all internal and external RELEASE JARS -->
-	<properties>
-		<org.springframework.build.aws-maven-version>5.0.0.RELEASE</org.springframework.build.aws-maven-version>
-		<maven-compiler-plugin-version>3.3</maven-compiler-plugin-version>
-		<maven-dependency-plugin>2.10</maven-dependency-plugin>
-
-		<java-source-version>1.8</java-source-version>
-		<java-target-version>1.8</java-target-version>
-
-		<javaweb-source-version>1.7</javaweb-source-version>
-		<javaweb-target-version>1.7</javaweb-target-version>
-
-		<javax.jms-api-version>2.0</javax.jms-api-version>
-		<servlet-api-version>2.5</servlet-api-version>
-
-		<junit-version>3.8.1</junit-version>
-		<slf4j-api-version>1.7.12</slf4j-api-version>
-
-		<commons-io-version>2.6</commons-io-version>
-		<commons-dbcp2-version>2.1.1</commons-dbcp2-version>
-		<commons-codec-version>1.9</commons-codec-version>
-
-		<amqp-client-version>5.9.0</amqp-client-version>
-		<mysql-connector-java-version>5.1.36</mysql-connector-java-version>
-		<postgres-connector-java-version>42.2.18</postgres-connector-java-version>
-
-
-		<gson-version>2.4</gson-version>
-		<jersey-client-version>1.9.1</jersey-client-version>
-		<jersey-json-version>1.9.1</jersey-json-version>
-		<jstl-version>1.2</jstl-version>
-
-		<javax.websocket-api-version>1.0</javax.websocket-api-version>
-		<jetty-version>9.2.7.v20150116</jetty-version>
-	</properties>
 
 	<distributionManagement>
 		<snapshotRepository>
