@@ -51,6 +51,8 @@
 		
 		<maven-compiler-plugin-version>3.3</maven-compiler-plugin-version>
 		<maven-dependency-plugin>2.10</maven-dependency-plugin>
+		
+		<nexus-staging-maven-plugin-version>1.6.7</nexus-staging-maven-plugin-version>
 
 		<java-source-version>1.8</java-source-version>
 		<java-target-version>1.8</java-target-version>
@@ -145,7 +147,7 @@
 			<extension>
 				<groupId>org.springframework.build</groupId>
 				<artifactId>aws-maven</artifactId>
-				<version>5.0.0.RELEASE</version>
+				<version>${org.springframework.build.aws-maven-version}</version>
 			</extension>
 		</extensions>
 		<plugins>
@@ -202,7 +204,7 @@
 			<plugin>
 				<groupId>org.sonatype.plugins</groupId>
 				<artifactId>nexus-staging-maven-plugin</artifactId>
-				<version>1.6.7</version>
+				<version>${nexus-staging-maven-plugin-version}</version>
 				<extensions>true</extensions>
 				<configuration>
 					<serverId>ossrh</serverId>
