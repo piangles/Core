@@ -54,16 +54,27 @@ public final class KafkaMessagingSystem implements Resource
 		List<TopicPartition> partitions = consumerProps.getTopics().stream().
 											map(topic -> new TopicPartition(topic.topicName, topic.partitionNo)).collect(Collectors.toList());
 
-		List<TopicPartition> compactedPartitions = consumerProps.getTopics().stream().filter(topic -> topic.compacted).
+		/**
+		 * Ensure in configuration - log compacted topics are also readEarliest.
+		 * Identify the readEarliest topics, we will need to seek to beginning for them.
+		 * The reason is, if regular topics or log compacted topic was consumed in previous run,  
+		 * Kafka will not send it back to consumer again till an update happens on that topic.
+		 * 
+		 * So if we seek it back to begining 
+		 * 1. Regular Topics will give all the messages.
+		 * 2. Log Compacted Topic will show up with the last value. Latest values when published
+		 * will automatically override the last value but to start with clients will have a value. 
+		 */
+		List<TopicPartition> readEarliestPartitions = consumerProps.getTopics().stream().filter(topic -> topic.readEarliest).
 				map(topic -> new TopicPartition(topic.topicName, topic.partitionNo)).collect(Collectors.toList());
 
 		KafkaConsumer<String, String> consumer = new KafkaConsumer<>(msgProps);
 		consumer.assign(partitions);
-		if (!compactedPartitions.isEmpty())
+		if (!readEarliestPartitions.isEmpty())
 		{
-			consumer.seekToBeginning(compactedPartitions);
+			consumer.seekToBeginning(readEarliestPartitions);
 		}
-	
+		
 		return consumer;
 	}
 }

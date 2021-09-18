@@ -52,26 +52,19 @@ public final class ConsumerProperties
 	{
 		public String topicName;
 		public int partitionNo;
-		public int offset;
-		public boolean compacted;
+		public boolean readEarliest;
 
-		public Topic(String topicName, int partitionNo, boolean compacted)
-		{
-			this(topicName, partitionNo, compacted, 0);
-		}
-
-		public Topic(String topicName, int partitionNo, boolean compacted, int offset)
+		public Topic(String topicName, int partitionNo, boolean readEarliest)
 		{
 			this.topicName = topicName;
 			this.partitionNo = partitionNo;
-			this.compacted = compacted;
-			this.offset = offset;
+			this.readEarliest = readEarliest;
 		}
 
 		@Override
 		public String toString()
 		{
-			return "Topic [topicName=" + topicName + ", partitionNo=" + partitionNo + ", offset=" + offset + ", compacted=" + compacted + "]";
+			return "Topic [topicName=" + topicName + ", partitionNo=" + partitionNo + ", readEarliest=" + readEarliest + "]";
 		}
 	}
 
