@@ -21,5 +21,6 @@ package org.piangles.core.util.validate;
 
 public interface Validator
 {
-
+	public String getName();
+	public void validate(Object object) throws ValidationException;
 }

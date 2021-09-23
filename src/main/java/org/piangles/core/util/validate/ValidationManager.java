@@ -19,7 +19,37 @@
  
 package org.piangles.core.util.validate;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class ValidationManager
 {
+	private static ValidationManager self = null;
+	
+	private Map<String, Validator> validatorMap = null;
+	
+	private ValidationManager()
+	{
+		 validatorMap = new HashMap<>();
+	}
+	
+	public static ValidationManager getInstance()
+	{
+		if (self == null)
+		{
+			self = new ValidationManager();
+		}
 
+		return self;
+	}
+	
+	public void addValidator(Validator validator)
+	{
+		validatorMap.put(validator.getName(), validator);
+	}
+	
+	public Validator getValidator(String name)
+	{
+		return validatorMap.get(name);
+	}
 }
