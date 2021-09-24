@@ -21,6 +21,8 @@ package org.piangles.core.services.remoting;
 
 import java.util.concurrent.TimeUnit;
 
+import org.piangles.core.expt.BadRequestException;
+import org.piangles.core.expt.UnauthorizedException;
 import org.piangles.core.services.Request;
 import org.piangles.core.services.Response;
 import org.piangles.core.services.Service;
@@ -94,7 +96,7 @@ public final class RequestProcessingThread extends AbstractContextAwareThread
 			}
 			else
 			{
-				RuntimeException e = new RuntimeException("Request received was null.");
+				BadRequestException e = new BadRequestException("Request received was null.");
 				response = new Response("Unknown Service", "Unknown Endpoint", e); 
 			}
 		}
@@ -197,7 +199,7 @@ public final class RequestProcessingThread extends AbstractContextAwareThread
 		}
 		else
 		{
-			RuntimeException e = new RuntimeException(request.getServiceName() + " : UnAuthorized Request. Session could not be validated.");
+			UnauthorizedException e = new UnauthorizedException(request.getServiceName() + " : UnAuthorized Request. Session could not be validated.");
 			response = new Response(request.getServiceName(), e.getMessage(), request.getTransitTime(), e);
 		}
 		

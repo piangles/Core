@@ -33,7 +33,7 @@ public class ValidationManager
 		 validatorMap = new HashMap<>();
 	}
 	
-	public static ValidationManager getInstance()
+	public static synchronized ValidationManager getInstance()
 	{
 		if (self == null)
 		{
@@ -48,6 +48,16 @@ public class ValidationManager
 		validatorMap.put(validator.getName(), validator);
 	}
 	
+	public void removeValidator(String name)
+	{
+		validatorMap.remove(name);
+	}
+
+	public void clear()
+	{
+		validatorMap.clear();
+	}
+
 	public Validator getValidator(String name)
 	{
 		return validatorMap.get(name);
