@@ -102,7 +102,7 @@ public final class RequestProcessingThread extends AbstractContextAwareThread
 		}
 		catch (Exception e)
 		{
-			e.printStackTrace(System.err);
+			Logger.getInstance().error("Exception Processing Request:" + e.getMessage(), e);
 			if (request != null)
 			{
 				response = new Response(request.getServiceName(), request.getEndPoint(), request.getTransitTime(), e);
@@ -136,8 +136,7 @@ public final class RequestProcessingThread extends AbstractContextAwareThread
 			}
 			catch (Exception e)
 			{
-				System.err.println("Exception trying to send response because of: " + e.getMessage());
-				e.printStackTrace(System.err);
+				Logger.getInstance().error("Exception trying to send response because of:" + e.getMessage(), e);
 			}
 		}
 		else
