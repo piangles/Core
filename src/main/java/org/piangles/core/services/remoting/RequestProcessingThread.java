@@ -23,7 +23,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.piangles.core.expt.BadRequestException;
 import org.piangles.core.expt.UnauthenticatedException;
-import org.piangles.core.expt.UnauthorizedException;
 import org.piangles.core.services.Request;
 import org.piangles.core.services.Response;
 import org.piangles.core.services.Service;
