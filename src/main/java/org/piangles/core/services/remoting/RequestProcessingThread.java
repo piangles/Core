@@ -22,6 +22,7 @@ package org.piangles.core.services.remoting;
 import java.util.concurrent.TimeUnit;
 
 import org.piangles.core.expt.BadRequestException;
+import org.piangles.core.expt.UnauthenticatedException;
 import org.piangles.core.expt.UnauthorizedException;
 import org.piangles.core.services.Request;
 import org.piangles.core.services.Response;
@@ -198,7 +199,7 @@ public final class RequestProcessingThread extends AbstractContextAwareThread
 		}
 		else
 		{
-			UnauthorizedException e = new UnauthorizedException(request.getServiceName() + " : UnAuthorized Request. Session could not be validated.");
+			UnauthenticatedException e = new UnauthenticatedException(request.getServiceName() + " : Unauthenticated Request. Session could not be validated.");
 			response = new Response(request.getServiceName(), e.getMessage(), request.getTransitTime(), e);
 		}
 		
