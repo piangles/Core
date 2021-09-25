@@ -83,8 +83,14 @@ public final class ReqRespController extends AbstractController
 					rpt.start();
 				}
 			};
+			
+			/**
+			 * Once the mainLoop starts it does not return the call.
+			 * TODO
+			 * 1. Kick start mainloop in a Thread
+			 * 2. Handle it's Exception
+			 */
 			ShutdownSignalException exception = server.mainloop();
-			//TODO Need to handle this
 		}
 		catch (IOException e)
 		{

@@ -122,6 +122,9 @@ public abstract class AbstractHandler extends AbstractRemoter implements Handler
 		}
 		catch(Throwable t)
 		{
+			/**
+			 * CATCH HERE Is for if Transportation layer or Serialiazation / DeSerilization threw an Exception.
+			 */
 			String message = t.getMessage();
 			if (message == null)
 			{
@@ -159,14 +162,26 @@ public abstract class AbstractHandler extends AbstractRemoter implements Handler
 		if (result instanceof Throwable)
 		{
 			Throwable actualThrowable = null;
+			/**
+			 * Technically, we should never receieve java.lang.reflect.InvocationTargetException
+			 * exception, the Server side should have taken care of this. But It is *left* here as
+			 * a Saftey net. Because in prior versions, the Server never handled the InvocationTargetException
+			 * and it was porpogated here.
+			 */
 			if (result instanceof java.lang.reflect.InvocationTargetException)
 			{
 				actualThrowable = ((Throwable)result).getCause();
 			}
-			else
+			else//This is where ALL the time the code SHOULD flow!
 			{
 				actualThrowable = (Throwable)result;
 			}
+			/**
+			 * THROW
+			 * -----
+			 * This is the Exception the calling Service has returned and
+			 * we need to propogate it here.
+			 */
 			throw actualThrowable;
 		}
 		

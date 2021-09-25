@@ -212,6 +212,11 @@ public abstract class AbstractContainer
 				{
 					Logger.getInstance().info("Controller for " + serviceImpl.getClass().getSimpleName() + " being started...");
 					controller.start(controllerServiceDelegate);
+					/**
+					 * This will not happen till we fix underlying RabbitMQ Controller
+					 * class, the mainLoop method in start does not return.
+					 */
+					Logger.getInstance().info("Controller for " + serviceImpl.getClass().getSimpleName() + " has started and is ready for Requests.");
 				}
 				catch (ControllerException e)
 				{

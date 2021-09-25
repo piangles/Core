@@ -100,8 +100,12 @@ public final class RequestProcessingThread extends AbstractContextAwareThread
 				response = new Response("Unknown Service", "Unknown Endpoint", e); 
 			}
 		}
-		catch (Exception e)
+		catch (Exception e) 
 		{
+			/**
+			 * All Exceptions from Service will be in Response at this point.
+			 * IF SOMETHING ELSE GOES WRONG OUTSIDE THE SERVICE CALL IN CORE : The Code flows here. 
+			 */
 			Logger.getInstance().error("Exception Processing Request:" + e.getMessage(), e);
 			if (request != null)
 			{
@@ -191,7 +195,9 @@ public final class RequestProcessingThread extends AbstractContextAwareThread
 			else
 			{
 				/**
-				 * Make the actual call to the service
+				 * Make the actual call to the service, this is actually a 
+				 * Delegate class. Service->DefaultService that invokes the
+				 * target Service class.
 				 */
 				response = service.process(request);
 			}

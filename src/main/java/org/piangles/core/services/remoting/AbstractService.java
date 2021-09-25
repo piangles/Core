@@ -24,6 +24,7 @@ import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.HashMap;
 
+import org.piangles.core.expt.NotFoundException;
 import org.piangles.core.services.AuditDetails;
 import org.piangles.core.services.Request;
 import org.piangles.core.services.Response;
@@ -71,22 +72,28 @@ public abstract class AbstractService implements Service
 		{
 			try
 			{
-				//This is where we make the actual call to the underlying service
+				/**
+				 * One step Prior to making the call to the final Servce.
+				 * The call below is implemented by the Derived  AbstractService classes.
+				 */
 				returnValue = process(method, args, request);
-			}
-			catch (RuntimeException e)
-			{
-				e.printStackTrace(System.err);
-				returnValue = e;
 			}
 			catch (Exception e)
 			{
+				/**
+				 * Along with 
+				 * UnauthorizedException <- IllegalAccessException
+				 * BadRequestException <- IllegalArgumentException>
+				 * Service(Runtime)Exception <- InvocationTargetException
+				 * 
+				 * Any other Exception from Java are caught here.				
+				 */
 				returnValue = e;
 			}
 		}
 		else
 		{
-			returnValue = new RuntimeException("Endpoint : " +  request.getEndPoint() + " for Service : " + request.getServiceName() + " not found.");
+			returnValue = new NotFoundException("Endpoint : " +  request.getEndPoint() + " for Service : " + request.getServiceName() + " not found.");
 		}
 		
 		return new Response(request.getServiceName(), request.getEndPoint(), request.getTransitTime(), returnValue);

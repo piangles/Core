@@ -19,9 +19,13 @@
  
 package org.piangles.core.services.remoting;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import org.piangles.core.expt.BadRequestException;
+import org.piangles.core.expt.UnauthorizedException;
 import org.piangles.core.services.Request;
+import org.piangles.core.util.Logger;
 
 public class DefaultService extends AbstractService
 {
@@ -30,9 +34,39 @@ public class DefaultService extends AbstractService
 		super(serviceImpl);
 	}
 	
+	/**
+	 * This is where the final call to the actual underlying Service happens.
+	 * @throws IllegalArgumentException 
+	 * @throws IllegalAccessException 
+	 */
 	@Override
 	protected Object process(Method method, Object[] args, Request request) throws Exception
 	{
-		return method.invoke(getServiceImpl(), args);
+		Object result = null;
+
+		try
+		{
+			result = method.invoke(getServiceImpl(), args);
+		}
+		catch (IllegalAccessException e)
+		{
+			Logger.getInstance().error(e.getClass().getSimpleName() + " thrown while making call to the underlying Service.", e);			
+			throw new UnauthorizedException(e.getMessage(), e);
+		}
+		catch (IllegalArgumentException e)
+		{
+			Logger.getInstance().error(e.getClass().getSimpleName() + " thrown while making call to the underlying Service.", e);
+			throw new BadRequestException(e.getMessage(), e);
+		}
+		catch (InvocationTargetException e)
+		{
+			/**
+			 * The underlying method actually threw an Exception and Java wraps
+			 * the Exception with InvocationTargetException. So we have to get
+			 * the Cause and propogate it, could be ServiceException or ServiceRuntimeException.  
+			 */
+			throw (Exception)e.getCause();
+		}
+		return result;
 	}
 }
