@@ -21,6 +21,9 @@ package org.piangles.core.resources;
 
 import java.util.Properties;
 
+import org.piangles.core.dao.DAOException;
+import org.piangles.core.util.abstractions.BoundedOp;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -67,5 +70,26 @@ public final class RedisCache implements Resource
 	public Jedis getCache()
 	{
 		return pool.getResource();
+	}
+	
+	public <R> R execute(BoundedOp<Jedis, R> op) throws DAOException
+	{
+		Jedis jedis = null;
+		try
+		{
+			jedis = pool.getResource();
+			return op.perform(jedis);
+		}
+		catch(Exception e)
+		{
+			throw new DAOException(e);
+		}
+		finally
+		{
+			if (jedis != null)
+			{
+				jedis.close();
+			}
+		}
 	}
 }
