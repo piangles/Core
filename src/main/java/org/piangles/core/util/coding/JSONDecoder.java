@@ -22,7 +22,6 @@ package org.piangles.core.util.coding;
 import java.lang.reflect.Type;
 import java.util.Date;
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -52,7 +51,7 @@ final class JSONDecoder implements Decoder
 		T decodeObject = null;
 		try
 		{
-			decodeObject = (T) new Gson().fromJson(new String(data), destClass); 
+			decodeObject = (T) gsonBuilder.create().fromJson(new String(data), destClass); 
 		}
 		catch (RuntimeException expt)
 		{
@@ -68,7 +67,7 @@ final class JSONDecoder implements Decoder
 		T decodeObject = null;
 		try
 		{
-			decodeObject = (T) new Gson().fromJson(new String(data), destType);; 
+			decodeObject = (T) gsonBuilder.create().fromJson(new String(data), destType);; 
 		}
 		catch (RuntimeException expt)
 		{
