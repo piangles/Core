@@ -14,12 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
- 
- 
+
 package org.piangles.core.util.coding;
 
 import java.lang.reflect.Type;
+import java.time.LocalDate;
 import java.util.Date;
 
 import com.google.gson.GsonBuilder;
@@ -31,27 +30,37 @@ import com.google.gson.JsonParseException;
 final class JSONDecoder implements Decoder
 {
 	private GsonBuilder gsonBuilder = null;
-	
+
 	public JSONDecoder()
 	{
 		gsonBuilder = new GsonBuilder();
-		
-		gsonBuilder.registerTypeAdapter(Date.class, new JsonDeserializer<Date>(){
+
+		gsonBuilder.registerTypeAdapter(Date.class, new JsonDeserializer<Date>()
+		{
 			@Override
 			public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
 			{
 				return new Date(json.getAsJsonPrimitive().getAsLong());
 			}
 		});
+		
+		gsonBuilder.registerTypeAdapter(LocalDate.class, new JsonDeserializer<LocalDate>()
+		{
+			@Override
+			public LocalDate deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
+			{
+				return LocalDate.parse(json.getAsString());
+			}
+		});
 	}
-	
+
 	@Override
 	public <T> T decode(byte[] data, Class<T> destClass) throws Exception
 	{
 		T decodeObject = null;
 		try
 		{
-			decodeObject = (T) gsonBuilder.create().fromJson(new String(data), destClass); 
+			decodeObject = (T) gsonBuilder.create().fromJson(new String(data), destClass);
 		}
 		catch (RuntimeException expt)
 		{
@@ -67,7 +76,7 @@ final class JSONDecoder implements Decoder
 		T decodeObject = null;
 		try
 		{
-			decodeObject = (T) gsonBuilder.create().fromJson(new String(data), destType);; 
+			decodeObject = (T) gsonBuilder.create().fromJson(new String(data), destType);
 		}
 		catch (RuntimeException expt)
 		{

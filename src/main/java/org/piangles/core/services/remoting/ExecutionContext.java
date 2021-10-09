@@ -19,25 +19,27 @@
  
 package org.piangles.core.services.remoting;
 
+import java.util.UUID;
+
 import org.piangles.core.stream.Stream;
 
 public final class ExecutionContext
 {
+	private UUID traceId = null;
+	private SessionDetails sessionDetails = null;
 	private Stream<?> stream = null;
 	
-	private ExecutionContext(Stream<?> stream)
+	private ExecutionContext(UUID traceId, SessionDetails sessionDetails, Stream<?> stream)
 	{
+		this.traceId = traceId;
+		this.sessionDetails = sessionDetails;
 		this.stream = stream;
-	}
-	
-	@SuppressWarnings("unchecked")
-	public <T> Stream<T> getStream()
-	{
-		return (Stream<T>)stream;
 	}
 	
 	public static final ExecutionContext get()
 	{
+		UUID traceId = null;
+		SessionDetails sessionDetails = null;
 		Stream<?> stream = null;
 		
 		Object currentThread = Thread.currentThread();
@@ -46,6 +48,28 @@ public final class ExecutionContext
 			stream = ((StreamRequestProcessingThread)currentThread).getStream();
 		}
 		
-		return new ExecutionContext(stream);
+		if (currentThread instanceof AbstractContextAwareThread)
+		{
+			traceId = ((AbstractContextAwareThread)currentThread).getTraceId();
+			sessionDetails = ((AbstractContextAwareThread)currentThread).getSessionDetails(); 
+		}
+		
+		return new ExecutionContext(traceId, sessionDetails, stream);
+	}
+
+	public UUID getTraceId()
+	{
+		return traceId;
+	}
+
+	public SessionDetails getSessionDetails()
+	{
+		return sessionDetails;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T> Stream<T> getStream()
+	{
+		return (Stream<T>)stream;
 	}
 }

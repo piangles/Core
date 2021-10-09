@@ -14,26 +14,59 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
- 
- 
+
 package org.piangles.core.util.coding;
 
-import com.google.gson.Gson;
+import java.lang.reflect.Type;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 
 class JSONEncoder implements Encoder
 {
-	public byte[] encode(Object object) throws Exception	
+	private GsonBuilder gsonBuilder = null;
+
+	public JSONEncoder()
+	{
+		gsonBuilder = new GsonBuilder();
+
+		gsonBuilder.registerTypeAdapter(Date.class, new JsonSerializer<Date>()
+		{
+			@Override
+			public JsonElement serialize(Date src, Type typeOfT, JsonSerializationContext context) throws JsonParseException
+			{
+				return new JsonPrimitive(src.getTime());
+			}
+		});
+
+		gsonBuilder.registerTypeAdapter(LocalDate.class, new JsonSerializer<LocalDate>()
+		{
+			@Override
+			public JsonElement serialize(LocalDate src, Type typeOfSrc, JsonSerializationContext context)
+			{
+		        return new JsonPrimitive(src.format(DateTimeFormatter.ISO_LOCAL_DATE)); // "yyyy-mm-dd"
+			}
+		});
+	}
+
+	public byte[] encode(Object object) throws Exception
 	{
 		byte[] jsonMessage = null;
 		try
 		{
-			jsonMessage = new Gson().toJson(object).getBytes();
+			jsonMessage = gsonBuilder.create().toJson(object).getBytes();
 		}
-		catch(RuntimeException e)
+		catch (RuntimeException e)
 		{
 			throw new Exception(e);
 		}
-		return jsonMessage; 
+		return jsonMessage;
 	}
 }

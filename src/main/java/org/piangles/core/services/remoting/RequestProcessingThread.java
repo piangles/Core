@@ -100,7 +100,7 @@ public final class RequestProcessingThread extends AbstractContextAwareThread
 				response = new Response("Unknown Service", "Unknown Endpoint", e); 
 			}
 		}
-		catch (Exception e) 
+		catch (Throwable e) 
 		{
 			/**
 			 * All Exceptions from Service will be in Response at this point.
@@ -204,6 +204,11 @@ public final class RequestProcessingThread extends AbstractContextAwareThread
 		}
 		else
 		{
+			/**
+			 * This could be a FireAndForgetService that is not configured PassThruSessionValidator
+			 *  so who is consuming the response?
+			 */
+			Logger.getInstance().error("Service: " + serviceName + "received a request with TraceId: " + request.getTraceId()+ " that failed SessionValidation.");
 			UnauthenticatedException e = new UnauthenticatedException(request.getServiceName() + " : Unauthenticated Request. Session could not be validated.");
 			response = new Response(request.getServiceName(), e.getMessage(), request.getTransitTime(), e);
 		}
