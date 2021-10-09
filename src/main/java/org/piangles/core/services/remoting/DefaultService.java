@@ -63,7 +63,7 @@ public class DefaultService extends AbstractService
 			/**
 			 * The underlying method actually threw an Exception and Java wraps
 			 * the Exception with InvocationTargetException. So we have to get
-			 * the Cause and propogate it, could be ServiceException or ServiceRuntimeException.  
+			 * the Cause and propogate it, could be Service Related Exception or ServiceRuntimeException.  
 			 */
 			throw (Exception)e.getCause();
 		}

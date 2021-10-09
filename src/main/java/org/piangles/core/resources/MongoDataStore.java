@@ -26,6 +26,7 @@ import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
 import java.util.Properties;
 
+import org.apache.commons.lang3.StringUtils;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
 import org.piangles.core.util.abstractions.Decrypter;
@@ -39,11 +40,12 @@ import com.mongodb.client.MongoDatabase;
 public final class MongoDataStore implements Resource
 {
 	private static final String PREFIX = "mongodb";
-	private static final String DATABASE = "Database";
 
 	private static final String LOGIN_ID = "LoginId";
 	private static final String PASSWORD = "Password";
 	private static final String HOST_ADDRESS = "HostAddress";
+	private static final String DATABASE = "Database";
+	private static final String ADDITIONAL_PARAMS = "AdditionalParams";
 	
 	private static final String DECRYPTER_CLASS_NAME = "DecrypterClassName";
 	private static final String DECRYPTER_AUTHZ_ID = "DecrypterAuthorizationId";
@@ -63,12 +65,18 @@ public final class MongoDataStore implements Resource
 		String password = decrypter.decrypt(PASSWORD, dataStoreProps.getProperty(PASSWORD));
 		String hostAddress = dataStoreProps.getProperty(HOST_ADDRESS);
 		String database = dataStoreProps.getProperty(DATABASE);
+		String additionalParams = dataStoreProps.getProperty(ADDITIONAL_PARAMS);
 
 		StringBuilder sb = new StringBuilder();
 		sb.append(PREFIX).append("://")
 				.append(userName).append(":").append(password)
 				.append("@").append(hostAddress).append("/")
 				.append(database);
+		if (StringUtils.isNotBlank(additionalParams))
+		{
+			sb.append(additionalParams);
+		}
+				
 
 		ConnectionString connectionString = new ConnectionString(sb.toString());
 		

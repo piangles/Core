@@ -22,9 +22,9 @@ package org.piangles.core.resources;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.apache.commons.lang3.StringUtils;
 import org.piangles.core.util.abstractions.Decrypter;
 
-import com.mysql.jdbc.StringUtils;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
