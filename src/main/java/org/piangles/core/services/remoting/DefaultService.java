@@ -65,7 +65,17 @@ public class DefaultService extends AbstractService
 			 * the Exception with InvocationTargetException. So we have to get
 			 * the Cause and propogate it, could be Service Related Exception or ServiceRuntimeException.  
 			 */
-			throw (Exception)e.getCause();
+			if (e.getCause() instanceof Error)
+			{
+				Error err = (Error) e.getCause();
+				Logger.getInstance().error("Error: " + err.getMessage(), err);
+				
+				throw new Exception(err.getMessage(), err.getCause());
+			}
+			else//It is an Throwable Exception
+			{
+				throw (Exception) e.getCause();
+			}
 		}
 		return result;
 	}

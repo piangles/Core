@@ -49,7 +49,7 @@ final class JSONDecoder implements Decoder
 			@Override
 			public LocalDate deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
 			{
-				return LocalDate.parse(json.getAsString());
+				return LocalDate.parse(json.getAsJsonPrimitive().getAsString());
 			}
 		});
 	}
