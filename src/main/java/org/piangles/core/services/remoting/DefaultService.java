@@ -23,6 +23,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.piangles.core.expt.BadRequestException;
+import org.piangles.core.expt.ServiceRuntimeException;
 import org.piangles.core.expt.UnauthorizedException;
 import org.piangles.core.services.Request;
 import org.piangles.core.util.Logger;
@@ -68,9 +69,10 @@ public class DefaultService extends AbstractService
 			if (e.getCause() instanceof Error)
 			{
 				Error err = (Error) e.getCause();
+				Logger.getInstance().error(e.getClass().getSimpleName() + " thrown while making call to the underlying Service.", e);
 				Logger.getInstance().error("Error: " + err.getMessage(), err);
 				
-				throw new Exception(err.getMessage(), err.getCause());
+				throw new ServiceRuntimeException(err.getMessage(), err.getCause());
 			}
 			else//It is an Throwable Exception
 			{
