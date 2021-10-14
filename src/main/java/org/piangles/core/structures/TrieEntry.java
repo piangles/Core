@@ -50,33 +50,9 @@ public final class TrieEntry implements Serializable
 		this.transformedValue = transformedValue;
 	}
 	
-	public String getId()
-	{
-		return id;
-	}
-	
-	public int getRank()
-	{
-		return rank;
-	}
-	
-	public String getActualValue()
-	{
-		return actualValue;
-	}
-
-	public String getTransformedValue()
-	{
-		return transformedValue;
-	}
-
-	public boolean isDerived()
-	{
-		return parent != null;
-	}
-	
     /**
      * @param other The one that this TriEntry is being compared to.
+     * 
      * @return  a negative integer, zero, or a positive integer as the
      *          specified String is greater than, equal to, or less
      *          than this String, ignoring case considerations.
@@ -113,6 +89,32 @@ public final class TrieEntry implements Serializable
     	}
         return compareResult;
     }
+	
+
+	public String getId()
+	{
+		return id;
+	}
+	
+	public int getRank()
+	{
+		return rank;
+	}
+	
+	public String getActualValue()
+	{
+		return actualValue;
+	}
+
+	public String getTransformedValue()
+	{
+		return transformedValue;
+	}
+
+	public boolean isDerived()
+	{
+		return parent != null;
+	}
 	
 	TrieEntry getParent()
 	{

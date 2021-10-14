@@ -39,6 +39,9 @@ public final class TrieStatistics implements Serializable, Cloneable
 
 	private String trieName;
 	private int datasetSize;
+	/**
+	 * When a transformed value is plit into it's component, this records the size. 
+	 */
 	private int derivedDatasetSize;
 	private int skippedStopWordsSize;
 
