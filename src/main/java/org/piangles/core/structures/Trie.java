@@ -24,6 +24,17 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * This is the mother of all TrieNodes, one starts with creation of Trie.
+ * Creation of Trie is dirven by 2 parameters.
+ * 1. Name of the Trie : A name that describes the Dataset.
+ * 2. TrieConfig : That governs the various parameters for Trie to organize it's structure.
+ * 
+ * This is an highly performant, 
+ * Once a Trie is indexed it will remain immutable through it's existence. 
+ * So it is important
+ * to figure 
+ */
 public final class Trie implements Serializable
 {
 	private static final long serialVersionUID = 1L;
@@ -216,6 +227,17 @@ public final class Trie implements Serializable
 		return traverseResult;
 	}
 
+	/**
+	 * ---------------------------------Private Methods------------------------------------
+	 */
+	
+	/**
+	 * 
+	 * @param currentNode
+	 * @param word
+	 * @param index
+	 * @return
+	 */
 	private TraverseResult traverse(TrieNode currentNode, char[] word, int index)
 	{
 		TraverseResult result = null;

@@ -64,6 +64,8 @@ public final class TrieConfig implements Serializable
 		this.indexingTimeOutInSeconds = indexingTimeOutInSeconds;
 		this.traverseTimeOutInMilliSeconds = traverseTimeOutInMilliSeconds;
 		this.recursiveTraverseAlgorithm = recursiveAlgorithm;
+		
+		this.trieEntryList = trieEntryList;
 		this.vocabulary = vocabulary;
 	}
 	
