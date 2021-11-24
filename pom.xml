@@ -4,7 +4,7 @@
 	<groupId>org.piangles.core</groupId>
 	<artifactId>Core</artifactId>
 	<packaging>jar</packaging>
-	<version>1.7</version>
+	<version>1.8</version>
 
 	<name>PiAngles Core Framework</name>
 	<description>

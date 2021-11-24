@@ -37,8 +37,8 @@ import org.piangles.core.util.Logger;
 
 public final class DefaultCentralClient extends CentralClient
 {
-	public static final String CENTRAL_HOST = "central.host";
-	public static final String CENTRAL_PORT = "central.port";
+	private static final String CENTRAL_HOST = "central.host";
+	private static final String CENTRAL_PORT = "central.port";
 	private static final String USER_AGENT = "Mozilla/5.0";
 	private static final String CENTRAL_SERVICE = "/CentralService/";
 

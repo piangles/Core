@@ -34,9 +34,6 @@ public final class AWSParameterStoreCentralClient extends CentralClient
 {
 	public static final String AWS_REGION = "aws.region";
 
-	public static final String CENTRAL_HOST = "central.host";
-	public static final String CENTRAL_PORT = "central.port";
-
 	private SsmClient ssmClient = null;
 
 	public AWSParameterStoreCentralClient() throws Exception
