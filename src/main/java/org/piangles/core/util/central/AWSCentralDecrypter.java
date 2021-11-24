@@ -17,7 +17,7 @@
  
  
  
-package org.piangles.core.util;
+package org.piangles.core.util.central;
 
 import org.piangles.core.util.abstractions.AbstractDecrypter;
 
