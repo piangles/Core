@@ -4,7 +4,7 @@
 	<groupId>org.piangles.core</groupId>
 	<artifactId>Core</artifactId>
 	<packaging>jar</packaging>
-	<version>1.6</version>
+	<version>1.7</version>
 
 	<name>PiAngles Core Framework</name>
 	<description>
@@ -121,7 +121,21 @@
 			<artifactId>jedis</artifactId>
 			<version>3.3.0</version>
 		</dependency>
-
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>ssm</artifactId>
+			<version>2.17.83</version>
+		</dependency>
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>regions</artifactId>
+			<version>2.17.88</version>
+		</dependency>
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-s3</artifactId>
+			<version>1.12.77</version>
+		</dependency>
 
 		<dependency>
 			<groupId>junit</groupId>
