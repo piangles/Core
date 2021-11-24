@@ -30,7 +30,7 @@ import java.util.Map;
  * 1. Name of the Trie : A name that describes the Dataset.
  * 2. TrieConfig : That governs the various parameters for Trie to organize it's structure.
  * 
- * This is an highly performant, 
+ * This is an highly performant search algorithm that is Trie based and leverages Bitmap Based Trie 
  * Once a Trie is indexed it will remain immutable through it's existence. 
  * So it is important
  * to figure 
@@ -67,33 +67,82 @@ public final class Trie implements Serializable
 		}
 		
 		root = new TrieNode(trieStatistics, trieConfig);
+		
 		trieEntryList = trieConfig.getTrieEntryList();
+		
+		/**
+		 * TODO
+		 */
+		suggestionEngine = new SuggestionEngine(name, trieEntryList);
 	}
 	
+	/**
+	 * Returns the name of the DataSet that it holds.
+	 * @return
+	 */
 	public String getName()
 	{
 		return name;
 	}
 
+	/**
+	 * TODO
+	 * @return
+	 */
+	public boolean isEmpty()
+	{
+		return root.isEmpty();
+	}
+
+	/**
+	 * Each Trie records statistics through the course of it's existence
+	 * Details of various measures are documented in TrieStatistics. 
+	 * @return
+	 */
 	public TrieStatistics getStatistics()
 	{
 		return trieStatistics; 
 	}
 	
+	/**
+	 * This is one and only method that is provided to add TrieEntries into the
+	 * Trie before it is indexed. Once indexed, the Trie is immutable and will
+	 * throw  IllegalStateException if called after indexing.
+	 * @param te
+	 */
 	public void insert(TrieEntry te)
 	{
 		if (indexed)
 		{
 			throw new IllegalStateException("Trie is immutable once it has been indexed.");
 		}
+		
+		
+		/**
+		 * First add the TrieEntry containing the whole string into the list.
+		 */
 		trieEntryList.add(te);
 		
 		if (te.getTransformedValue().indexOf(Vocabulary.TOKEN_DELIMITER) != -1)
 		{
+			/**
+			 * The String is not a word but a phrase since it contains ' '.
+			 * Split up the string into parts containing individual words. 
+			 */
 			String[] splits = te.getTransformedValue().split("\\s+");
 			for (int i=1; i < splits.length; ++i)
 			{
-				if (!stopWordsMap.containsKey(splits[i]))
+				/**
+				 * Skip pithy words such as [and, it, of...]
+				 * these words are of no use for searching and take up memory.
+				 * 
+				 * Create a new Entry for each of the word with the same Id and 
+				 * Rank. These are not transformed again as we already are using
+				 * transformed value.
+				 * 
+				 * Update stats accordingly.
+				 */
+				if (!stopWordsMap.containsKey(splits[i])) 
 				{
 					trieEntryList.add(new TrieEntry(te.getId(), te, te.getRank(), splits[i], splits[i]));
 					trieStatistics.incrementDerviedDatasetSize();
@@ -106,19 +155,57 @@ public final class Trie implements Serializable
 		}
 	}
 
+	/**
+	 * Before a Trie is ready for traversing, it needs to organize and index all
+	 * this TrieEntries. Once indexed, the Trie is immutable and is ready for
+	 * traversal.
+	 * 
+	 * @return
+	 */
 	public synchronized boolean indexIt()
 	{
 		if (indexed)
 		{
 			throw new IllegalStateException("Trie has already been indexed.");
 		}
+		
 		trieStatistics.start(TrieMetrics.Readiness);
 		trieStatistics.start(TrieMetrics.SortDataset);
+
+		/**
+		 * To begin with trim the size of entryList to the actual size of the list.
+		 * This ensures execess memory allocated is released back to the system.
+		 */
 		trieEntryList.trimToSize();
-		trieEntryList.sort();
-		trieStatistics.end(TrieMetrics.SortDataset);
 		
-		suggestionEngine = new SuggestionEngine(name, trieEntryList);
+		/**
+		 * Before we Index, sorting is required this way all the various trie entries
+		 * are organized in a manner that makes indexing fast.
+		 * Ex:
+		 * Unsorted List
+		 * 1. Car
+		 * 2. Monday
+		 * 3. Cart
+		 * 4. Monkey
+		 * 5. Carton
+		 * 6. Money
+		 * 
+		 * For the above list, the indexing becomes very slow with each word needing to be
+		 * traversed back to root and starting from the top. When we sort.
+		 * Ex:
+		 * Sorted List
+		 * 1. Car
+		 * 2. Cart
+		 * 3. Carton
+		 * 4. Monday
+		 * 5. Money
+		 * 6. Monkey
+		 * So in terms of efficiency, the indexing does not have to go
+		 * back to root until the 4th word.
+		 */
+		trieEntryList.sort();
+		
+		trieStatistics.end(TrieMetrics.SortDataset);
 		
 		trieStatistics.start(TrieMetrics.PopulateTrie);
 		Arrays.stream(trieEntryList.getElementData()).
@@ -127,23 +214,30 @@ public final class Trie implements Serializable
 			String word = te.getTransformedValue().toLowerCase();
 			char[] charArray = Arrays.copyOfRange(word.toCharArray(), 0, trieConfig.getMaximumWordLength());
 
-//Is it worth it to use Streaming concept here?			
-//			Stream<Character> cStream = IntStream.range(0, charArray.length).mapToObj(i -> charArray[i]);
-//			final int teIndex = te.getIndex();
-//			TrieNode[] newCurrent = new TrieNode[1];
-//			newCurrent[0] = root;
-//			cStream.forEach(ch -> {
-//				if (trieConfig.getVocabulary().exists(ch))
-//				{
-//					if (ch == ' ')
-//					{
-//						newCurrent[0].markAsCompleteWord();			
-//					}
-//					newCurrent[0] = newCurrent[0].getOrElseCreate(ch);
-//					newCurrent[0].addTrieEntryListIndex(teIndex);
-//				}
-//			});
-//			newCurrent[0].markAsCompleteWord();
+			/**
+			 * Is it worth it to use Streaming concept here?
+			 * 
+			 * Attempts have not shown significant benefits.
+			 * 
+			//			Stream<Character> cStream = IntStream.range(0, charArray.length).mapToObj(i -> charArray[i]);
+			//			final int teIndex = te.getIndex();
+			//			TrieNode[] newCurrent = new TrieNode[1];
+			//			newCurrent[0] = root;
+			//			cStream.forEach(ch -> {
+			//				if (trieConfig.getVocabulary().exists(ch))
+			//				{
+			//					if (ch == ' ')
+			//					{
+			//						newCurrent[0].markAsCompleteWord();			
+			//					}
+			//					newCurrent[0] = newCurrent[0].getOrElseCreate(ch);
+			//					newCurrent[0].addTrieEntryListIndex(teIndex);
+			//				}
+			//			});
+			//			newCurrent[0].markAsCompleteWord();
+			 *  
+			 */
+			
 
 			TrieNode current = root;
 			for (char ch : charArray)
@@ -172,12 +266,6 @@ public final class Trie implements Serializable
 		trieStatistics.clear();
 		return indexed; 
 	}
-
-	public boolean isEmpty()
-	{
-		return root.isEmpty();
-	}
-
 
 	public TraverseResult traverse(String queryString)
 	{

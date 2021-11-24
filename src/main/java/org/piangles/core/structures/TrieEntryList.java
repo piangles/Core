@@ -21,6 +21,13 @@ package org.piangles.core.structures;
 
 import java.io.Serializable;
 
+/**
+ * An abstraction that is used by Trie to capture all the TrieEntries.
+ * The default implementation is the InMemoryTrieEntryList.
+ * 
+ * Trie uses this
+ *
+ */
 public interface TrieEntryList extends Serializable
 {
 	public int add(TrieEntry e);
