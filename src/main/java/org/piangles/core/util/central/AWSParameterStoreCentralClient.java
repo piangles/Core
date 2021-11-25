@@ -99,6 +99,8 @@ public final class AWSParameterStoreCentralClient extends CentralClient
 	{
 		Properties discoveryProps = null;
 		StringBuffer response = new StringBuffer();
+		GetParametersByPathResponse parametersByPathResponse = null;
+		GetParametersByPathRequest parametersByPathRequest = null;
 
 		try
 		{
@@ -106,39 +108,55 @@ public final class AWSParameterStoreCentralClient extends CentralClient
 			
 			Logger.getInstance().info("CentralClient:Searching for pathPrefix : " + pathPrefix);
 
-			GetParametersByPathRequest parametersByPathRequest = GetParametersByPathRequest.builder()
+			parametersByPathRequest = GetParametersByPathRequest.builder()
 																	.path(pathPrefix)
 																	.recursive(true)
 																	.withDecryption(true)
+																	.maxResults(10)
 																	.build();
+			
 
-			GetParametersByPathResponse parametersByPathResponse = ssmClient.getParametersByPath(parametersByPathRequest);
-
-			if (parametersByPathResponse.parameters().size() != 0)
+			/**GetParametersByPath is a paged operation. 
+			 *After each call you must retrieve NextToken from the result object, and if it's 
+			 *not null and not empty you must make another call with it added to the request.
+			**/
+			discoveryProps = new Properties();
+			do
 			{
-				discoveryProps = new Properties();
-				for (int i=0; i < parametersByPathResponse.parameters().size(); ++i)
+				parametersByPathResponse = ssmClient.getParametersByPath(parametersByPathRequest);
+
+				if (parametersByPathResponse.parameters().size() != 0)
 				{
-					Parameter parameter = parametersByPathResponse.parameters().get(i);
 					
-					String[] uriSegments = parameter.name().split("/");
-					
-					String parameterName = uriSegments[uriSegments.length - 1];
-					
-					discoveryProps.put(parameterName, parameter.value());
+					for (int i = 0; i < parametersByPathResponse.parameters().size(); ++i)
+					{
+						Parameter parameter = parametersByPathResponse.parameters().get(i);
+
+						String[] uriSegments = parameter.name().split("/");
+
+						String parameterName = uriSegments[uriSegments.length - 1];
+
+						discoveryProps.put(parameterName, parameter.value());
+					}
+				} else
+				{
+					response.append("The pathPrefix [" + pathPrefix + "] did yield any search results.");
 				}
-			}
-			else
-			{
-				response.append("The pathPrefix [" + pathPrefix+"] did yield any search results.");
-			}
+				parametersByPathRequest = GetParametersByPathRequest.builder()
+																	.path(pathPrefix)
+																	.recursive(true)
+																	.withDecryption(true)
+																	.maxResults(10)
+																	.nextToken(parametersByPathResponse.nextToken())
+																	.build();
+			} while (StringUtils.isNotBlank(parametersByPathResponse.nextToken()));
 		}
 		catch (Exception e)
 		{
 			throw new Exception(e.getMessage(), e);
 		}
 
-		if (discoveryProps == null)
+		if (discoveryProps.isEmpty())
 		{
 			throw new Exception("Unable to retrieve " + propertyName + " Properties for : " + serviceName + " Because : " + response.toString());
 		}
