@@ -44,6 +44,11 @@ public final class AWSParameterStoreCentralClient extends CentralClient
 		if (awsRegion == null)
 		{
 			awsRegion = Regions.getCurrentRegion().getName();
+			Logger.getInstance().info("Defaulting to Region : " + awsRegion);
+		}
+		else
+		{
+			Logger.getInstance().info("Configured to Region : " + awsRegion);
 		}
 
 		if (StringUtils.isBlank(awsRegion))
@@ -98,6 +103,8 @@ public final class AWSParameterStoreCentralClient extends CentralClient
 		try
 		{
 			String pathPrefix = "/" + identifyEnvironment() + "/" + propertyName + "/" + serviceName;
+			
+			Logger.getInstance().info("CentralClient:Searching for pathPrefix : " + pathPrefix);
 
 			GetParametersByPathRequest parametersByPathRequest = GetParametersByPathRequest.builder()
 																	.path(pathPrefix)
@@ -120,6 +127,10 @@ public final class AWSParameterStoreCentralClient extends CentralClient
 					
 					discoveryProps.put(parameterName, parameter.value());
 				}
+			}
+			else
+			{
+				response.append("The pathPrefix [" + pathPrefix+"] did yield any search results.");
 			}
 		}
 		catch (Exception e)
