@@ -97,7 +97,7 @@ public final class AWSParameterStoreCentralClient extends CentralClient
 
 	private Properties getProperties(String propertyName, String serviceName) throws Exception
 	{
-		Properties discoveryProps = null;
+		Properties discoveryProps = new Properties();
 		StringBuffer response = new StringBuffer();
 		GetParametersByPathResponse parametersByPathResponse = null;
 		GetParametersByPathRequest parametersByPathRequest = null;
@@ -108,26 +108,26 @@ public final class AWSParameterStoreCentralClient extends CentralClient
 			
 			Logger.getInstance().info("CentralClient:Searching for pathPrefix : " + pathPrefix);
 
-			parametersByPathRequest = GetParametersByPathRequest.builder()
-																	.path(pathPrefix)
-																	.recursive(true)
-																	.withDecryption(true)
-																	.maxResults(10)
-																	.build();
 			
 
 			/**GetParametersByPath is a paged operation. 
 			 *After each call you must retrieve NextToken from the result object, and if it's 
 			 *not null and not empty you must make another call with it added to the request.
 			**/
-			discoveryProps = new Properties();
 			do
 			{
+				parametersByPathRequest = GetParametersByPathRequest.builder()
+																	.path(pathPrefix)
+																	.recursive(true)
+																	.withDecryption(true)
+																	.maxResults(10)
+																	.nextToken((parametersByPathResponse != null)?parametersByPathResponse.nextToken():null)
+																	.build();
+				
 				parametersByPathResponse = ssmClient.getParametersByPath(parametersByPathRequest);
 
 				if (parametersByPathResponse.parameters().size() != 0)
 				{
-					
 					for (int i = 0; i < parametersByPathResponse.parameters().size(); ++i)
 					{
 						Parameter parameter = parametersByPathResponse.parameters().get(i);
@@ -138,17 +138,11 @@ public final class AWSParameterStoreCentralClient extends CentralClient
 
 						discoveryProps.put(parameterName, parameter.value());
 					}
-				} else
+				}
+				else
 				{
 					response.append("The pathPrefix [" + pathPrefix + "] did yield any search results.");
 				}
-				parametersByPathRequest = GetParametersByPathRequest.builder()
-																	.path(pathPrefix)
-																	.recursive(true)
-																	.withDecryption(true)
-																	.maxResults(10)
-																	.nextToken(parametersByPathResponse.nextToken())
-																	.build();
 			} while (StringUtils.isNotBlank(parametersByPathResponse.nextToken()));
 		}
 		catch (Exception e)
