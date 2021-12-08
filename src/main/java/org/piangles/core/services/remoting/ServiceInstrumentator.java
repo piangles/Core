@@ -30,7 +30,7 @@ public final class ServiceInstrumentator extends AbstractInstrumentator
 		super(ServicePerformanceDetails.NAME);
 		
 		spDetails = new ServicePerformanceDetails(); 
-		spdMeasures = new Measures(ServicePerformanceDetails.NAME, serviceName);
+		spdMeasures = new Measures(ServicePerformanceDetails.NAME, serviceName, false);
 	}
 	
 	public ServicePerformanceDetails getServicePerformanceDetails()

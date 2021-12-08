@@ -31,7 +31,7 @@ public final class SystemInstrumentator extends AbstractInstrumentator
 		
 		OperatingSystemMXBean operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
 
-		systemDetails = new Measures(NAME, serviceName);
+		systemDetails = new Measures(NAME, serviceName, true);
 		systemDetails.addMeasure("OSName", operatingSystemMXBean.getName());
 		systemDetails.addMeasure("OSVersion", operatingSystemMXBean.getVersion());
 		systemDetails.addMeasure("Architecture", operatingSystemMXBean.getArch());

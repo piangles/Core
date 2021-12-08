@@ -30,13 +30,15 @@ public final class Measures implements Serializable
 	
 	private String name;
 	private String serviceName;
+	private boolean oneTimeMeasure;
 	private Map<String, Object> measureMap;
 	private Date recordedTimestamp = null;
 	
-	public Measures(String name, String serviceName)
+	public Measures(String name, String serviceName, boolean oneTimeMeasure)
 	{
 		this.name = name;
 		this.serviceName = serviceName;
+		this.oneTimeMeasure = oneTimeMeasure;
 		this.measureMap  = new LinkedHashMap<>(); 
 	}
 	
@@ -50,6 +52,11 @@ public final class Measures implements Serializable
 		return serviceName;
 	}
 
+	public boolean isOneTimeMeasure()
+	{
+		return oneTimeMeasure;
+	}
+	
 	public void clear()
 	{
 		measureMap.clear();

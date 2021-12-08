@@ -90,10 +90,10 @@ public abstract class AbstractContainer
 	{
 		try
 		{
-//			InstrumentationConductor.createInstance(serviceName);
-//			InstrumentationConductor.getInstance().registerInstrumentator(new ServiceInstrumentator(serviceName));
-//			
-//			InstrumentationConductor.getInstance().start();
+			InstrumentationConductor.createInstance(serviceName);
+			InstrumentationConductor.getInstance().registerInstrumentator(new ServiceInstrumentator(serviceName));
+			
+			InstrumentationConductor.getInstance().start();
 			/**
 			 * TODO create a formal command line parsing logic
 			 */

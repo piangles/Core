@@ -51,8 +51,8 @@ public final class InstrumentationConductor
 			self = new InstrumentationConductor(name);
 			
 			self.registerInstrumentator(new SystemInstrumentator(name));
-			self.registerInstrumentator(new PerformanceInstrumentator(name));
-			self.registerInstrumentator(new MemoryInstrumentator(name));
+//			self.registerInstrumentator(new PerformanceInstrumentator(name));
+//			self.registerInstrumentator(new MemoryInstrumentator(name));
 		}
 	}
 	
@@ -122,9 +122,12 @@ public final class InstrumentationConductor
 
 	class InstrumentationThread extends Thread
 	{
+		private boolean firstPass;
+		
 		public InstrumentationThread(String name)
 		{
 			super(name);
+			firstPass = true;
 		}
 		
 		@Override
@@ -141,8 +144,19 @@ public final class InstrumentationConductor
 					try
 					{
 						Measures measures = instrumentatorMap.get(measureName).doInstrumentation();
-						measures.markRecordedTimestamp();
-						measuresList.add(measures);
+						if (measures.isOneTimeMeasure())
+						{
+							if (firstPass)
+							{
+								measures.markRecordedTimestamp();
+								measuresList.add(measures);
+							}
+						}
+						else
+						{
+							measures.markRecordedTimestamp();
+							measuresList.add(measures);
+						}
 					}
 					catch(Throwable t)
 					{
@@ -174,6 +188,8 @@ public final class InstrumentationConductor
 					System.err.println("InstrumentationThread: Exception while sleeping : " + e.getMessage());
 					e.printStackTrace(System.err);
 				}
+				
+				firstPass = false;
 			}
 		}
 	}

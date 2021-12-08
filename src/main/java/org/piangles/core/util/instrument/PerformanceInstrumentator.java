@@ -35,7 +35,7 @@ public final class PerformanceInstrumentator extends AbstractInstrumentator
 
 		osMXBean = (com.sun.management.OperatingSystemMXBean)ManagementFactory.getOperatingSystemMXBean();
 
-		performanceDetails = new Measures(NAME, serviceName);
+		performanceDetails = new Measures(NAME, serviceName, false);
 	}
 
 	@Override

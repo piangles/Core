@@ -43,7 +43,7 @@ public final class MemoryInstrumentator  extends AbstractInstrumentator
 	    nonHeap = memBean.getNonHeapMemoryUsage();
 	    runtime = Runtime.getRuntime();
 	    
-	    memoryDetails = new Measures(NAME, serviceName); 
+	    memoryDetails = new Measures(NAME, serviceName, false); 
 	}
 
 	@Override
