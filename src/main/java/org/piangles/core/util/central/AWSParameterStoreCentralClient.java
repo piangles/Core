@@ -17,9 +17,14 @@
 
 package org.piangles.core.util.central;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.net.util.SubnetUtils;
 import org.piangles.core.util.Logger;
 
 import com.amazonaws.regions.Regions;
@@ -34,10 +39,18 @@ public final class AWSParameterStoreCentralClient extends CentralClient
 {
 	public static final String AWS_REGION = "aws.region";
 
+	private Map<String, String> environmentCIDRBlockMap = null;
 	private SsmClient ssmClient = null;
 
 	public AWSParameterStoreCentralClient() throws Exception
 	{
+		environmentCIDRBlockMap = new HashMap<>();
+		environmentCIDRBlockMap.put("dev", "172.17.0.0/16");
+		environmentCIDRBlockMap.put("qat", "172.18.0.0/16");
+		environmentCIDRBlockMap.put("uat", "192.168.0.0/16");
+		environmentCIDRBlockMap.put("prod", "10.100.0.0/16");
+		
+				
 		Region region = null;
 		String awsRegion = System.getenv(AWS_REGION);
 
@@ -158,8 +171,32 @@ public final class AWSParameterStoreCentralClient extends CentralClient
 		return discoveryProps;
 	}
 	
-	private String identifyEnvironment()
+	private String identifyEnvironment() throws Exception
 	{
-		return "dev";
+		String environment = null;
+		String ipAddress = null;
+		try
+		{
+			ipAddress = InetAddress.getLocalHost().toString();
+		}
+		catch (UnknownHostException e)
+		{
+			String message = "Unable to determine Environment for localhost: " + ipAddress;
+			Logger.getInstance().fatal(message);
+			throw new Exception(message);
+		}
+		
+		for (String env: environmentCIDRBlockMap.keySet())
+		{
+			String cidrBlock = environmentCIDRBlockMap.get(environment);
+			SubnetUtils subnetUtils = new SubnetUtils(cidrBlock);
+			if (subnetUtils.getInfo().isInRange(ipAddress))
+			{
+				environment = env;
+				break;
+			}
+		}
+		
+		return environment;
 	}
 }
