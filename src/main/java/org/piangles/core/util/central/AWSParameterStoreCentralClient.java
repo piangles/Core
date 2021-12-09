@@ -17,19 +17,11 @@
 
 package org.piangles.core.util.central;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.net.util.SubnetUtils;
 import org.piangles.core.util.Logger;
 
-import com.amazonaws.regions.Regions;
-
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.ssm.SsmClient;
 import software.amazon.awssdk.services.ssm.model.GetParametersByPathRequest;
 import software.amazon.awssdk.services.ssm.model.GetParametersByPathResponse;
@@ -37,44 +29,15 @@ import software.amazon.awssdk.services.ssm.model.Parameter;
 
 public final class AWSParameterStoreCentralClient extends CentralClient
 {
-	public static final String AWS_REGION = "aws.region";
-
-	private Map<String, String> environmentCIDRBlockMap = null;
 	private SsmClient ssmClient = null;
+	private Environment environment = null;
 
 	public AWSParameterStoreCentralClient() throws Exception
 	{
-		environmentCIDRBlockMap = new HashMap<>();
-		environmentCIDRBlockMap.put("dev", "172.17.0.0/16");
-		environmentCIDRBlockMap.put("qat", "172.18.0.0/16");
-		environmentCIDRBlockMap.put("uat", "192.168.0.0/16");
-		environmentCIDRBlockMap.put("prod", "10.100.0.0/16");
-		
-				
-		Region region = null;
-		String awsRegion = System.getenv(AWS_REGION);
-
-		if (awsRegion == null)
-		{
-			awsRegion = Regions.getCurrentRegion().getName();
-			Logger.getInstance().info("Defaulting to Region : " + awsRegion);
-		}
-		else
-		{
-			Logger.getInstance().info("Configured to Region : " + awsRegion);
-		}
-
-		if (StringUtils.isBlank(awsRegion))
-		{
-			String message = "AWS Region is either missing or cannot be dertermined.";
-			Logger.getInstance().fatal(message);
-			throw new Exception(message);
-		}
-		region = Region.of(awsRegion);
-
+		environment = new Environment(); 
 		try
 		{
-			ssmClient = SsmClient.builder().region(region).build();
+			ssmClient = SsmClient.builder().region(environment.getRegion()).build();
 		}
 		catch (Exception e)
 		{
@@ -117,7 +80,7 @@ public final class AWSParameterStoreCentralClient extends CentralClient
 
 		try
 		{
-			String pathPrefix = "/" + identifyEnvironment() + "/" + propertyName + "/" + serviceName;
+			String pathPrefix = "/" + environment.identifyEnvironment() + "/" + propertyName + "/" + serviceName;
 			
 			Logger.getInstance().info("CentralClient:Searching for pathPrefix : " + pathPrefix);
 
@@ -169,46 +132,5 @@ public final class AWSParameterStoreCentralClient extends CentralClient
 		}
 
 		return discoveryProps;
-	}
-	
-	private String identifyEnvironment() throws Exception
-	{
-		String environment = null;
-		InetAddress inetAddress = null;
-		String ipAddress = null;
-		try
-		{
-			inetAddress = InetAddress.getLocalHost();
-			ipAddress = inetAddress.getHostAddress();
-			Logger.getInstance().info("Hostname: " + inetAddress.getCanonicalHostName() + " IPAddress: " + ipAddress);
-		}
-		catch (UnknownHostException e)
-		{
-			String message = "Failed to obtain network details for localhost: " + inetAddress + ". Reason: " + e.getMessage();
-			Logger.getInstance().fatal(message, e);
-			throw new Exception(message);
-		}
-		
-		for (String env: environmentCIDRBlockMap.keySet())
-		{
-			String cidrBlock = environmentCIDRBlockMap.get(env);
-			SubnetUtils subnetUtils = new SubnetUtils(cidrBlock);
-			if (subnetUtils.getInfo().isInRange(ipAddress))
-			{
-				environment = env;
-				break;
-			}
-		}
-		
-		if (environment == null)
-		{
-			String message = "Unable to determine Environment for Hostname: " + inetAddress.getCanonicalHostName() + " IPAddress: " + ipAddress;
-			Logger.getInstance().fatal(message);
-			throw new Exception(message);
-		}
-
-		Logger.getInstance().info("Environment for Hostname: " + inetAddress.getCanonicalHostName() + " IPAddress: " + ipAddress + " is: [" + environment + "]");
-		
-		return environment;
 	}
 }
