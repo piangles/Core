@@ -174,21 +174,24 @@ public final class AWSParameterStoreCentralClient extends CentralClient
 	private String identifyEnvironment() throws Exception
 	{
 		String environment = null;
+		InetAddress inetAddress = null;
 		String ipAddress = null;
 		try
 		{
-			ipAddress = InetAddress.getLocalHost().toString();
+			inetAddress = InetAddress.getLocalHost();
+			ipAddress = inetAddress.getHostAddress();
+			Logger.getInstance().info("Hostname: " + inetAddress.getCanonicalHostName() + " IPAddress: " + ipAddress);
 		}
 		catch (UnknownHostException e)
 		{
-			String message = "Unable to determine Environment for localhost: " + ipAddress;
-			Logger.getInstance().fatal(message);
+			String message = "Failed to obtain network details for localhost: " + inetAddress + ". Reason: " + e.getMessage();
+			Logger.getInstance().fatal(message, e);
 			throw new Exception(message);
 		}
 		
 		for (String env: environmentCIDRBlockMap.keySet())
 		{
-			String cidrBlock = environmentCIDRBlockMap.get(environment);
+			String cidrBlock = environmentCIDRBlockMap.get(env);
 			SubnetUtils subnetUtils = new SubnetUtils(cidrBlock);
 			if (subnetUtils.getInfo().isInRange(ipAddress))
 			{
@@ -196,6 +199,15 @@ public final class AWSParameterStoreCentralClient extends CentralClient
 				break;
 			}
 		}
+		
+		if (environment == null)
+		{
+			String message = "Unable to determine Environment for Hostname: " + inetAddress.getCanonicalHostName() + " IPAddress: " + ipAddress;
+			Logger.getInstance().fatal(message);
+			throw new Exception(message);
+		}
+
+		Logger.getInstance().info("Environment for Hostname: " + inetAddress.getCanonicalHostName() + " IPAddress: " + ipAddress + " is: [" + environment + "]");
 		
 		return environment;
 	}
