@@ -89,4 +89,16 @@ class StandAloneJedis implements Jedis
 	{
 		return jedis.hgetAll(key);
 	}
+	
+	@Override
+	public String get(final String key)
+	{
+		return jedis.get(key);
+	}
+	
+	@Override
+	public String set(final String key, final String value)
+	{
+		return jedis.set(key, value);
+	}
 }

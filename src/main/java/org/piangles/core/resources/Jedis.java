@@ -33,4 +33,6 @@ public interface Jedis
 	public Long persist(final String key);
 	public List<String> lrange(final String key, final long start, final long stop);
 	public Map<String, String> hgetAll(final String key);
+	public String get(final String key);
+	public String set(final String key, final String value);
 }
