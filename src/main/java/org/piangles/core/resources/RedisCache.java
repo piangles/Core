@@ -23,52 +23,34 @@ import java.util.Properties;
 
 import org.piangles.core.util.abstractions.BoundedOp;
 
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
-
 public final class RedisCache implements Resource
 {
-	private static final String HOST = "Host";
-	private static final String PORT = "Port";
-	private static final String SOCKET_TIMEOUT = "SocketTimeout"; //java.net.Socket.setSoTimeout
-	private static final String PASSWORD = "Password";
-	private static final String MAX_TOTAL = "MaxTotal";
-
-	private JedisPool pool = null;
-
+	private static final String CLUSTERED = "Clustered";
+	
+	private IRedisCache iRedisCache = null;
+	
 	RedisCache(String serviceName, Properties cacheProps) throws Exception
 	{
-		String host, password;
-		int port, socketTimeout, maxTotal;
-		try
+		String clustered = cacheProps.getProperty(CLUSTERED);
+		if (Boolean.parseBoolean(clustered))
 		{
-			host = cacheProps.getProperty(HOST);
-			port = Integer.parseInt(cacheProps.getProperty(PORT));
-			socketTimeout = Integer.parseInt(cacheProps.getProperty(SOCKET_TIMEOUT));
-			socketTimeout = socketTimeout * 1000; //Convert from Seconds to Milliseconds
-			password = cacheProps.getProperty(PASSWORD);
-			maxTotal = Integer.parseInt(cacheProps.getProperty(MAX_TOTAL));
+			iRedisCache = new ClusteredRedisCache(serviceName, cacheProps);
 		}
-		catch (Exception e)
+		else
 		{
-			throw new Exception(String.format("Could not parse one of the properties [%s,%s,%s]", PORT, SOCKET_TIMEOUT, MAX_TOTAL), e);
+			iRedisCache = new StandAloneRedisCache(serviceName, cacheProps);
 		}
-		JedisPoolConfig poolConfig = new JedisPoolConfig();
-		poolConfig.setMaxTotal(maxTotal);
-
-		pool = new JedisPool(poolConfig, host, port, socketTimeout, password);
 	}
 	
 	@Override
 	public void close() throws Exception
 	{
-		pool.close();
+		iRedisCache.close();
 	}
 
 	public Jedis getCache()
 	{
-		return pool.getResource();
+		return iRedisCache.getCache();
 	}
 	
 	public <R> R execute(BoundedOp<Jedis, R> op) throws ResourceException
@@ -77,7 +59,7 @@ public final class RedisCache implements Resource
 		
 		try
 		{
-			jedis = pool.getResource();
+			jedis = iRedisCache.getCache();
 			return op.perform(jedis);
 		}
 		catch(Exception e)
