@@ -41,32 +41,79 @@ public abstract class AbstractDAO<T>
 
 	protected final void create(T obj) throws DAOException
 	{
-		tCollection.insertOne(obj);
+		try
+		{
+			tCollection.insertOne(obj);
+		}
+		catch(Exception e)
+		{
+			throw new DAOException(e.getMessage(), e);
+		}
 	}
 	
 	protected final FindIterable<T> read(Bson filter) throws DAOException
 	{
-		return tCollection.find(filter);
+		FindIterable<T> iteratable = null;
+		try
+		{
+			iteratable = tCollection.find(filter); 
+		}
+		catch(Exception e)
+		{
+			throw new DAOException(e.getMessage(), e);
+		}
+		return iteratable;
 	}
 
 	protected final T readOne(Bson filter) throws DAOException
 	{
-		return (T)tCollection.find(filter).first();
+		T theChosenOne = null;
+		try
+		{
+			theChosenOne = (T)tCollection.find(filter).first(); 
+		}
+		catch(Exception e)
+		{
+			throw new DAOException(e.getMessage(), e);
+		}
+		
+		return theChosenOne;
 	}
 
 	protected final void update(Bson filter, T obj) throws DAOException
 	{
-		tCollection.replaceOne(filter, obj);
+		try
+		{
+			tCollection.replaceOne(filter, obj);	
+		}
+		catch(Exception e)
+		{
+			throw new DAOException(e.getMessage(), e);
+		}
 	}
 
 	protected final void upsert(Bson filter, T obj) throws DAOException
 	{
-		tCollection.replaceOne(filter, obj, new ReplaceOptions().upsert(true));
+		try
+		{
+			tCollection.replaceOne(filter, obj, new ReplaceOptions().upsert(true));
+		}
+		catch(Exception e)
+		{
+			throw new DAOException(e.getMessage(), e);
+		}
 	}
 
 	protected final void delete(Bson filter) throws DAOException
 	{
-		tCollection.deleteMany(filter);
+		try
+		{
+			tCollection.deleteMany(filter);
+		}
+		catch(Exception e)
+		{
+			throw new DAOException(e.getMessage(), e);
+		}
 	}
 	
 	protected final MongoCollection<Document> getConnection()
