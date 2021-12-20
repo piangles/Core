@@ -21,11 +21,14 @@ package org.piangles.core.util.central;
 
 import java.util.Properties;
 
+import org.apache.commons.lang3.StringUtils;
 import org.piangles.core.util.Logger;
 
 public abstract class CentralClient
 {
-	public static final String CENTRAL_CLIENT_CLASS = "central.client.class";
+	private static final String CENTRAL_CLIENT_CLASS_1 = "central.client.class";
+	private static final String CENTRAL_CLIENT_CLASS_2 = "central_client_class";
+	
 	private static CentralClient centralClient = null; 
 	
 	public static CentralClient getInstance()
@@ -38,16 +41,21 @@ public abstract class CentralClient
 				{
 					try
 					{
-						String centralClientClassName = System.getenv(CENTRAL_CLIENT_CLASS);
-						if (centralClientClassName == null)
+						String centralClientClassName1 = System.getenv(CENTRAL_CLIENT_CLASS_1);
+						String centralClientClassName2 = System.getenv(CENTRAL_CLIENT_CLASS_2);
+						
+						String centralClientClassName = null;
+						if (StringUtils.isAllBlank(centralClientClassName1, centralClientClassName2))
 						{
 							centralClientClassName = DefaultCentralClient.class.getCanonicalName();
-							Logger.getInstance().warn(CENTRAL_CLIENT_CLASS + " property is NOT set, defaulting to : " + centralClientClassName);
+							Logger.getInstance().warn(CENTRAL_CLIENT_CLASS_1 + " and " + CENTRAL_CLIENT_CLASS_2 + " property is NOT set, defaulting to : " + centralClientClassName);
 						}
 						else
 						{
-							Logger.getInstance().info(CENTRAL_CLIENT_CLASS + " property is set, trying to create : " + centralClientClassName);
+							centralClientClassName = StringUtils.isNotBlank(centralClientClassName1)? centralClientClassName1 : centralClientClassName2;
+							Logger.getInstance().info(CENTRAL_CLIENT_CLASS_1 + " or " + CENTRAL_CLIENT_CLASS_2 + " property is set, trying to create : " + centralClientClassName);
 						}
+
 						centralClient = (CentralClient)Class.forName(centralClientClassName).newInstance();
 					}
 					catch(Throwable t)
