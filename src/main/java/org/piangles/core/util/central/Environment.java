@@ -33,7 +33,9 @@ import software.amazon.awssdk.regions.Region;
 
 public final class Environment
 {
-	public static final String AWS_REGION = "aws.region";
+	public static final String AWS_REGION_1 = "aws.region";
+	public static final String AWS_REGION_2 = "AWS_REGION";
+	public static final String PIANGLES_ENV = "piangles_env";
 	
 	private Map<String, String> environmentCIDRBlockMap = null;
 
@@ -49,15 +51,18 @@ public final class Environment
 	public Region getRegion() throws Exception
 	{
 		Region region = null;
-		String awsRegion = System.getenv(AWS_REGION);
+		String awsRegion1 = System.getenv(AWS_REGION_1);
+		String awsRegion2 = System.getenv(AWS_REGION_2);
 
-		if (awsRegion == null)
+		String awsRegion = null;
+		if (StringUtils.isAllBlank(awsRegion1, awsRegion2))
 		{
 			awsRegion = Regions.getCurrentRegion().getName();
 			Logger.getInstance().info("Defaulting to Region : " + awsRegion);
 		}
 		else
 		{
+			awsRegion = StringUtils.isNotBlank(awsRegion1) ? awsRegion1 : awsRegion2;
 			Logger.getInstance().info("Configured to Region : " + awsRegion);
 		}
 
@@ -75,40 +80,50 @@ public final class Environment
 	public String identifyEnvironment() throws Exception
 	{
 		String environment = null;
-		InetAddress inetAddress = null;
-		String ipAddress = null;
-		try
-		{
-			inetAddress = InetAddress.getLocalHost();
-			ipAddress = inetAddress.getHostAddress();
-			Logger.getInstance().info("Hostname: " + inetAddress.getCanonicalHostName() + " IPAddress: " + ipAddress);
-		}
-		catch (UnknownHostException e)
-		{
-			String message = "Failed to obtain network details for localhost: " + inetAddress + ". Reason: " + e.getMessage();
-			Logger.getInstance().fatal(message, e);
-			throw new Exception(message);
-		}
 		
-		for (String env: environmentCIDRBlockMap.keySet())
+		environment = System.getenv(PIANGLES_ENV);
+		
+		if (StringUtils.isBlank(environment))
 		{
-			String cidrBlock = environmentCIDRBlockMap.get(env);
-			SubnetUtils subnetUtils = new SubnetUtils(cidrBlock);
-			if (subnetUtils.getInfo().isInRange(ipAddress))
+			InetAddress inetAddress = null;
+			String ipAddress = null;
+			try
 			{
-				environment = env;
-				break;
+				inetAddress = InetAddress.getLocalHost();
+				ipAddress = inetAddress.getHostAddress();
+				Logger.getInstance().info("Hostname: " + inetAddress.getCanonicalHostName() + " IPAddress: " + ipAddress);
 			}
-		}
-		
-		if (environment == null)
+			catch (UnknownHostException e)
+			{
+				String message = "Failed to obtain network details for localhost: " + inetAddress + ". Reason: " + e.getMessage();
+				Logger.getInstance().fatal(message, e);
+				throw new Exception(message);
+			}
+			
+			for (String env: environmentCIDRBlockMap.keySet())
+			{
+				String cidrBlock = environmentCIDRBlockMap.get(env);
+				SubnetUtils subnetUtils = new SubnetUtils(cidrBlock);
+				if (subnetUtils.getInfo().isInRange(ipAddress))
+				{
+					environment = env;
+					break;
+				}
+			}
+			
+			if (environment == null)
+			{
+				String message = "Unable to determine Environment for Hostname: " + inetAddress.getCanonicalHostName() + " IPAddress: " + ipAddress;
+				Logger.getInstance().fatal(message);
+				throw new Exception(message);
+			}
+			
+			Logger.getInstance().info("Environment for Hostname: " + inetAddress.getCanonicalHostName() + " IPAddress: " + ipAddress + " is: [" + environment + "]");
+ 		}
+		else
 		{
-			String message = "Unable to determine Environment for Hostname: " + inetAddress.getCanonicalHostName() + " IPAddress: " + ipAddress;
-			Logger.getInstance().fatal(message);
-			throw new Exception(message);
+			Logger.getInstance().info("PIANGLES_ENV Environment variable set to : [" + environment + "]");
 		}
-
-		Logger.getInstance().info("Environment for Hostname: " + inetAddress.getCanonicalHostName() + " IPAddress: " + ipAddress + " is: [" + environment + "]");
 		
 		return environment;
 	}
