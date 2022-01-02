@@ -21,11 +21,21 @@ package org.piangles.core.structures;
 
 import java.io.Serializable;
 
+/**
+ * Configurable elements of Trie are
+ * 1. maximumWordLength: This controls the depth of the TreeNodes. So longer the word lenght the deeper the nodes will be.
+ * 2. suggestionsLimit: This controls the time it takes for search to return, the higher the count more results but more time as well.
+ * 3. indexingTimeOutInSeconds: Timeout while indexing.
+ * 4. traverseTimeOutInMilliSeconds: Search should yield results in a deterministic manner and this controls it.
+ * 5. Traversal approach: Either looping or recursive. 
+ *
+ */
 public final class TrieConfig implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 	
 	public static final int DEFAULT_INITIAL_SIZE = 1000000;
+	
 	public static final int DEFAULT_MAX_WORD_LENGTH = 20;
 	public static final int DEFAULT_SUGGESTIONS_LIMIT = 10;
 	public static final int DEFAULT_INDEXING_TIMEOUT_IN_SECONDS = 10;
@@ -43,6 +53,8 @@ public final class TrieConfig implements Serializable
 	private TrieEntryList trieEntryList; 
 	
 	private Vocabulary vocabulary;
+	
+	private SuggestionEngine suggestionEngine;
 
 	public TrieConfig()
 	{
@@ -52,12 +64,13 @@ public final class TrieConfig implements Serializable
 				DEFAULT_TRAVERSING_TIMEOUT_IN_MILLISECONDS,
 				DEFAULT_USE_RECURSIVE_TRAVERSE_ALGORITHM,
 				new InMemoryTrieEntryList(DEFAULT_INITIAL_SIZE),
-				new DefaultVocabulary());
+				new DefaultVocabulary(),
+				new DefaultSuggestionEngine());
 	}
 	
 	public TrieConfig(	int maximumWordLength, int suggestionsLimit, int indexingTimeOutInSeconds, 
 						long traverseTimeOutInMilliSeconds, boolean recursiveAlgorithm, 
-						TrieEntryList trieEntryList, Vocabulary vocabulary)
+						TrieEntryList trieEntryList, Vocabulary vocabulary, SuggestionEngine suggestionEngine)
 	{
 		this.maximumWordLength = maximumWordLength;
 		this.suggestionsLimit = suggestionsLimit;
@@ -67,6 +80,7 @@ public final class TrieConfig implements Serializable
 		
 		this.trieEntryList = trieEntryList;
 		this.vocabulary = vocabulary;
+		this.suggestionEngine = suggestionEngine;
 	}
 	
 	public TrieConfig setMaximumWordLength(int maximumWordLength)
@@ -145,6 +159,11 @@ public final class TrieConfig implements Serializable
 	{
 		return vocabulary;
 	}
+	
+	public SuggestionEngine getSuggestionEngine()
+	{
+		return suggestionEngine;
+	}
 
 	@Override
 	public String toString()
@@ -152,6 +171,6 @@ public final class TrieConfig implements Serializable
 		return "TrieConfig [maximumWordLength=" + maximumWordLength + ", suggestionsLimit=" + suggestionsLimit + ", indexingTimeOutInSeconds="
 				+ indexingTimeOutInSeconds + ", traverseTimeOutInMilliSeconds=" + traverseTimeOutInMilliSeconds + ", recursiveTraverseAlgorithm=" 
 				+ recursiveTraverseAlgorithm + ", trieEntryList=" + trieEntryList.getClass().getSimpleName() + ", vocabulary=" 
-				+ vocabulary.getClass().getSimpleName() + "]";
+				+ vocabulary.getClass().getSimpleName() + ", suggestionEngine=" + suggestionEngine.getClass().getSimpleName() + "]";
 	}
 }

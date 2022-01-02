@@ -32,8 +32,6 @@ import java.util.Map;
  * 
  * This is an highly performant search algorithm that is Trie based and leverages Bitmap Based Trie 
  * Once a Trie is indexed it will remain immutable through it's existence. 
- * So it is important
- * to figure 
  */
 public final class Trie implements Serializable
 {
@@ -70,10 +68,8 @@ public final class Trie implements Serializable
 		
 		trieEntryList = trieConfig.getTrieEntryList();
 		
-		/**
-		 * TODO
-		 */
-		suggestionEngine = new SuggestionEngine(name, trieEntryList);
+		suggestionEngine = trieConfig.getSuggestionEngine();
+		suggestionEngine.init(name, trieEntryList);
 	}
 	
 	/**
@@ -211,8 +207,15 @@ public final class Trie implements Serializable
 		Arrays.stream(trieEntryList.getElementData()).
 		parallel().
 		forEach(te -> {
-			String word = te.getTransformedValue().toLowerCase();
-			char[] charArray = Arrays.copyOfRange(word.toCharArray(), 0, trieConfig.getMaximumWordLength());
+			/**
+			 * The value can be phrase or a word, if the original value was:
+			 * Hello World, it gets split prior to indexing as
+			 * 1. Hello World
+			 * 2. Hello
+			 * 3. World
+			 */
+			String wordOrPhrase = te.getTransformedValue().toLowerCase();
+			char[] charArray = Arrays.copyOfRange(wordOrPhrase.toCharArray(), 0, trieConfig.getMaximumWordLength());
 
 			/**
 			 * Is it worth it to use Streaming concept here?
@@ -240,18 +243,33 @@ public final class Trie implements Serializable
 			
 
 			TrieNode current = root;
+			/**
+			 * For each character in the Value, we determine if it is part of our
+			 * Vocabulary. There is no way of indexing it if it not part of our
+			 * Vocabulary.
+			 */
 			for (char ch : charArray)
 			{
 				if (trieConfig.getVocabulary().exists(ch))
 				{
+					/**
+					 * If the character array is coming from a Phrase, we will 
+					 * find the delimiter ' ' (space) and we need to mark as complete.
+					 */
 					if (ch == Vocabulary.TOKEN_DELIMITER)
 					{
 						current.markAsCompleteWord();			
 					}
+					/**
+					 * CREATION
+					 * --------
+					 * This where we create the Nodes for each character of the word.
+					 */
 					current = current.getOrElseCreate(ch);
 					current.addTrieEntryListIndex(te.getIndex());
 				}
 			}
+			//End of character array mark as complete word. 
 			current.markAsCompleteWord();
 		});
 		trieStatistics.end(TrieMetrics.PopulateTrie);
@@ -295,6 +313,10 @@ public final class Trie implements Serializable
 			traverseResult = traverseLoop(root, searchStringAsArray, 0);
 		}
 		
+		/**
+		 * FINALLY
+		 * SetSuggestions by look up indexes from the traversal.
+		 */
 		long timeTakenInNanoSeconds = System.nanoTime() -  startTimeInNanoSeconds;
 		if (traverseResult != null)
 		{
@@ -343,7 +365,8 @@ public final class Trie implements Serializable
 			 * not.
 			 */
 			MatchQuality matchQuality = currentNode.isCompleteWord()? MatchQuality.Exact : MatchQuality.Partial;
-			result = new TraverseResult(name, new String(word), matchQuality, currentNode.getTotalIndexesCount(), currentNode.getIndexesIntoTrieEntryList(), currentNode.haveAnyChildren(), currentNode.isCompleteWord());
+			result = new TraverseResult(name, new String(word), matchQuality, currentNode.getTotalIndexesCount(), 
+										currentNode.getIndexesIntoTrieEntryList(), currentNode.haveAnyChildren(), currentNode.isCompleteWord());
 		}
 		else// we continue traversal
 		{
@@ -361,7 +384,8 @@ public final class Trie implements Serializable
 				 * Scenario 2 : carton and cartoon. Post carT(currentNode) we do 
 				 * not have any word starting with Z.
 				 */
-				result = new TraverseResult(name, new String(word), MatchQuality.None, currentNode.getTotalIndexesCount(), currentNode.getIndexesIntoTrieEntryList(), false, false);
+				result = new TraverseResult(name, new String(word), MatchQuality.None, 
+											currentNode.getTotalIndexesCount(), currentNode.getIndexesIntoTrieEntryList(), false, false);
 			}
 		}
 

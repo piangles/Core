@@ -27,7 +27,7 @@ public final class TraverseResult implements Comparable<TraverseResult>
 	private MatchQuality matchQuality = null;
 	/**
 	 * Prefix and Complete word are not complimentary. They both operate
-	 * independentaly. Cart is a completeword and also a prefix for Carton and
+	 * independentaly. Cart is a complete word and also a prefix for Carton and
 	 * Cartoon.
 	 */
 	private boolean prefix;

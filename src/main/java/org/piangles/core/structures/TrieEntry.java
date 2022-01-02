@@ -20,16 +20,32 @@ package org.piangles.core.structures;
 
 import java.io.Serializable;
 
+/**
+ * Purpose of the fields in this class
+ * 
+ * id				:	Id associated with this record, the application can actually look up or details.
+ * rank				: 	Rank is assigned during creation and remains immutable. It is upto the
+ * 						application will determine the logic of deciding the Rank.
+ * actualValue		:	The value that will be returned as suggestion. 
+ * transformedValue	:	The value that will be used to breakdown and create the Trie. This could
+ * 						be the same as the actualValue or deaccentedValue.
+ * 
+ * The below two are set by Trie while indexing.
+ * 
+ * index			:	
+ * parent			:
+ */
 public final class TrieEntry implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 	
 	private String id;
-	private int index;
-	private TrieEntry parent;
 	private int rank;
 	private String actualValue;
 	private String transformedValue;
+
+	private int index;
+	private TrieEntry parent;
 
 	public TrieEntry(String actualValue, String transformedValue)
 	{
@@ -38,10 +54,13 @@ public final class TrieEntry implements Serializable
 
 	public TrieEntry(String id, int rank, String actualValue, String transformedValue)
 	{
-		this(null, null, rank, actualValue, transformedValue);
+		this(id, null, rank, actualValue, transformedValue);
 	}
 
-	public TrieEntry(String id, TrieEntry parent, int rank, String actualValue, String transformedValue)
+	/**
+	 * This constructor should remain in Default Package visibility.
+	 */
+	TrieEntry(String id, TrieEntry parent, int rank, String actualValue, String transformedValue)
 	{
 		this.id = id;
 		this.parent = parent;
@@ -115,7 +134,18 @@ public final class TrieEntry implements Serializable
 	{
 		return parent != null;
 	}
-	
+
+	@Override
+	public String toString()
+	{
+		return actualValue;
+	}
+
+	/**
+	 * The following methods are only visible at package level as they are
+	 * used by Trie and InMemoryTrieEntryList. 
+	 * 
+	 */
 	TrieEntry getParent()
 	{
 		return parent;
@@ -129,11 +159,5 @@ public final class TrieEntry implements Serializable
 	int getIndex()
 	{
 		return index;
-	}
-	
-	@Override
-	public String toString()
-	{
-		return actualValue;
 	}
 }

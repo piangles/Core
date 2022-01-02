@@ -19,8 +19,33 @@
  
 package org.piangles.core.structures;
 
-public interface SuggestionEngine
+final class DefaultSuggestionEngine implements SuggestionEngine
 {
-	public void init(String attribute, TrieEntryList trieEntryList);
-	public Suggestion[] suggest(int[] indexesIntoTrieEntryList);
+	private String attribute = null;
+	private TrieEntryList trieEntryList = null;
+	
+	public void init(String attribute, TrieEntryList trieEntryList)
+	{
+		this.attribute = attribute;
+		this.trieEntryList = trieEntryList;
+	}
+	
+	@Override
+	public Suggestion[] suggest(int[] indexesIntoTrieEntryList)
+	{
+		Suggestion[] suggestions = new Suggestion[indexesIntoTrieEntryList.length];
+
+		TrieEntry trieEntry = null;
+		for (int i=0; i < indexesIntoTrieEntryList.length; ++i)
+		{
+			trieEntry = trieEntryList.get(indexesIntoTrieEntryList[i]);
+			if (trieEntry.isDerived())
+			{
+				trieEntry = trieEntryList.get(trieEntry.getParent().getIndex());
+			}
+			suggestions[i] = new Suggestion(trieEntry.getId(), attribute, trieEntry.getActualValue());
+		}
+		
+		return suggestions;
+	}
 }

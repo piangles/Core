@@ -114,9 +114,16 @@ public class BitmapTrieTest
 		print(trie.traverse("{"));
 	}
 
-	private static void print(TraverseResult sr)
+	private static void print(TraverseResult tr)
 	{
-		System.out.println("Search result for [" + sr.getQueryString() + "] : " + sr);
+		System.out.println("Search result for [" + tr.getQueryString() + "] : " + tr);
+		if (tr.getSuggestions() != null)
+		{
+			for (Suggestion s : tr.getSuggestions())
+			{
+				System.out.println("Id: " + s.getId() + " Attribute: " + s.getAttribute() + " Value: " + s.getValue());
+			}
+		}
 	}
 
 	public static void memory()

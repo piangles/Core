@@ -19,8 +19,20 @@
  
 package org.piangles.core.structures;
 
-public interface SuggestionEngine
+final class Top10SuggestionEngine implements SuggestionEngine
 {
-	public void init(String attribute, TrieEntryList trieEntryList);
-	public Suggestion[] suggest(int[] indexesIntoTrieEntryList);
+	private String attribute = null;
+	private TrieEntryList trieEntryList = null;
+	
+	public void init(String attribute, TrieEntryList trieEntryList)
+	{
+		this.attribute = attribute;
+		this.trieEntryList = trieEntryList;
+	}
+
+	@Override
+	public Suggestion[] suggest(int[] indexesIntoTrieEntryList)
+	{
+		return null;
+	}
 }

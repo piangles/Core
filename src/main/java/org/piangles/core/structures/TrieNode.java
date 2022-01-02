@@ -62,11 +62,18 @@ final class TrieNode implements Serializable
 		Arrays.fill(indexesIntoTrieEntryList, -1);
 	}
 	
+	/**
+	 * Returns Character associated with this Node. 
+	 */
 	char getCharacter()
 	{
 		return ch;
 	}
 
+	/**
+	 * 
+	 * 64 bit value of NULL comapred to the 64 bit value of childrenBitMap
+	 */
 	boolean isEmpty()
 	{
 		return Vocabulary.NULL == childrenBitmap;
