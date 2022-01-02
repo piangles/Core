@@ -100,13 +100,13 @@ public final class RequestProcessingThread extends AbstractContextAwareThread
 				response = new Response("Unknown Service", "Unknown Endpoint", e); 
 			}
 		}
-		catch (Throwable e) 
+		catch (Throwable e)
 		{
 			/**
 			 * All Exceptions from Service will be in Response at this point.
 			 * IF SOMETHING ELSE GOES WRONG OUTSIDE THE SERVICE CALL IN CORE : The Code flows here. 
 			 */
-			Logger.getInstance().error("Exception Processing Request:" + e.getMessage(), e);
+			Logger.getInstance().error("RequestProcessingThread->Exception Processing Request:" + e.getMessage(), e);
 			if (request != null)
 			{
 				response = new Response(request.getServiceName(), request.getEndPoint(), request.getTransitTime(), e);
@@ -140,7 +140,7 @@ public final class RequestProcessingThread extends AbstractContextAwareThread
 			}
 			catch (Exception e)
 			{
-				Logger.getInstance().error("Exception trying to send response because of:" + e.getMessage(), e);
+				Logger.getInstance().error("RequestProcessingThread->Exception trying to send response because of:" + e.getMessage(), e);
 			}
 		}
 		else
