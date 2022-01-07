@@ -161,7 +161,14 @@ public final class DefaultVocabulary implements Vocabulary
 	@Override
 	public int getIndex(char ch)
 	{
-		return indexLookupMap[(int)ch];
+		int index = -1;
+		
+		if (indexLookupMap.length > (int)ch)
+		{
+			index = indexLookupMap[(int)ch];
+		}
+		
+		return index;
 	}
 	
 	@Override

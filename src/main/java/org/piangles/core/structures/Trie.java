@@ -24,6 +24,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.piangles.core.util.Logger;
+
 /**
  * This is the mother of all TrieNodes, one starts with creation of Trie.
  * Creation of Trie is dirven by 2 parameters.
@@ -267,6 +269,10 @@ public final class Trie implements Serializable
 					 */
 					current = current.getOrElseCreate(ch);
 					current.addTrieEntryListIndex(te.getIndex());
+				}
+				else
+				{
+					Logger.getInstance().warn("For TrieEntry with Id: " + te.getId() + " TransformedValue: " + te.getTransformedValue() + " Skipping Character: " + ch + " do not exist in Vocabulary.");
 				}
 			}
 			//End of character array mark as complete word. 
