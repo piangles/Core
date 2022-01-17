@@ -17,6 +17,8 @@
 
 package org.piangles.core.services.remoting;
 
+import java.util.concurrent.TimeUnit;
+
 import org.piangles.core.util.instrument.AbstractInstrumentator;
 import org.piangles.core.util.instrument.Measures;
 
@@ -47,12 +49,12 @@ public final class ServiceInstrumentator extends AbstractInstrumentator
 		spdMeasures.addMeasure("NoOfSuccessfulResponses", spDetails.getNoOfSuccessfulResponses());
 		spdMeasures.addMeasure("NoOfFailedResponses", spDetails.getNoOfFailedResponses());
 
-		spdMeasures.addMeasure("AverageResponseTime", spDetails.getAverageResponseTime());
+		spdMeasures.addMeasure("AverageResponseTime", "" + TimeUnit.NANOSECONDS.toMillis(spDetails.getAverageResponseTime()) + "Ms");
 		
-		spdMeasures.addMeasure("MinResponseTime", spDetails.getMinResponseTime());
+		spdMeasures.addMeasure("MinResponseTime", "" + TimeUnit.NANOSECONDS.toMillis(spDetails.getMinResponseTime()) + "Ms");
 		spdMeasures.addMeasure("MinResponseTraceId", spDetails.getMinResponseTraceId());
 
-		spdMeasures.addMeasure("MaxResponseTime", spDetails.getMaxResponseTime());
+		spdMeasures.addMeasure("MaxResponseTime", "" + TimeUnit.NANOSECONDS.toMillis(spDetails.getMaxResponseTime()) + "Ms");
 		spdMeasures.addMeasure("MaxResponseTraceId", spDetails.getMaxResponseTraceId());
 
 		return spdMeasures;

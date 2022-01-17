@@ -4,7 +4,7 @@
 	<groupId>org.piangles.core</groupId>
 	<artifactId>Core</artifactId>
 	<packaging>jar</packaging>
-	<version>4.0</version>
+	<version>4.1</version>
 
 	<name>PiAngles Core Framework</name>
 	<description>
@@ -99,7 +99,7 @@
 		<dependency>
 			<groupId>com.rabbitmq</groupId>
 			<artifactId>amqp-client</artifactId>
-			<version>5.9.0</version>
+			<version>5.14.1</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.jms</groupId>

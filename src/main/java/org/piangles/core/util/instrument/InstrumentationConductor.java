@@ -27,7 +27,7 @@ import org.piangles.core.util.Logger;
 
 public final class InstrumentationConductor
 {
-	public static final int WAIT_TIME_BETWEEN_QUERY = 60 * 1000;
+	public static final int WAIT_TIME_BETWEEN_QUERY = 60 * 1000 * 10; //Every 10 Minutes
 	
 	private static InstrumentationConductor self = null;
 

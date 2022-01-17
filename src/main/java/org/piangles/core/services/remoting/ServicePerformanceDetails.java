@@ -18,25 +18,27 @@
  
 package org.piangles.core.services.remoting;
 
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.LongAccumulator;
+import java.util.concurrent.atomic.LongAdder;
 
 public final class ServicePerformanceDetails
 {
 	public static final String NAME = "ServicePerformanceDetails";
 	
-	private final AtomicLong noOfRequests = new AtomicLong(0);
-	private final AtomicLong noOfSuccessfulResponses = new AtomicLong(0);
-	private final AtomicLong noOfFailedResponses = new AtomicLong(0);
+	private final LongAdder noOfRequests = new LongAdder();
+	private final LongAdder noOfSuccessfulResponses = new LongAdder();
+	private final LongAdder noOfFailedResponses = new LongAdder();
 	
+	private final String minLock = new String("MinLock");
 	private final AtomicReference<String> minResponseTraceId = new AtomicReference<>(); 
 	private final LongAccumulator minResponseTime = new LongAccumulator(Long::min, Long.MAX_VALUE);
 	
+	private final String maxLock = new String("MaxLock");
 	private final AtomicReference<String> maxResponseTraceId = new AtomicReference<>();
 	private final LongAccumulator maxResponseTime = new LongAccumulator(Long::max, 0);
 
-	private final AtomicLong totalResponseTime = new AtomicLong();
+	private final LongAdder totalResponseTime = new LongAdder();
 
 	public ServicePerformanceDetails()
 	{
@@ -45,40 +47,40 @@ public final class ServicePerformanceDetails
 	
 	public void incrementNoOfRequests()
 	{
-		noOfRequests.incrementAndGet();
+		noOfRequests.increment();
 	}
 
 	public void incrementNoOfSuccessfulResponses()
 	{
-		noOfSuccessfulResponses.incrementAndGet();
+		noOfSuccessfulResponses.increment();
 	}
 
 	public void incrementNoOfFailedResponses()
 	{
-		noOfFailedResponses.incrementAndGet();
+		noOfFailedResponses.increment();
 	}
 	
 	public long getNoOfRequests()
 	{
-		return noOfRequests.get();
+		return noOfRequests.longValue();
 	}
 
 	public long getNoOfSuccessfulResponses()
 	{
-		return noOfSuccessfulResponses.get();
+		return noOfSuccessfulResponses.longValue();
 	}
 
 	public long getNoOfFailedResponses()
 	{
-		return noOfFailedResponses.get();
+		return noOfFailedResponses.longValue();
 	}
 	
 	public long getAverageResponseTime()
 	{
 		long averageResponseTime = 0;
-		if (noOfRequests.get() != 0)
+		if (noOfRequests.longValue() != 0)
 		{
-			averageResponseTime = totalResponseTime.get() / noOfRequests.get();
+			averageResponseTime = totalResponseTime.longValue() / noOfRequests.longValue();
 		}
 		return averageResponseTime;
 	}
@@ -103,19 +105,26 @@ public final class ServicePerformanceDetails
 		return maxResponseTraceId.get();
 	}
 
-	public void record(String traceId, long responseTime)
+	public void record(String traceId, long timeTakenForRequestToResponseNS)
 	{
-		totalResponseTime.addAndGet(responseTime);
+		totalResponseTime.add(timeTakenForRequestToResponseNS);
 
-		minResponseTime.accumulate(responseTime);
-		if (minResponseTime.get() == responseTime)
+		synchronized(minLock)
 		{
-			minResponseTraceId.set(traceId);
+			minResponseTime.accumulate(timeTakenForRequestToResponseNS);
+			if (minResponseTime.get() == timeTakenForRequestToResponseNS)
+			{
+				minResponseTraceId.set(traceId);
+			}
 		}
-		maxResponseTime.accumulate(responseTime);
-		if (maxResponseTime.get() == responseTime)
+
+		synchronized(maxLock)
 		{
-			maxResponseTraceId.set(traceId);
+			maxResponseTime.accumulate(timeTakenForRequestToResponseNS);
+			if (maxResponseTime.get() == timeTakenForRequestToResponseNS)
+			{
+				maxResponseTraceId.set(traceId);
+			}
 		}
 	}
 }

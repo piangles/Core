@@ -272,7 +272,20 @@ public final class Trie implements Serializable
 				}
 				else
 				{
-					Logger.getInstance().warn("For TrieEntry with Id: " + te.getId() + " TransformedValue: " + te.getTransformedValue() + " Skipping Character: " + ch + " do not exist in Vocabulary.");
+					/**
+					 * {"log":"For TrieEntry with Id: e37a753 TransformedValue: A Skipping Character: \u0000 do not exist in Vocabulary.\n","stream":"stdout","time":"2022-01-14T13:33:36.29294099Z"}
+					 * {"log":"For TrieEntry with Id: 56a1790 TransformedValue: TestingNine Skipping Character: \u0000 do not exist in Vocabulary.\n","stream":"stdout","time":"2022-01-14T13:33:36.292944712Z"}
+					 * 
+					 * https://stackoverflow.com/questions/12195628/understanding-the-difference-between-null-and-u000-in-java
+					 * 
+					 * If Null is being passed as part of the charArray then it is printing and taking up too much log space. 
+					 * 
+					 * https://stackoverflow.com/questions/14844793/how-do-i-compare-a-character-to-check-if-it-is-null
+					 */
+					if ((int)ch != 0)
+					{
+						Logger.getInstance().warn("For TrieEntry with Id: " + te.getId() + " TransformedValue: " + te.getTransformedValue() + " Skipping Character: " + ch + " do not exist in Vocabulary.");
+					}
 				}
 			}
 			//End of character array mark as complete word. 

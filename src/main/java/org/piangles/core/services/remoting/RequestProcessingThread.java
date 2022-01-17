@@ -138,9 +138,11 @@ public final class RequestProcessingThread extends AbstractContextAwareThread
 					responseSender.send(encodedBytes);
 				}
 			}
-			catch (Exception e)
+			catch (Throwable e)
 			{
 				Logger.getInstance().error("RequestProcessingThread->Exception trying to send response because of:" + e.getMessage(), e);
+				
+				spDetails.incrementNoOfFailedResponses();
 			}
 		}
 		else
@@ -148,18 +150,26 @@ public final class RequestProcessingThread extends AbstractContextAwareThread
 			spDetails.incrementNoOfFailedResponses();
 		}
 		
-		long delayNS = System.nanoTime() - startTime;
-		long delayMiS = TimeUnit.NANOSECONDS.toMicros(delayNS);
-		long delayMS = TimeUnit.NANOSECONDS.toMillis(delayNS);
+		/**
+		 * TimeTaken is the time it takes for the 
+		 * 1. Request to be decoded.
+		 * 2. Processed by Service.
+		 * 3. Response to be encoded.
+		 * 4. Responder to send it back.
+		 */
+		long timeTakenNS = System.nanoTime() - startTime;
+		long timeTakenMiS = TimeUnit.NANOSECONDS.toMicros(timeTakenNS);
+		long timeTakenMS = TimeUnit.NANOSECONDS.toMillis(timeTakenNS);
+		
 		String endpoint = request.getServiceName() + "::" + request.getEndPoint();
 		String traceId = null;
 		if (request != null && request.getTraceId() != null)
 		{
 			traceId = request.getTraceId().toString();
 		}
-		spDetails.record(traceId, delayNS);
+		spDetails.record(traceId, timeTakenNS);
 		String message = String.format("ServerSide: TraceId %s for Endpoint %s TransitTime is %d  MilliSeconds and TimeTaken is %d MilliSeconds and %d MicroSeconds.", 
-										traceId, endpoint, request.getTransitTime(), delayMS, delayMiS);
+										traceId, endpoint, request.getTransitTime(), timeTakenMS, timeTakenMiS);
 		Logger.getInstance().info(message);
 	}
 	

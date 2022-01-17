@@ -55,6 +55,15 @@ public final class RabbitMQSystem implements Resource
 		factory.setPort(rmqProperties.getPort());
 		factory.setUsername(rmqProperties.getLogin());
 		factory.setPassword(rmqProperties.getPassword());
+
+		/**
+		 * The following is needed to Keep connection Alive during inactivity with
+		 * the server.
+		 * https://www.rabbitmq.com/heartbeats.html
+		 * https://www.rabbitmq.com/api-guide.html#recovery
+		 */
+		factory.setRequestedHeartbeat(rmqProperties.getRequestedHeartbeat());
+		factory.setAutomaticRecoveryEnabled(rmqProperties.isAutomaticRecoveryEnabled());
 		
 		connection = factory.newConnection();
 	}

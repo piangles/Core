@@ -23,16 +23,31 @@ import java.util.Properties;
 
 final class RMQProperties
 {
+	private static final String DEFAULT_REQUESTED_HEART_BEAT = "30";
+	private static final String DEFAULT_AUTOMATIC_RECOVERY_ENABLED = "true";
+	
 	private static final String HOST = "RMQHostName";
 	private static final String PORT = "RMQPort";
 	static final String LOGIN = "RMQLoginId";
 	static final String PASSWORD = "RMQPassword";
 	
+	private static final String REQUESTED_HEART_BEAT = "RequestedHeartbeat";
+	private static final String AUTOMATIC_RECOVERY_ENABLED = "AutomaticRecoveryEnabled";
+	
 	private Properties properties = null;
+	
+	private int requestedHeartbeat = 30;
+	private boolean automaticRecoveryEnabled = true;
 	
 	public RMQProperties(Properties properties)
 	{
 		this.properties = properties;
+
+		String requestedHeartbeatStr = properties.getProperty(REQUESTED_HEART_BEAT, DEFAULT_REQUESTED_HEART_BEAT);		
+		String automaticRecoveryEnabledStr = properties.getProperty(AUTOMATIC_RECOVERY_ENABLED, DEFAULT_AUTOMATIC_RECOVERY_ENABLED);
+		
+		requestedHeartbeat = Integer.parseInt(requestedHeartbeatStr);
+		automaticRecoveryEnabled  = Boolean.parseBoolean(automaticRecoveryEnabledStr);
 	}
 
 	public String getHost()
@@ -53,5 +68,15 @@ final class RMQProperties
 	public String getPassword()
 	{
 		return properties.getProperty(PASSWORD);
+	}
+	
+	public int getRequestedHeartbeat()
+	{
+		return requestedHeartbeat;
+	}
+	
+	public boolean isAutomaticRecoveryEnabled()
+	{
+		return automaticRecoveryEnabled;
 	}
 }

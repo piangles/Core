@@ -61,13 +61,22 @@ public final class ReqRespController extends AbstractController
 		{
 			/**
 			 * This needs to come from configuration this will help in LoadBalacing
-			 * even if we multithread if it is at 1. RabbitMQ will not send a message
-			 * here till we send an Ack back.
+			 * even if we multithread if it is at 1.
+			 * 
+			 * RabbitMQ will not send a message here till we send an Ack back.
+			 * 
+			 * AMQP 0-9-1 specifies the basic.qos method to make it possible to limit the number of unacknowledged messages 
+			 * on a channel (or connection) when consuming (aka "prefetch count").
+			 * 
+			 * https://www.rabbitmq.com/consumer-prefetch.html
+			 * https://www.rabbitmq.com/tutorials/tutorial-two-java.html
 			 */
-			channel.basicQos(1);
+			channel.basicQos(1);// accept only one unack-ed message at a time
+			
 			boolean durable = false; 
 			boolean exclusive = false; 
 			boolean autoDelete = false;
+			
 			channel.queueDeclare(RabbitProps.getTopic(getProperties()), durable, exclusive, autoDelete, null);
 			
 			server = new RpcServer(channel, RabbitProps.getTopic(getProperties()))
