@@ -24,10 +24,14 @@ package org.piangles.core.resources;
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
 import org.bson.codecs.configuration.CodecRegistry;
+import org.bson.codecs.pojo.Convention;
+import org.bson.codecs.pojo.Conventions;
 import org.bson.codecs.pojo.PojoCodecProvider;
 import org.piangles.core.util.abstractions.Decrypter;
 
@@ -87,20 +91,28 @@ public final class MongoDataStore implements Resource
 		 * Need to configure the CodecRegistry to include a codec to handle 
 		 * the translation to and from BSON for our POJOs.
 		 */
-		CodecRegistry pojoCodecRegistry = fromProviders(PojoCodecProvider.builder().automatic(true).build());
+		List<Convention> listOfConventions = new ArrayList<>();
+		listOfConventions.add(Conventions.SET_PRIVATE_FIELDS_CONVENTION);
+		
+		PojoCodecProvider pojoCodecProvider = PojoCodecProvider
+													.builder()
+													.automatic(true)
+													.conventions(listOfConventions)
+													.build();
+		CodecRegistry pojoCodecRegistry = fromProviders(pojoCodecProvider);
 		/**
 		 * Need to add the default codec registry, which contains all the default codecs. 
 		 * They can handle all the major types in Java-like Boolean, Double, String, BigDecimal, etc.
 		 */
-		CodecRegistry codecRegistry = fromRegistries(MongoClientSettings.getDefaultCodecRegistry(), 
-                pojoCodecRegistry);
+		CodecRegistry codecRegistry = fromRegistries(MongoClientSettings.getDefaultCodecRegistry(), pojoCodecRegistry);
 		/**
 		 * Now wrap all my settings together using MongoClientSettings.
 		 */
-		MongoClientSettings clientSettings = MongoClientSettings.builder()
-                .applyConnectionString(connectionString)
-                .codecRegistry(codecRegistry)
-                .build();
+		MongoClientSettings clientSettings = MongoClientSettings
+												.builder()
+								                .applyConnectionString(connectionString)
+								                .codecRegistry(codecRegistry)
+								                .build();
 
 		/**
 		 * Connection Pooling

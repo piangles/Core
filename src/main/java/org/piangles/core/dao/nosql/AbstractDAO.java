@@ -30,11 +30,14 @@ import com.mongodb.client.model.ReplaceOptions;
 
 public abstract class AbstractDAO<T>
 {
+	private MongoDataStore dataStore = null;
 	private MongoCollection<Document> collection = null;
 	private MongoCollection<T> tCollection = null;
 
 	public void init(MongoDataStore dataStore)
 	{
+		this.dataStore = dataStore;
+		
 		collection = dataStore.getDatabase().getCollection(getTClass().getSimpleName());
 		tCollection = dataStore.getDatabase().getCollection(getTClass().getSimpleName(), getTClass());
 	}
@@ -116,6 +119,16 @@ public abstract class AbstractDAO<T>
 		}
 	}
 	
+	protected final MongoDataStore getMongoDataStore()
+	{
+		return dataStore;
+	}
+
+	protected final MongoCollection<T> getTConnection()
+	{
+		return tCollection;
+	}
+
 	protected final MongoCollection<Document> getConnection()
 	{
 		return collection;
