@@ -29,7 +29,7 @@ public class BitmapTrieAngulationTest
 	public static void main(String[] args) throws Exception
 	{
 		TrieConfig trieConfig = new TrieConfig();
-		trieConfig.setIndexingTimeOutInSeconds(300);
+		trieConfig.withIndexingTimeOutInSeconds(300);
 		
 		TrieAngulator trieAngulator = null;
 		int searchNo = 1;

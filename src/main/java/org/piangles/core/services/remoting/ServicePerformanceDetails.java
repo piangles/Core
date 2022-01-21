@@ -18,6 +18,7 @@
  
 package org.piangles.core.services.remoting;
 
+import java.util.Date;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.LongAccumulator;
 import java.util.concurrent.atomic.LongAdder;
@@ -25,6 +26,9 @@ import java.util.concurrent.atomic.LongAdder;
 public final class ServicePerformanceDetails
 {
 	public static final String NAME = "ServicePerformanceDetails";
+	
+	private Date lastRequestTime = null;
+	private String lastRequestTraceId = null;
 	
 	private final LongAdder noOfRequests = new LongAdder();
 	private final LongAdder noOfSuccessfulResponses = new LongAdder();
@@ -50,6 +54,13 @@ public final class ServicePerformanceDetails
 		noOfRequests.increment();
 	}
 
+	public void setLastRequest(String traceId)
+	{
+		lastRequestTraceId = traceId;
+		lastRequestTime = new Date();	
+	}
+	
+
 	public void incrementNoOfSuccessfulResponses()
 	{
 		noOfSuccessfulResponses.increment();
@@ -60,6 +71,16 @@ public final class ServicePerformanceDetails
 		noOfFailedResponses.increment();
 	}
 	
+	public Date getLastRequestTime()
+	{
+		return lastRequestTime; 
+	}
+
+	public String getLastRequestTraceId()
+	{
+		return lastRequestTraceId; 
+	}
+
 	public long getNoOfRequests()
 	{
 		return noOfRequests.longValue();

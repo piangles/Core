@@ -83,45 +83,51 @@ public final class TrieConfig implements Serializable
 		this.suggestionEngine = suggestionEngine;
 	}
 	
-	public TrieConfig setMaximumWordLength(int maximumWordLength)
+	public TrieConfig withtMaximumWordLength(int maximumWordLength)
 	{
 		this.maximumWordLength = maximumWordLength;
 		return this;
 	}
 
-	public TrieConfig setSuggestionsLimit(int suggestionsLimit)
+	public TrieConfig withSuggestionsLimit(int suggestionsLimit)
 	{
 		this.suggestionsLimit = suggestionsLimit;
 		return this;
 	}
 
-	public TrieConfig setIndexingTimeOutInSeconds(int indexingTimeOutInSeconds)
+	public TrieConfig withIndexingTimeOutInSeconds(int indexingTimeOutInSeconds)
 	{
 		this.indexingTimeOutInSeconds = indexingTimeOutInSeconds;
 		return this;
 	}
 
-	public TrieConfig setTraverseTimeOutInMilliSeconds(int traverseTimeOutInMilliSeconds)
+	public TrieConfig withTraverseTimeOutInMilliSeconds(int traverseTimeOutInMilliSeconds)
 	{
 		this.traverseTimeOutInMilliSeconds = traverseTimeOutInMilliSeconds;
 		return this;
 	}
 
-	public TrieConfig setRecursiveAlgorithm(boolean recursiveAlgorithm)
+	public TrieConfig withRecursiveAlgorithm(boolean recursiveAlgorithm)
 	{
 		this.recursiveTraverseAlgorithm = recursiveAlgorithm;
 		return this;
 	}
 	
-	public TrieConfig setTrieEntryList(TrieEntryList trieEntryList)
+	public TrieConfig withTrieEntryList(TrieEntryList trieEntryList)
 	{
 		this.trieEntryList = trieEntryList;
 		return this;
 	}
 
-	public TrieConfig setVocabulary(Vocabulary vocabulary)
+	public TrieConfig withVocabulary(Vocabulary vocabulary)
 	{
 		this.vocabulary = vocabulary;
+		return this;
+	}
+
+	public TrieConfig withSuggestionEngine(SuggestionEngine suggestionEngine)
+	{
+		this.suggestionEngine = suggestionEngine;
 		return this;
 	}
 

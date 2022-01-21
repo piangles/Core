@@ -40,11 +40,13 @@ import org.piangles.core.util.SystemHelper;
 
 public abstract class AbstractHandler extends AbstractRemoter implements Handler
 {
+	private static final String LOGGING_SERVICE = "LoggingService";
 	private static final String PROPS_REQ_CREATOR = "RequestCreatorClassName";
 	
 	private static Set<Class<?>> WRAPPER_TYPES = null;
 	private Header header = null;
-	private RequestCreator requestCreator = null; 
+	private RequestCreator requestCreator = null;
+	private boolean isLoggingService = false;
 	
 	@Override
 	public final void init(String serviceName, Properties properties) throws HandlerException
@@ -56,6 +58,11 @@ public abstract class AbstractHandler extends AbstractRemoter implements Handler
 		catch (Exception e)
 		{
 			throw new HandlerException(e);
+		}
+		
+		if (LOGGING_SERVICE.equalsIgnoreCase(serviceName))
+		{
+			isLoggingService = true;
 		}
 		
 		WRAPPER_TYPES = new HashSet<Class<?>>();
@@ -148,9 +155,16 @@ public abstract class AbstractHandler extends AbstractRemoter implements Handler
 			{
 				totalTransitTime = response.getRequestTransitTime() + response.getTransitTime();  
 			}
-			String message = String.format("CallerSide: TraceId %s for Endpoint %s Total ReqResp TransitTime is %d  MilliSeconds and TimeTaken is %d MilliSeconds and %d MicroSeconds.", 
-					traceId, endpoint(request), totalTransitTime, delayMS, delayMiS);
-			Logger.getInstance().info(message);
+			
+			/**
+			 * We can ignore LoggingService Callerside performance details
+			 */
+			if (!isLoggingService)
+			{
+				String message = String.format("CallerSide: TraceId %s for Endpoint %s Total ReqResp TransitTime is %d  MilliSeconds and TimeTaken is %d MilliSeconds and %d MicroSeconds.", 
+						traceId, endpoint(request), totalTransitTime, delayMS, delayMiS);
+				Logger.getInstance().info(message);
+			}
 		}
 		
 		/**

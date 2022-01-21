@@ -21,18 +21,27 @@ package org.piangles.core.resources;
 
 import java.io.IOException;
 import java.util.Properties;
+import java.util.function.Predicate;
 
 import org.apache.commons.lang3.StringUtils;
+import org.piangles.core.util.Logger;
 import org.piangles.core.util.abstractions.Decrypter;
 
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.MissedHeartbeatException;
+import com.rabbitmq.client.Recoverable;
+import com.rabbitmq.client.RecoveryListener;
+import com.rabbitmq.client.ShutdownSignalException;
 
 public final class RabbitMQSystem implements Resource
 {
 	private static final String AMQPS = "amqps://";
 	private static final String DECRYPTER_CLASS_NAME = "DecrypterClassName";
 	private static final String DECRYPTER_AUTHZ_ID = "DecrypterAuthorizationId";
+
+    public static final Predicate<ShutdownSignalException> DEFAULT_CONNECTION_RECOVERY_TRIGGERING_CONDITION =
+            cause -> !cause.isInitiatedByApplication() || (cause.getCause() instanceof MissedHeartbeatException);
 
 	private String serviceName = null;
 	private Connection connection = null;
@@ -44,6 +53,7 @@ public final class RabbitMQSystem implements Resource
 		RMQProperties rmqProperties = createRMQProperties(properties);
 		
 		ConnectionFactory factory = new ConnectionFactory();
+		
 		if (StringUtils.startsWithIgnoreCase(rmqProperties.getHost(), AMQPS))
 		{
 			factory.setUri(rmqProperties.getHost());
@@ -64,13 +74,18 @@ public final class RabbitMQSystem implements Resource
 		 */
 		factory.setRequestedHeartbeat(rmqProperties.getRequestedHeartbeat());
 		factory.setAutomaticRecoveryEnabled(rmqProperties.isAutomaticRecoveryEnabled());
+		factory.setTopologyRecoveryEnabled(rmqProperties.isAutomaticRecoveryEnabled());
 		
 		connection = factory.newConnection();
+		
+		((Recoverable)connection).addRecoveryListener(new RecoveryListenerImpl());
 	}
 
 	@Override
 	public void close() throws Exception
 	{
+		Exception e = new Exception("Dummy Exception purely to identify the StackTrace of close."); 
+		Logger.getInstance().warn("RabbitMQSystem for Service: " + serviceName + " close called. Location: " + e.getMessage(), e);
 		connection.close();
 	}
 
@@ -83,11 +98,14 @@ public final class RabbitMQSystem implements Resource
 	{
 		try
 		{
+			Exception e = new Exception("Dummy Exception purely to identify the StackTrace of destroy."); 
+			Logger.getInstance().warn("RabbitMQSystem for Service: " + serviceName + " destroy called. Location: " + e.getMessage(), e);
+			
 			connection.close();
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			Logger.getInstance().warn("IOException during destroy of RabbitMQSystem for Service: " + serviceName + " destroy called. Reason: " + e.getMessage(), e);
 		}
 	}
 	
@@ -120,5 +138,20 @@ public final class RabbitMQSystem implements Resource
 		}
 		
 		return new RMQProperties(props);
+	}
+	
+	class RecoveryListenerImpl implements RecoveryListener
+	{
+		@Override
+		public void handleRecovery(Recoverable recoverable)
+		{
+			Logger.getInstance().warn("RabbitMQSystem->RecoveryListenerImpl->handleRecovery: " + recoverable.getClass().getCanonicalName());
+		}
+
+		@Override
+		public void handleRecoveryStarted(Recoverable recoverable)
+		{
+			Logger.getInstance().warn("RabbitMQSystem->RecoveryListenerImpl->handleRecoveryStarted: " + recoverable.getClass().getCanonicalName());
+		}
 	}
 }

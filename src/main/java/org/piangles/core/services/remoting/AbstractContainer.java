@@ -210,22 +210,22 @@ public abstract class AbstractContainer
 
 				try
 				{
-					Logger.getInstance().info("Controller for " + serviceImpl.getClass().getSimpleName() + " being started...");
+					Logger.getInstance().info("Controller for " + serviceImpl.getClass().getSimpleName() + " has started and is ready for Requests.");
 					controller.start(controllerServiceDelegate);
 					/**
 					 * This will not happen till we fix underlying RabbitMQ Controller
 					 * class, the mainLoop method in start does not return.
 					 */
-					Logger.getInstance().info("Controller for " + serviceImpl.getClass().getSimpleName() + " has started and is ready for Requests.");
 				}
 				catch (ControllerException e)
 				{
+					Logger.getInstance().error("ControllerException in AbstractContainer in configured Controller. Reason: " + e.getMessage(), e);
 					throw new ContainerException(e);
 				}
 			}
-			catch (ContainerException e)
+			catch (Throwable e)
 			{
-				e.printStackTrace();
+				Logger.getInstance().error("Exception in AbstractContainer in initializeAndRunService. Reason: " + e.getMessage(), e);
 				System.exit(-1);
 			}
 		});

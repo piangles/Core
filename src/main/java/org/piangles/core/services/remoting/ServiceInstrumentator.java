@@ -45,9 +45,16 @@ public final class ServiceInstrumentator extends AbstractInstrumentator
 	{
 		spdMeasures.clear();
 		
+		long badRequestCount = spDetails.getNoOfRequests() - spDetails.getNoOfSuccessfulResponses() - spDetails.getNoOfFailedResponses(); 
+		
 		spdMeasures.addMeasure("NoOfRequests", spDetails.getNoOfRequests());
+		
+		spdMeasures.addMeasure("LastRequestTime", spDetails.getLastRequestTime());
+		spdMeasures.addMeasure("LastRequestTraceId", spDetails.getLastRequestTraceId());
+		
 		spdMeasures.addMeasure("NoOfSuccessfulResponses", spDetails.getNoOfSuccessfulResponses());
 		spdMeasures.addMeasure("NoOfFailedResponses", spDetails.getNoOfFailedResponses());
+		spdMeasures.addMeasure("NoOfBadRequests", badRequestCount);
 
 		spdMeasures.addMeasure("AverageResponseTime", "" + TimeUnit.NANOSECONDS.toMillis(spDetails.getAverageResponseTime()) + "Ms");
 		

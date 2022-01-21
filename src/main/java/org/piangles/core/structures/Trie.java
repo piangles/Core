@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.piangles.core.util.Logger;
 
 /**
@@ -38,6 +39,8 @@ import org.piangles.core.util.Logger;
 public final class Trie implements Serializable
 {
 	private static final long serialVersionUID = 1L;
+
+	private static final String PIANGLES_ENV_STRUCTURES_LOG = "piangles.env.structures.log";
 	
 	private static final String WARM_UP = "az";
 	
@@ -52,6 +55,8 @@ public final class Trie implements Serializable
 	private TrieEntryList trieEntryList = null;
 	
 	private SuggestionEngine suggestionEngine = null;
+	
+	private boolean piAnglesLogEnabled = false;
 	
 	public Trie(String name, TrieConfig trieConfig)
 	{
@@ -72,6 +77,12 @@ public final class Trie implements Serializable
 		
 		suggestionEngine = trieConfig.getSuggestionEngine();
 		suggestionEngine.init(name, trieEntryList);
+		
+		String piAnglesLogEnabledStr = System.getenv(PIANGLES_ENV_STRUCTURES_LOG);
+		if (StringUtils.isNotBlank(piAnglesLogEnabledStr))
+		{
+			piAnglesLogEnabled = Boolean.parseBoolean(piAnglesLogEnabledStr);
+		}
 	}
 	
 	/**
@@ -284,7 +295,10 @@ public final class Trie implements Serializable
 					 */
 					if ((int)ch != 0)
 					{
-						Logger.getInstance().warn("For TrieEntry with Id: " + te.getId() + " TransformedValue: " + te.getTransformedValue() + " Skipping Character: " + ch + " do not exist in Vocabulary.");
+						if (piAnglesLogEnabled)
+						{
+							Logger.getInstance().warn("For TrieEntry with Id: " + te.getId() + " TransformedValue: " + te.getTransformedValue() + " Skipping Character: " + ch + " do not exist in Vocabulary.");
+						}
 					}
 				}
 			}

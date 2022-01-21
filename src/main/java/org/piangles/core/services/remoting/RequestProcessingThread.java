@@ -92,6 +92,13 @@ public final class RequestProcessingThread extends AbstractContextAwareThread
 				sessionDetails = new SessionDetails(request.getUserId(), request.getSessionId());
 				super.init(sessionDetails, request.getTraceId());
 				
+				String traceId = "UnknownTraceId:" + request.getServiceName() + ":" + request.getEndPoint();
+				if (request.getTraceId() != null)
+				{
+					traceId = request.getTraceId().toString();
+				}
+				spDetails.setLastRequest(traceId);
+				
 				response = processRequest(request);
 			}
 			else

@@ -27,6 +27,7 @@ import org.piangles.core.services.remoting.RequestProcessingThread;
 import org.piangles.core.services.remoting.controllers.AbstractController;
 import org.piangles.core.services.remoting.controllers.ControllerException;
 import org.piangles.core.util.InMemoryConfigProvider;
+import org.piangles.core.util.Logger;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Delivery;
@@ -84,25 +85,62 @@ public final class ReqRespController extends AbstractController
 				@Override
 				public void processRequest(Delivery delivery) throws IOException
 				{
-					RequestProcessingThread rpt = new RequestProcessingThread(
-															getServiceName(), getService(),
-															getPreApprovedSessionId(), getSessionValidator(),
-															getEncoder(), getDecoder(), 
-															delivery.getBody(), new ResponseSenderImpl(getServiceName(), getProperties(), rmqSystem, channel, delivery));
-					rpt.start();
+					try
+					{
+						RequestProcessingThread rpt = new RequestProcessingThread(
+								getServiceName(), getService(),
+								getPreApprovedSessionId(), getSessionValidator(),
+								getEncoder(), getDecoder(), 
+								delivery.getBody(), new ResponseSenderImpl(getServiceName(), getProperties(), rmqSystem, channel, delivery));
+						
+						rpt.start();
+					}
+					catch(Throwable t)
+					{
+						Logger.getInstance().error("Exception in ReqRespController RpcServer->processRequest for Service: " + getServiceName() + ". Reason: " + t.getMessage(), t);		
+					}
 				}
 			};
 			
 			/**
 			 * Once the mainLoop starts it does not return the call.
-			 * TODO
-			 * 1. Kick start mainloop in a Thread
-			 * 2. Handle it's Exception
 			 */
 			ShutdownSignalException exception = server.mainloop();
+			
+			if (exception != null)
+			{
+				String reference = "No Reference Given.";
+				if (exception.getReference() != null)
+				{
+					reference = exception.getReference().getClass().getCanonicalName();
+				}
+			
+				Logger.getInstance().warn("ReqRespController for Service: " + getServiceName() 
+				+ " has exited RabbitMQ->RpcServer. Reason: " + exception.getMessage()
+				+ " isHardError: " + exception.isHardError()
+				+ " isInitiatedByApplication: " + exception.isInitiatedByApplication()
+				+ " Reference: " + reference, exception);
+				
+				if (exception.getReason() != null)
+				{
+					Logger.getInstance().warn("ShutdownSignalException for Service: " + getServiceName() + ". Reason: " 
+							+ " protocolClassId:" + exception.getReason().protocolClassId() 
+							+ " protocolMethodId:" + exception.getReason().protocolMethodId()
+							+ " protocolMethodName:" + exception.getReason().protocolMethodName());
+				}
+				else
+				{
+					Logger.getInstance().warn("ShutdownSignalException for Service: " + getServiceName() + ". Without a Reason."); 
+				}
+			}
+			else
+			{
+				Logger.getInstance().warn("ShutdownSignalException for Service: " + getServiceName() + ". is null.");
+			}
 		}
-		catch (IOException e)
+		catch (Throwable e)
 		{
+			Logger.getInstance().error("Exception in ReqRespController in RabbitMQ->mainloop. Reason: " + e.getMessage(), e);
 			throw new ControllerException(e.getMessage(), e);
 		}
 	}
@@ -110,6 +148,9 @@ public final class ReqRespController extends AbstractController
 	@Override
 	protected boolean isStopRequested()
 	{
+		Exception e = new Exception("Dummy Exception purely to identify the StackTrace of isStopRequested."); 
+		Logger.getInstance().warn("ReqRespController for Service: " + getServiceName() + " isStopRequested called. Location: " + e.getMessage(), e);
+		Logger.getInstance().warn("ReqRespController for Service: " + getServiceName() + " RabbitMQ->RpcServer->terminateMainloop");
 		server.terminateMainloop();
 		return super.isStopRequested();
 	}

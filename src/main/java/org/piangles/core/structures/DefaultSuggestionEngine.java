@@ -24,6 +24,7 @@ final class DefaultSuggestionEngine implements SuggestionEngine
 	private String attribute = null;
 	private TrieEntryList trieEntryList = null;
 	
+	@Override
 	public void init(String attribute, TrieEntryList trieEntryList)
 	{
 		this.attribute = attribute;
