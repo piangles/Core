@@ -132,12 +132,7 @@ public abstract class AbstractHandler extends AbstractRemoter implements Handler
 			/**
 			 * CATCH HERE Is for if Transportation layer or Serialiazation / DeSerilization threw an Exception.
 			 */
-			String message = t.getMessage();
-			if (message == null)
-			{
-				message = t.getClass().getCanonicalName();
-			}
-			result = createException(method, "Unable to process call " + endpoint(request) +  " because of: " + message, t);
+			result = createException(method, "Unable to process call to: " + endpoint(request), t);
 		}
 		finally
 		{
@@ -188,7 +183,7 @@ public abstract class AbstractHandler extends AbstractRemoter implements Handler
 			}
 			else//This is where ALL the time the code SHOULD flow!
 			{
-				actualThrowable = (Throwable)result;
+				actualThrowable = createException(method, "Received Exception from: " + endpoint(request), (Throwable)result);
 			}
 			/**
 			 * THROW
@@ -211,24 +206,47 @@ public abstract class AbstractHandler extends AbstractRemoter implements Handler
 	{
 		Exception transformedExpt = null;
 
+		String reason = cause.getMessage();
+		if (reason == null)
+		{
+			reason = cause.getClass().getCanonicalName();
+		}
+		message = message + ". Reason: " + reason; 
+
 		try
 		{
-			Class<?> exptClass = method.getExceptionTypes()[0];
-			Constructor<?> constructor = exptClass.getConstructor(String.class, Throwable.class);
-			transformedExpt = (Exception) constructor.newInstance(new Object[] { message, cause });
-		}
-		catch (Exception expt)
-		{
-			String transFailedMessage = null;
-			if (expt instanceof ArrayIndexOutOfBoundsException)//This implies the signature never declared an exception
+			/**
+			 * Check if we receieved a RuntimeException that the application threw or
+			 * JVM threw and if so convert it to the declared exception of the method.
+			 */
+			if (method.getExceptionTypes() != null && method.getExceptionTypes().length > 0)
 			{
-				transFailedMessage = "Service method does not have exception declaration. Root Cause[" + message + "]";				
+				Class<?> exptClass = method.getExceptionTypes()[0];
+				if (cause.getClass().getCanonicalName().equals(exptClass.getCanonicalName()))
+				{
+					/**
+					 * The Exception receieved is the same class as the declared exception.
+					 */
+					transformedExpt = (Exception)cause;
+				}
+				else
+				{
+					/**
+					 * Try to create a Declared exception from the received exception.
+					 */
+					Constructor<?> constructor = exptClass.getConstructor(String.class, Throwable.class);
+					transformedExpt = (Exception) constructor.newInstance(new Object[] { message, cause });
+				}
 			}
 			else
 			{
-				transFailedMessage =  "Unable to convert server side exception. Root Cause[" + message + "]";
+				String transFailedMessage = "AbstractHandler->Service method does not have any exception declaration. Root Cause[" + message + "]";
+				transformedExpt = new RuntimeException(transFailedMessage, cause);
 			}
-
+		}
+		catch (Throwable expt)
+		{
+			String transFailedMessage = "AbstractHandler->Unable to convert server side exception. Root Cause[" + message + "]";
 			transformedExpt = new RuntimeException(transFailedMessage, cause);
 		}
 

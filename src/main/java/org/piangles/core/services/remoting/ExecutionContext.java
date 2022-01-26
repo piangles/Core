@@ -54,6 +54,16 @@ public final class ExecutionContext
 			sessionDetails = ((AbstractContextAwareThread)currentThread).getSessionDetails(); 
 		}
 		
+		if (traceId == null && currentThread instanceof Traceable)
+		{
+			traceId = ((Traceable)currentThread).getTraceId();
+		}
+
+		if (sessionDetails == null && currentThread instanceof SessionAwareable)
+		{
+			sessionDetails = ((SessionAwareable)currentThread).getSessionDetails();
+		}
+
 		return new ExecutionContext(traceId, sessionDetails, stream);
 	}
 
