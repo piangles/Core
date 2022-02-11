@@ -82,31 +82,23 @@ public final class RabbitMQSystem implements Resource
 	}
 
 	@Override
-	public void close() throws Exception
+	public void close()
 	{
-		Exception e = new Exception("Dummy Exception purely to identify the StackTrace of close."); 
-		Logger.getInstance().warn("RabbitMQSystem for Service: " + serviceName + " close called. Location: " + e.getMessage(), e);
-		connection.close();
+		try
+		{
+			Exception e = new Exception("Dummy Exception purely to identify the StackTrace of close."); 
+			Logger.getInstance().warn("RabbitMQSystem for Service: " + serviceName + " close called. Location: " + e.getMessage(), e);
+			connection.close();
+		}
+		catch (IOException e)
+		{
+			Logger.getInstance().warn("IOException during close of RabbitMQSystem for Service: " + serviceName + ". Reason: " + e.getMessage(), e);
+		}
 	}
 
 	public Connection getConnection()
 	{
 		return connection;
-	}
-	
-	public void destroy()
-	{
-		try
-		{
-			Exception e = new Exception("Dummy Exception purely to identify the StackTrace of destroy."); 
-			Logger.getInstance().warn("RabbitMQSystem for Service: " + serviceName + " destroy called. Location: " + e.getMessage(), e);
-			
-			connection.close();
-		}
-		catch (IOException e)
-		{
-			Logger.getInstance().warn("IOException during destroy of RabbitMQSystem for Service: " + serviceName + " destroy called. Reason: " + e.getMessage(), e);
-		}
 	}
 	
 	private  RMQProperties createRMQProperties(Properties props) throws Exception

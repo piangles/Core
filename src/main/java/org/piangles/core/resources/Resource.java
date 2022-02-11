@@ -21,5 +21,5 @@ package org.piangles.core.resources;
 
 public interface Resource
 {
-	public void close() throws Exception;
+	public void close();
 }

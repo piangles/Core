@@ -77,7 +77,7 @@ public final class FireAndForgetController extends AbstractController
 	@Override
 	public void destroy()
 	{
-		rmqSystem.destroy();
+		rmqSystem.close();
 	}
 	
 	class ConsumerImpl extends DefaultConsumer

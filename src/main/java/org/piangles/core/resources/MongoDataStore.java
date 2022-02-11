@@ -124,7 +124,7 @@ public final class MongoDataStore implements Resource
 	}
 	
 	@Override
-	public void close() throws Exception
+	public void close()
 	{
 		mongoClient.close();
 	}

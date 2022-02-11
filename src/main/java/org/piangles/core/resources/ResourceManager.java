@@ -46,19 +46,33 @@ public final class ResourceManager
 		return self;
 	}
 	
-	public void close()
+	public synchronized void close()
 	{
-		for (String resourceId : componentIdResourceMap.keySet())
+		for (String componentId : componentIdResourceMap.keySet())
 		{
 			try
 			{
-				componentIdResourceMap.get(resourceId).close();
+				componentIdResourceMap.get(componentId).close();
 			}
 			catch (Exception e)
 			{
-				System.err.println("Exception while closing ResourceId: " + resourceId);
+				System.err.println("Exception while closing ResourceId: " + componentId);
 				e.printStackTrace(System.err);
 			}
+		}
+		componentIdResourceMap.clear();
+	}
+	
+	public synchronized void close(String componentId)
+	{
+		try
+		{
+			componentIdResourceMap.remove(componentId).close();
+		}
+		catch (Exception e)
+		{
+			System.err.println("Exception while closing ResourceId: " + componentId);
+			e.printStackTrace(System.err);
 		}
 	}
 	

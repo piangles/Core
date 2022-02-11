@@ -98,7 +98,7 @@ public final class ReqRespHandler extends AbstractHandler
 	@Override
 	public void destroy()
 	{
-		rmqSystem.destroy();
+		rmqSystem.close();
 	}
 
 	@Override

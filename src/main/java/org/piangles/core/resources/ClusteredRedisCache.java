@@ -60,7 +60,7 @@ final class ClusteredRedisCache implements IRedisCache
 	}
 	
 	@Override
-	public void close() throws Exception
+	public void close()
 	{
 		jedisCluster.close();
 	}

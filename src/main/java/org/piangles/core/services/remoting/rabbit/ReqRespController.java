@@ -22,12 +22,14 @@ package org.piangles.core.services.remoting.rabbit;
 import java.io.IOException;
 
 import org.piangles.core.resources.RabbitMQSystem;
+import org.piangles.core.resources.ResourceException;
 import org.piangles.core.resources.ResourceManager;
 import org.piangles.core.services.remoting.RequestProcessingThread;
 import org.piangles.core.services.remoting.controllers.AbstractController;
 import org.piangles.core.services.remoting.controllers.ControllerException;
 import org.piangles.core.util.InMemoryConfigProvider;
 import org.piangles.core.util.Logger;
+import org.piangles.core.util.abstractions.ConfigProvider;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Delivery;
@@ -36,6 +38,7 @@ import com.rabbitmq.client.ShutdownSignalException;
 
 public final class ReqRespController extends AbstractController
 {
+	private ConfigProvider cp = null;
 	private RabbitMQSystem rmqSystem = null;
 	private Channel channel = null;
 	private RpcServer server = null;
@@ -45,7 +48,8 @@ public final class ReqRespController extends AbstractController
 	{
 		try
 		{
-			rmqSystem = ResourceManager.getInstance().getRabbitMQSystem(new InMemoryConfigProvider(getServiceName(), getProperties()));
+			cp = new InMemoryConfigProvider(getServiceName(), getProperties());
+			rmqSystem = ResourceManager.getInstance().getRabbitMQSystem(cp);
 
 			channel = rmqSystem.getConnection().createChannel();
 		}
@@ -158,6 +162,13 @@ public final class ReqRespController extends AbstractController
 	@Override
 	public void destroy()
 	{
-		rmqSystem.destroy();
+		try
+		{
+			ResourceManager.getInstance().getRabbitMQSystem(cp).close();
+		}
+		catch (ResourceException e)
+		{
+			Logger.getInstance().warn("ResourceException during destroy of ReqRespController for Service: " + cp.getServiceName() + ". Reason: " + e.getMessage(), e);
+		}
 	}
 }

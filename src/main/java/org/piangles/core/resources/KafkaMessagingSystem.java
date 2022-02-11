@@ -38,7 +38,7 @@ public final class KafkaMessagingSystem implements Resource
 	}
 	
 	@Override
-	public void close() throws Exception
+	public void close()
 	{
 	}
 

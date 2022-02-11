@@ -63,7 +63,7 @@ public final class FireAndForgetHandler extends AbstractHandler
 	@Override
 	public void destroy()
 	{
-		rmqSystem.destroy();
+		rmqSystem.close();
 	}
 
 	@Override

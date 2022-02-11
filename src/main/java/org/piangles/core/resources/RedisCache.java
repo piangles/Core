@@ -43,7 +43,7 @@ public final class RedisCache implements Resource
 	}
 	
 	@Override
-	public void close() throws Exception
+	public void close()
 	{
 		iRedisCache.close();
 	}

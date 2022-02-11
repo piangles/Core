@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.piangles.core.util.Logger;
 import org.piangles.core.util.abstractions.Decrypter;
 
 /**
@@ -48,9 +49,13 @@ public final class RDBMSDataStore implements Resource
 	private static final String FUNC_END = ")}";
 
 	private BasicDataSource ds = null;
+	
+	private String serviceName = null;
 
 	RDBMSDataStore(String serviceName, Properties dataStoreProps) throws Exception
 	{
+		this.serviceName = serviceName;
+		
 		String decrypterClassName = dataStoreProps.getProperty(DECRYPTER_CLASS_NAME);
 		String decrypterAuthorizationId = dataStoreProps.getProperty(DECRYPTER_AUTHZ_ID);
 		
@@ -71,9 +76,18 @@ public final class RDBMSDataStore implements Resource
 	}
 
 	@Override
-	public void close() throws Exception
+	public void close()
 	{
-		ds.close();
+		try
+		{
+			Exception e = new Exception("Dummy Exception purely to identify the StackTrace of close."); 
+			Logger.getInstance().warn("RDBMSDataStore for Service: " + serviceName + " close called. Location: " + e.getMessage(), e);
+			ds.close();
+		}
+		catch (SQLException e)
+		{
+			Logger.getInstance().warn("SQLException during close of RDBMSDataStore for Service: " + serviceName + ". Reason: " + e.getMessage(), e);
+		}
 	}
 	
 	public Connection getConnection() throws SQLException

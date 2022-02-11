@@ -58,7 +58,7 @@ final class StandAloneRedisCache implements IRedisCache
 	}
 	
 	@Override
-	public void close() throws Exception
+	public void close()
 	{
 		pool.close();
 	}
