@@ -27,6 +27,8 @@ import org.piangles.core.services.remoting.RequestProcessingThread;
 import org.piangles.core.services.remoting.controllers.AbstractController;
 import org.piangles.core.services.remoting.controllers.ControllerException;
 import org.piangles.core.util.InMemoryConfigProvider;
+import org.piangles.core.util.Logger;
+import org.piangles.core.util.abstractions.ConfigProvider;
 
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
@@ -36,6 +38,9 @@ import com.rabbitmq.client.Envelope;
 
 public final class FireAndForgetController extends AbstractController
 {
+	private static final long TEN_SECONDS = 10 * 1000;
+	
+	private ConfigProvider cp = null;
 	private RabbitMQSystem rmqSystem = null;
 	private String queueName = null;
 	private Channel channel = null;
@@ -44,33 +49,67 @@ public final class FireAndForgetController extends AbstractController
 	@Override
 	public void init() throws ControllerException
 	{
-		try
-		{
-			rmqSystem = ResourceManager.getInstance().getRabbitMQSystem(new InMemoryConfigProvider(getServiceName(), getProperties()));
-			channel = rmqSystem.getConnection().createChannel();
-			
-			channel.exchangeDeclare(RabbitProps.getTopic(getProperties()), "fanout");
-			queueName = channel.queueDeclare().getQueue();
-			
-			channel.queueBind(queueName, RabbitProps.getTopic(getProperties()), "");
-			consumer = new ConsumerImpl(channel);	
-		}
-		catch (Exception e)
-		{
-			throw new ControllerException(e);
-		}
+		cp = new InMemoryConfigProvider(getServiceName(), getProperties());
 	}
 
 	@Override
 	public void start() throws ControllerException
 	{
-		try
+		int attemptCount = 0;
+		boolean reconnect = true;
+		boolean keepLooping = true;
+		while (keepLooping)
 		{
-			channel.basicConsume(queueName, true, consumer);
-		}
-		catch (IOException e)
-		{
-			throw new ControllerException(e);
+			if (attemptCount == 0)
+			{
+				Logger.getInstance().info("FireAndForgetController initializing and making first attempt.");
+			}
+			try
+			{
+				if (reconnect)
+				{
+					attemptCount = attemptCount + 1;
+					
+					Logger.getInstance().info("Obtaining FireAndForgetController for Service: " + cp.getServiceName() + " AttemptNumber: " + attemptCount);
+					rmqSystem = ResourceManager.getInstance().getRabbitMQSystem(cp);
+					
+					Logger.getInstance().debug("Creating RabbitMQ Channel for Service: " + cp.getServiceName());
+					channel = rmqSystem.getConnection().createChannel();
+					
+					channel.exchangeDeclare(RabbitProps.getTopic(getProperties()), "fanout");
+					queueName = channel.queueDeclare().getQueue();
+					
+					channel.queueBind(queueName, RabbitProps.getTopic(getProperties()), "");
+					consumer = new ConsumerImpl(channel);
+				}
+				
+				Logger.getInstance().debug("Starting to Listen for FireAndForget Requests for Service: " + cp.getServiceName());
+				listen();
+				/**
+				 * Remember FireAndForget listen will return immediately
+				 */
+			}
+			catch (Exception e)
+			{
+				Logger.getInstance().warn("Exception in start of FireAndForgetController for Service: " + getServiceName() + ". Reason: " + e.getMessage(), e);
+			}
+			finally
+			{
+				try
+				{
+					Thread.sleep(TEN_SECONDS);
+					if (!rmqSystem.getConnection().isOpen() || !channel.isOpen() || 
+						ShutdownHelper.process(getServiceName(), getClass().getSimpleName(), rmqSystem.getConnection().getCloseReason()))
+					{
+						reconnect = true;
+					}
+				}
+				catch (Exception e)
+				{
+					reconnect = true;
+					Logger.getInstance().warn("Exception in start->finally of FireAndForgetController for Service: " + getServiceName() + ". Reason: " + e.getMessage(), e);
+				}
+			}
 		}
 	}
 	
@@ -78,6 +117,22 @@ public final class FireAndForgetController extends AbstractController
 	public void destroy()
 	{
 		rmqSystem.close();
+	}
+	
+	
+	private boolean listen()
+	{
+		boolean reconnect = false;
+		try
+		{
+			channel.basicConsume(queueName, true, consumer);
+		}
+		catch (Throwable e)
+		{
+			Logger.getInstance().error("Exception in FireAndForgetController in RabbitMQ->basicConsume. Reason: " + e.getMessage(), e);
+			reconnect = true;
+		}
+		return reconnect;
 	}
 	
 	class ConsumerImpl extends DefaultConsumer

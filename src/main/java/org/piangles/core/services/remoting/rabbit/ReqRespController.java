@@ -52,22 +52,79 @@ public final class ReqRespController extends AbstractController
 	@Override
 	public void start() throws ControllerException
 	{
+		int attemptCount = 0;
 		boolean keepListening = true;
 		
-		rmqSystem = ResourceManager.getInstance().getRabbitMQSystem(cp);
+		while ((attemptCount == 0) || keepListening)
+		{
+			if (attemptCount == 0)
+			{
+				Logger.getInstance().info("ReqRespController initializing and making first attempt.");
+			}
+			attemptCount = attemptCount + 1;
+			
+			try
+			{
+				Logger.getInstance().info("Obtaining RabbitMQSystem for Service: " + cp.getServiceName() + " AttemptNumber: " + attemptCount);
+				rmqSystem = ResourceManager.getInstance().getRabbitMQSystem(cp);
 
-		channel = rmqSystem.getConnection().createChannel();
+				Logger.getInstance().debug("Creating RabbitMQ Channel for Service: " + cp.getServiceName());
+				channel = rmqSystem.getConnection().createChannel();
+				
+				Logger.getInstance().debug("Starting to Listen for Requests for Service: " + cp.getServiceName());
+				keepListening = listen();
+				/**
+				 * This should ideally never return and if it does we need to 
+				 * reconnect if listen returns true.
+				 */
+			}
+			catch(Throwable e)
+			{
+				Logger.getInstance().warn("Exception in start of ReqRespController for Service: " + getServiceName() + ". Reason: " + e.getMessage(), e);
+			}
+			finally
+			{
+				try
+				{
+					ResourceManager.getInstance().getRabbitMQSystem(cp).close();				
+					Thread.sleep(1000);
+				}
+				catch (Exception e)
+				{
+					Logger.getInstance().warn("Exception in start->finally of ReqRespController for Service: " + getServiceName() + ". Reason: " + e.getMessage(), e);
+				}
+			}
+		}
 		
-		listen();
-		
-		ResourceManager.getInstance().getRabbitMQSystem(cp).close();
-		
-		Thread.sleep(1000);
+		Logger.getInstance().warn("Breaking out of the startLoop-> ReqRespController for Service: " + getServiceName());
+	}
+	
+	@Override
+	protected boolean isStopRequested()
+	{
+		Exception e = new Exception("Dummy Exception purely to identify the StackTrace of isStopRequested."); 
+		Logger.getInstance().warn("ReqRespController for Service: " + getServiceName() + " isStopRequested called. Location: " + e.getMessage(), e);
+		Logger.getInstance().warn("ReqRespController for Service: " + getServiceName() + " RabbitMQ->RpcServer->terminateMainloop");
+		server.terminateMainloop();
+		return super.isStopRequested();
+	}
 
+	@Override
+	public void destroy()
+	{
+		try
+		{
+			ResourceManager.getInstance().getRabbitMQSystem(cp).close();
+		}
+		catch (ResourceException e)
+		{
+			Logger.getInstance().warn("ResourceException during destroy of ReqRespController for Service: " + cp.getServiceName() + ". Reason: " + e.getMessage(), e);
+		}
 	}
 	
 	private boolean listen() throws ControllerException
 	{
+		boolean keepListening = true;
 		try
 		{
 			/**
@@ -115,66 +172,15 @@ public final class ReqRespController extends AbstractController
 			/**
 			 * Once the mainLoop starts it does not return the call.
 			 */
-			ShutdownSignalException exception = server.mainloop();
-			
-			if (exception != null)
-			{
-				String reference = "No Reference Given.";
-				if (exception.getReference() != null)
-				{
-					reference = exception.getReference().getClass().getCanonicalName();
-				}
-			
-				Logger.getInstance().warn("ReqRespController for Service: " + getServiceName() 
-				+ " has exited RabbitMQ->RpcServer. Reason: " + exception.getMessage()
-				+ " isHardError: " + exception.isHardError()
-				+ " isInitiatedByApplication: " + exception.isInitiatedByApplication()
-				+ " Reference: " + reference, exception);
-				
-				if (exception.getReason() != null)
-				{
-					Logger.getInstance().warn("ShutdownSignalException for Service: " + getServiceName() + ". Reason: " 
-							+ " protocolClassId:" + exception.getReason().protocolClassId() 
-							+ " protocolMethodId:" + exception.getReason().protocolMethodId()
-							+ " protocolMethodName:" + exception.getReason().protocolMethodName());
-				}
-				else
-				{
-					Logger.getInstance().warn("ShutdownSignalException for Service: " + getServiceName() + ". Without a Reason."); 
-				}
-			}
-			else
-			{
-				Logger.getInstance().warn("ShutdownSignalException for Service: " + getServiceName() + ". is null.");
-			}
+			ShutdownSignalException shutdownExpt = server.mainloop();
+			keepListening = ShutdownHelper.process(getServiceName(), getClass().getSimpleName(), shutdownExpt);
 		}
 		catch (Throwable e)
 		{
 			Logger.getInstance().error("Exception in ReqRespController in RabbitMQ->mainloop. Reason: " + e.getMessage(), e);
-			throw new ControllerException(e.getMessage(), e);
+			keepListening = true;
 		}
-	}
-
-	@Override
-	protected boolean isStopRequested()
-	{
-		Exception e = new Exception("Dummy Exception purely to identify the StackTrace of isStopRequested."); 
-		Logger.getInstance().warn("ReqRespController for Service: " + getServiceName() + " isStopRequested called. Location: " + e.getMessage(), e);
-		Logger.getInstance().warn("ReqRespController for Service: " + getServiceName() + " RabbitMQ->RpcServer->terminateMainloop");
-		server.terminateMainloop();
-		return super.isStopRequested();
-	}
-
-	@Override
-	public void destroy()
-	{
-		try
-		{
-			ResourceManager.getInstance().getRabbitMQSystem(cp).close();
-		}
-		catch (ResourceException e)
-		{
-			Logger.getInstance().warn("ResourceException during destroy of ReqRespController for Service: " + cp.getServiceName() + ". Reason: " + e.getMessage(), e);
-		}
+		
+		return keepListening;
 	}
 }
