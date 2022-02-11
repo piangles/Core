@@ -46,21 +46,27 @@ public final class ReqRespController extends AbstractController
 	@Override
 	public void init() throws ControllerException
 	{
-		try
-		{
-			cp = new InMemoryConfigProvider(getServiceName(), getProperties());
-			rmqSystem = ResourceManager.getInstance().getRabbitMQSystem(cp);
-
-			channel = rmqSystem.getConnection().createChannel();
-		}
-		catch (Exception e)
-		{
-			throw new ControllerException(e);
-		}
+		cp = new InMemoryConfigProvider(getServiceName(), getProperties());
 	}
 
 	@Override
 	public void start() throws ControllerException
+	{
+		boolean keepListening = true;
+		
+		rmqSystem = ResourceManager.getInstance().getRabbitMQSystem(cp);
+
+		channel = rmqSystem.getConnection().createChannel();
+		
+		listen();
+		
+		ResourceManager.getInstance().getRabbitMQSystem(cp).close();
+		
+		Thread.sleep(1000);
+
+	}
+	
+	private boolean listen() throws ControllerException
 	{
 		try
 		{
