@@ -35,6 +35,7 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Consumer;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
+import com.rabbitmq.client.ShutdownSignalException;
 
 public final class FireAndForgetController extends AbstractController
 {
@@ -97,9 +98,20 @@ public final class FireAndForgetController extends AbstractController
 			{
 				try
 				{
+					Logger.getInstance().info("Going to sleep in FireAndForgetController.");
 					Thread.sleep(TEN_SECONDS);
-					if (!rmqSystem.getConnection().isOpen() || !channel.isOpen() || 
-						ShutdownHelper.process(getServiceName(), getClass().getSimpleName(), rmqSystem.getConnection().getCloseReason()))
+
+					boolean isConnectionOpen = rmqSystem.getConnection().isOpen();
+					boolean isChannelOpen = channel.isOpen();
+					boolean isShutdownException = false;
+					
+					ShutdownSignalException shutdownExpt = rmqSystem.getConnection().getCloseReason();
+					if (shutdownExpt != null)
+					{
+						isShutdownException = ShutdownHelper.process(getServiceName(), getClass().getSimpleName(), shutdownExpt);
+					}
+					
+					if (!isConnectionOpen || !isChannelOpen || isShutdownException)
 					{
 						reconnect = true;
 					}

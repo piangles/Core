@@ -27,39 +27,33 @@ public final class ShutdownHelper
 	public static boolean process(String serviceName, String controllerType, ShutdownSignalException exception)
 	{
 		boolean keepListening = true;
-		if (exception != null)
-		{
-			keepListening = !exception.isInitiatedByApplication();
-			
-			String reference = "No Reference Given.";
-			if (exception.getReference() != null)
-			{
-				reference = exception.getReference().getClass().getCanonicalName();
-			}
+
+		keepListening = !exception.isInitiatedByApplication();
 		
-			Logger.getInstance().warn(controllerType + " for Service: " + serviceName 
-			+ " has exited RabbitMQ->RpcServer. Reason: " + exception.getMessage()
-			+ " isHardError: " + exception.isHardError()
-			+ " isInitiatedByApplication: " + exception.isInitiatedByApplication()
-			+ " Reference: " + reference, exception);
-			
-			if (exception.getReason() != null)
-			{
-				Logger.getInstance().warn("ShutdownSignalException for Service: " + serviceName + ". Reason: " 
-						+ " protocolClassId:" + exception.getReason().protocolClassId() 
-						+ " protocolMethodId:" + exception.getReason().protocolMethodId()
-						+ " protocolMethodName:" + exception.getReason().protocolMethodName());
-			}
-			else
-			{
-				Logger.getInstance().warn("ShutdownSignalException for Service: " + serviceName + ". Without a Reason."); 
-			}
+		String reference = "No Reference Given.";
+		if (exception.getReference() != null)
+		{
+			reference = exception.getReference().getClass().getCanonicalName();
+		}
+	
+		Logger.getInstance().warn(controllerType + " for Service: " + serviceName 
+		+ " has exited RabbitMQ->RpcServer. Reason: " + exception.getMessage()
+		+ " isHardError: " + exception.isHardError()
+		+ " isInitiatedByApplication: " + exception.isInitiatedByApplication()
+		+ " Reference: " + reference, exception);
+		
+		if (exception.getReason() != null)
+		{
+			Logger.getInstance().warn("ShutdownSignalException for Service: " + serviceName + ". Reason: " 
+					+ " protocolClassId:" + exception.getReason().protocolClassId() 
+					+ " protocolMethodId:" + exception.getReason().protocolMethodId()
+					+ " protocolMethodName:" + exception.getReason().protocolMethodName());
 		}
 		else
 		{
-			Logger.getInstance().warn("ShutdownSignalException for Service: " + serviceName + ". is null.");
+			Logger.getInstance().warn("ShutdownSignalException for Service: " + serviceName + ". Without a Reason."); 
 		}
-		
+
 		return keepListening;
 	}
 }

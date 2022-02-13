@@ -173,7 +173,14 @@ public final class ReqRespController extends AbstractController
 			 * Once the mainLoop starts it does not return the call.
 			 */
 			ShutdownSignalException shutdownExpt = server.mainloop();
-			keepListening = ShutdownHelper.process(getServiceName(), getClass().getSimpleName(), shutdownExpt);
+			if (shutdownExpt != null)
+			{
+				keepListening = ShutdownHelper.process(getServiceName(), getClass().getSimpleName(), shutdownExpt);
+			}
+			else
+			{
+				Logger.getInstance().warn("ShutdownSignalException for Service: " + getServiceName() + ". is null.");
+			}
 		}
 		catch (Throwable e)
 		{
