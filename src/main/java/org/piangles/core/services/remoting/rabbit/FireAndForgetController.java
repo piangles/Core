@@ -82,13 +82,13 @@ public final class FireAndForgetController extends AbstractController
 					
 					channel.queueBind(queueName, RabbitProps.getTopic(getProperties()), "");
 					consumer = new ConsumerImpl(channel);
+					
+					Logger.getInstance().debug("Starting to Listen for FireAndForget Requests for Service: " + cp.getServiceName());
+					reconnect = listen();
+					/**
+					 * Remember FireAndForget listen will return immediately
+					 */
 				}
-				
-				Logger.getInstance().debug("Starting to Listen for FireAndForget Requests for Service: " + cp.getServiceName());
-				listen();
-				/**
-				 * Remember FireAndForget listen will return immediately
-				 */
 			}
 			catch (Exception e)
 			{
@@ -98,7 +98,7 @@ public final class FireAndForgetController extends AbstractController
 			{
 				try
 				{
-					Logger.getInstance().info("Going to sleep in FireAndForgetController.");
+					Logger.getInstance().info("Going to sleep in FireAndForgetController->start for Service: " + getServiceName());
 					Thread.sleep(TEN_SECONDS);
 
 					boolean isConnectionOpen = rmqSystem.getConnection().isOpen();
@@ -113,8 +113,17 @@ public final class FireAndForgetController extends AbstractController
 					
 					if (!isConnectionOpen || !isChannelOpen || isShutdownException)
 					{
+						Logger.getInstance().info("NeedTo-Reconnect: FireAndForgetController->start for Service: " + getServiceName() + 
+													" [isConnectionOpen=" + isConnectionOpen + "]" +
+													" [isChannelOpen=" + isChannelOpen + "]" +
+													" [isShutdownException=" + isShutdownException + "]"
+												);
 						reconnect = true;
 						ResourceManager.getInstance().close(cp.getComponentId());
+					}
+					else
+					{
+						Logger.getInstance().info("Still-Connected: FireAndForgetController->start for Service: " + getServiceName());
 					}
 				}
 				catch (Exception e)
@@ -142,7 +151,7 @@ public final class FireAndForgetController extends AbstractController
 		}
 		catch (Throwable e)
 		{
-			Logger.getInstance().error("Exception in FireAndForgetController in RabbitMQ->basicConsume. Reason: " + e.getMessage(), e);
+			Logger.getInstance().error("Exception in FireAndForgetController->listen in RabbitMQChannel->basicConsume. Reason: " + e.getMessage(), e);
 			reconnect = true;
 		}
 		return reconnect;
