@@ -67,7 +67,11 @@ public final class ResourceManager
 	{
 		try
 		{
-			componentIdResourceMap.remove(componentId).close();
+			Resource resource = componentIdResourceMap.remove(componentId);
+			if (resource != null)
+			{
+				resource.close();
+			}
 		}
 		catch (Exception e)
 		{
@@ -160,7 +164,7 @@ public final class ResourceManager
 		return msgSystem;
 	}
 	
-	public RabbitMQSystem getRabbitMQSystem(ConfigProvider cp) throws ResourceException
+	public synchronized RabbitMQSystem getRabbitMQSystem(ConfigProvider cp) throws ResourceException
 	{
 		RabbitMQSystem msgSystem = null;
 

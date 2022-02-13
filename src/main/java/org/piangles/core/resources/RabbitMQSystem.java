@@ -45,6 +45,7 @@ public final class RabbitMQSystem implements Resource
 
 	private String serviceName = null;
 	private Connection connection = null;
+	private RecoveryListener recoveryListener = null;
 	
 	RabbitMQSystem(String serviceName, Properties properties) throws Exception
 	{
@@ -78,7 +79,9 @@ public final class RabbitMQSystem implements Resource
 		
 		connection = factory.newConnection();
 		
-		((Recoverable)connection).addRecoveryListener(new RecoveryListenerImpl());
+		recoveryListener = new RecoveryListenerImpl();
+		
+		((Recoverable)connection).addRecoveryListener(recoveryListener);
 	}
 
 	@Override
@@ -88,6 +91,7 @@ public final class RabbitMQSystem implements Resource
 		{
 			Exception e = new Exception("Dummy Exception purely to identify the StackTrace of close."); 
 			Logger.getInstance().warn("RabbitMQSystem for Service: " + serviceName + " close called. Location: " + e.getMessage(), e);
+			((Recoverable)connection).removeRecoveryListener(recoveryListener);
 			connection.close();
 		}
 		catch (IOException e)

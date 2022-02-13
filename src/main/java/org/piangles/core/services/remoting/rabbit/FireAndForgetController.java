@@ -114,6 +114,7 @@ public final class FireAndForgetController extends AbstractController
 					if (!isConnectionOpen || !isChannelOpen || isShutdownException)
 					{
 						reconnect = true;
+						ResourceManager.getInstance().close(cp.getComponentId());
 					}
 				}
 				catch (Exception e)

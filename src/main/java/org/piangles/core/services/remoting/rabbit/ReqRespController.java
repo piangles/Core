@@ -38,6 +38,8 @@ import com.rabbitmq.client.ShutdownSignalException;
 
 public final class ReqRespController extends AbstractController
 {
+	private static final long TEN_SECONDS = 10 * 1000;
+	
 	private ConfigProvider cp = null;
 	private RabbitMQSystem rmqSystem = null;
 	private Channel channel = null;
@@ -55,7 +57,7 @@ public final class ReqRespController extends AbstractController
 		int attemptCount = 0;
 		boolean keepListening = true;
 		
-		while ((attemptCount == 0) || keepListening)
+		while (keepListening)
 		{
 			if (attemptCount == 0)
 			{
@@ -86,8 +88,9 @@ public final class ReqRespController extends AbstractController
 			{
 				try
 				{
-					ResourceManager.getInstance().getRabbitMQSystem(cp).close();				
-					Thread.sleep(1000);
+					ResourceManager.getInstance().close(cp.getComponentId());
+					
+					Thread.sleep(TEN_SECONDS);
 				}
 				catch (Exception e)
 				{
@@ -180,6 +183,7 @@ public final class ReqRespController extends AbstractController
 			else
 			{
 				Logger.getInstance().warn("ShutdownSignalException for Service: " + getServiceName() + ". is null.");
+				keepListening = true;
 			}
 		}
 		catch (Throwable e)
