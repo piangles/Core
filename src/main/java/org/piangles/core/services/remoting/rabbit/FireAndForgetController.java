@@ -57,6 +57,7 @@ public final class FireAndForgetController extends AbstractController
 	public void start() throws ControllerException
 	{
 		int attemptCount = 0;
+		int loopCount = 0;
 		boolean reconnect = true;
 		boolean keepLooping = true;
 		while (keepLooping)
@@ -98,7 +99,6 @@ public final class FireAndForgetController extends AbstractController
 			{
 				try
 				{
-					Logger.getInstance().info("Going to sleep in FireAndForgetController->start for Service: " + getServiceName());
 					Thread.sleep(TEN_SECONDS);
 
 					boolean isConnectionOpen = rmqSystem.getConnection().isOpen();
@@ -123,7 +123,10 @@ public final class FireAndForgetController extends AbstractController
 					}
 					else
 					{
-						Logger.getInstance().info("Still-Connected: FireAndForgetController->start for Service: " + getServiceName());
+						if ((loopCount % 60) == 0)
+						{
+							Logger.getInstance().info("Still-Connected: FireAndForgetController->start for Service: " + getServiceName());
+						}
 					}
 				}
 				catch (Exception e)
@@ -131,6 +134,8 @@ public final class FireAndForgetController extends AbstractController
 					reconnect = true;
 					Logger.getInstance().warn("Exception in start->finally of FireAndForgetController for Service: " + getServiceName() + ". Reason: " + e.getMessage(), e);
 				}
+				
+				loopCount = loopCount + 1;
 			}
 		}
 	}
