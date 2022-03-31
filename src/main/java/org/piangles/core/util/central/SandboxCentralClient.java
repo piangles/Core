@@ -30,8 +30,6 @@ import org.piangles.core.util.Logger;
 
 public final class SandboxCentralClient extends CentralClient
 {
-	private static final String SANDBOX = "sandbox";
-	
 	private static final String DISCOVERY_STORE = "discovery.store";
 	private static final String TIER1CONFIG_STORE = "tier1Config.store";
 
@@ -122,7 +120,7 @@ public final class SandboxCentralClient extends CentralClient
 				name = params[3];
 				value = params[4];
 
-				if (!env.equals(SANDBOX))
+				if (!Environment.Sandbox.equals(env))
 				{
 					throw new ServiceRuntimeException("Invalid environment in Configuration. Only sandbox is supported."); 
 				}

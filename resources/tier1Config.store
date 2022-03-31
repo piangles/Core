@@ -1,0 +1,16 @@
+Environment,Category,ServiceName,Name,Value
+sandbox,Tier1Config,LoggingService,DAOType,RDBMS
+sandbox,Tier1Config,LoggingService,DriverClassName,org.postgresql.Driver
+sandbox,Tier1Config,LoggingService,LoginId,login
+sandbox,Tier1Config,LoggingService,Password,password
+sandbox,Tier1Config,LoggingService,URL,jdbc:postgresql://hostname
+sandbox,Tier1Config,LoggingService,DecrypterClassName,org.piangles.core.util.central.AWSCentralDecrypter
+sandbox,Tier1Config,LoggingService,DecrypterAuthorizationId,14fe64ea-d15a-4c8b-af2f-f2c7efe1943b
+
+sandbox,Tier1Config,LoggingService2,DAOType,RDBMS
+sandbox,Tier1Config,LoggingService2,DriverClassName,org.postgresql.Driver
+sandbox,Tier1Config,LoggingService2,LoginId,login
+sandbox,Tier1Config,LoggingService2,Password,password
+sandbox,Tier1Config,LoggingService2,URL,jdbc2:postgresql://hostname
+sandbox,Tier1Config,LoggingService2,DecrypterClassName,org.piangles.core.util.central.AWSCentralDecrypter
+sandbox,Tier1Config,LoggingService2,DecrypterAuthorizationId,14fe64ea-d15a-4c8b-af2f-f2c7efe1943b

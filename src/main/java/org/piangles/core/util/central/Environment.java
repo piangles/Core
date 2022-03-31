@@ -33,19 +33,25 @@ import software.amazon.awssdk.regions.Region;
 
 public final class Environment
 {
-	public static final String AWS_REGION_1 = "aws.region";
-	public static final String AWS_REGION_2 = "AWS_REGION";
-	public static final String PIANGLES_ENV = "piangles_env";
+	public static final String Sandbox = "sandbox";
+	public static final String DEV = "dev";
+	public static final String QAT = "qat";
+	public static final String UAT = "uat";
+	public static final String PROD = "prod";
+	
+	private static final String AWS_REGION_1 = "aws.region";
+	private static final String AWS_REGION_2 = "AWS_REGION";
+	private static final String PIANGLES_ENV = "piangles_env";
 	
 	private Map<String, String> environmentCIDRBlockMap = null;
 
 	public Environment()
 	{
 		environmentCIDRBlockMap = new HashMap<>();
-		environmentCIDRBlockMap.put("dev", "172.17.0.0/16");
-		environmentCIDRBlockMap.put("qat", "172.18.0.0/16");
-		environmentCIDRBlockMap.put("uat", "192.168.0.0/16");
-		environmentCIDRBlockMap.put("prod", "10.100.0.0/16");
+		environmentCIDRBlockMap.put(DEV, "172.17.0.0/16");
+		environmentCIDRBlockMap.put(QAT, "172.18.0.0/16");
+		environmentCIDRBlockMap.put(UAT, "192.168.0.0/16");
+		environmentCIDRBlockMap.put(PROD, "10.100.0.0/16");
 	}
 	
 	public Region getRegion() throws Exception
