@@ -27,6 +27,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.common.TopicPartition;
+import org.piangles.core.util.Logger;
 
 public final class KafkaMessagingSystem implements Resource
 {
@@ -47,9 +48,31 @@ public final class KafkaMessagingSystem implements Resource
 		return new KafkaProducer<>(msgProps);
 	}
 	
+	public KafkaConsumer<String, String> createSimpleConsumer(ConsumerProperties consumerProps)
+	{
+		msgProps.put(ConsumerConfig.GROUP_ID_CONFIG, consumerProps.getGroupId());
+		
+		Logger.getInstance().info("MsgProps: " + msgProps);
+
+		Logger.getInstance().info("Topics: " + consumerProps.getTopics());
+
+		List<String> topics = consumerProps.getTopics().stream().map(topic -> topic.topicName).collect(Collectors.toList());
+		
+		Logger.getInstance().info("Final Topics: " + topics);
+
+		KafkaConsumer<String, String> consumer = new KafkaConsumer<>(msgProps);
+		consumer.subscribe(topics, new KafkaConsumerRebalanceListener());
+		
+		return consumer;
+	}
+	
 	public KafkaConsumer<String, String> createConsumer(ConsumerProperties consumerProps)
 	{
 		msgProps.put(ConsumerConfig.GROUP_ID_CONFIG, consumerProps.getGroupId());
+		
+		Logger.getInstance().info("MsgProps: " + msgProps);
+		
+		Logger.getInstance().info("Topics: " + consumerProps.getTopics());
 		
 		List<TopicPartition> partitions = consumerProps.getTopics().stream().
 											map(topic -> new TopicPartition(topic.topicName, topic.partitionNo)).collect(Collectors.toList());
