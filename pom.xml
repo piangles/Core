@@ -54,8 +54,8 @@
 
 		<nexus-staging-maven-plugin-version>1.6.7</nexus-staging-maven-plugin-version>
 
-		<java-source-version>1.8</java-source-version>
-		<java-target-version>1.8</java-target-version>
+		<java-source-version>17</java-source-version>
+		<java-target-version>17</java-target-version>
 	</properties>
 
 	<dependencies>
