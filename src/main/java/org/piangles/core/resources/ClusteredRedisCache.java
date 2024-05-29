@@ -21,9 +21,9 @@ package org.piangles.core.resources;
 
 import java.util.Properties;
 
+import redis.clients.jedis.ConnectionPoolConfig;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
-import redis.clients.jedis.JedisPoolConfig;
 
 final class ClusteredRedisCache implements IRedisCache
 {
@@ -52,7 +52,7 @@ final class ClusteredRedisCache implements IRedisCache
 		{
 			throw new Exception(String.format("Could not parse one of the properties [%s,%s,%s]", PORT, SOCKET_TIMEOUT, MAX_TOTAL), e);
 		}
-		JedisPoolConfig poolConfig = new JedisPoolConfig();
+		ConnectionPoolConfig poolConfig = new ConnectionPoolConfig();
 		poolConfig.setMaxTotal(maxTotal);
 		
 		HostAndPort hostAndPort = new HostAndPort(host, port);
