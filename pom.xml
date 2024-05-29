@@ -1,14 +1,16 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.piangles.core</groupId>
 	<artifactId>Core</artifactId>
 	<packaging>jar</packaging>
-	<version>5.8</version>
+	<version>5.9</version>
 
 	<name>PiAngles Core Framework</name>
 	<description>
-	Core framework contains common reusable code that is leveraged by all services both Backbone and Application.
+		Core framework contains common reusable code that is leveraged by all
+		services both Backbone and Application.
 	</description>
 	<url>https://www.piangles.org/</url>
 	<licenses>
@@ -90,11 +92,23 @@
 			<artifactId>jersey-client</artifactId>
 			<version>3.1.7</version>
 		</dependency>
+		
+<!--
+		Both the below : org.glassfish.jersey.media from link below and
+		com.fasterxml.jackson.core need the same changes in TypeToken.
+		https://mvnrepository.com/artifact/org.glassfish.jersey.media/jersey-media-json-jackson/3.1.7
+
+
 		<dependency>
-			<!-- https://mvnrepository.com/artifact/org.glassfish.jersey.media/jersey-media-json-jackson/3.1.7-->
-			<groupId>com.sun.jersey</groupId>
-			<artifactId>jersey-json</artifactId>
-			<version>1.19.4</version>
+		    <groupId>com.fasterxml.jackson.core</groupId>
+		    <artifactId>jackson-databind</artifactId>
+		    <version>2.17.1</version>
+		</dependency>
+-->
+		<dependency>
+		    <groupId>org.glassfish.jersey.media</groupId>
+		    <artifactId>jersey-media-json-jackson</artifactId>
+		    <version>3.1.7</version>
 		</dependency>
 
 		<dependency>
@@ -103,9 +117,9 @@
 			<version>5.21.0</version>
 		</dependency>
 		<dependency>
-		    <groupId>jakarta.jms</groupId>
-		    <artifactId>jakarta.jms-api</artifactId>
-		    <version>3.1.0</version>
+			<groupId>jakarta.jms</groupId>
+			<artifactId>jakarta.jms-api</artifactId>
+			<version>3.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.kafka</groupId>
@@ -113,9 +127,9 @@
 			<version>3.7.0</version>
 		</dependency>
 		<dependency>
-		    <groupId>org.mongodb</groupId>
-		    <artifactId>mongodb-driver-sync</artifactId>
-		    <version>5.1.0</version>
+			<groupId>org.mongodb</groupId>
+			<artifactId>mongodb-driver-sync</artifactId>
+			<version>5.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>redis.clients</groupId>
@@ -149,7 +163,8 @@
 		</snapshotRepository>
 		<repository>
 			<id>ossrh</id>
-			<url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+			<url>
+				https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 		</repository>
 	</distributionManagement>
 

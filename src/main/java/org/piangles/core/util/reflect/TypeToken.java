@@ -19,6 +19,16 @@
  
 package org.piangles.core.util.reflect;
 
+import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.util.HashMap;
+import java.util.Map;
+
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.internal.$Gson$Preconditions;
 /*
  * Copyright (C) 2008 Google Inc.
  *
@@ -35,16 +45,7 @@ package org.piangles.core.util.reflect;
  * limitations under the License.
  */
 import com.google.gson.internal.$Gson$Types;
-import com.google.gson.internal.$Gson$Preconditions;
-import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.util.HashMap;
-import java.util.Map;
 
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.SerializationConfig;
 
 /**
  * Represents a generic type {@code T}. Java doesn't yet provide a way to
@@ -124,8 +125,8 @@ public class TypeToken<T> {
 
   @SuppressWarnings("unchecked")
 public final Class<T> getActualClass() {
-		org.codehaus.jackson.map.ObjectMapper mapper = new ObjectMapper();
-		mapper.configure(SerializationConfig.Feature.WRITE_ENUMS_USING_TO_STRING, true);
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true);
 	  
 	    return (Class<T>)mapper.constructType(type).getRawClass();
 	  }
